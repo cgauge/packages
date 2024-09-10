@@ -1,0 +1,21 @@
+{
+  "name": "@cgauge/dtc-playwright-plugin",
+  "version": "0.1.0",
+  "description": "Playwright plugin for Declarative TestCases",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "author": "Abdala Cerqueira",
+  "license": "LGPL-3.0-or-later",
+  "dependencies": {
+    "@cgauge/assert": "^0.1.0",
+    "@cgauge/dtc": "^0.1.0",
+    "playwright": "^1.47.0"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "test": "tsx --test test/*.test.ts",
+    "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
+  }
+}

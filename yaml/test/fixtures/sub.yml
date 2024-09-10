@@ -1,0 +1,2 @@
+---
+value: !sub "string-{env:JS_YAML_TEST_STRING}-value"

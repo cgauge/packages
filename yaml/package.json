@@ -1,0 +1,23 @@
+{
+  "name": "@cgauge/yaml",
+  "version": "0.1.0",
+  "description": "YAML parser with extra tags",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "author": "Abdala Cerqueira",
+  "license": "LGPL-3.0-or-later",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "test": "tsx --env-file .env --test test/*.test.ts",
+    "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
+  }
+}

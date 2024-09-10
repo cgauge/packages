@@ -1,0 +1,26 @@
+{
+  "name": "@cgauge/packages",
+  "version": "0.1.0",
+  "description": "Monorepo for public packages",
+  "type": "module",
+  "author": "Abdala Cerqueira",
+  "license": "LGPL-3.0-or-later",
+  "workspaces": [
+    "assert",
+    "dtc",
+    "dtc-aws-plugin",
+    "dtc-mysql-plugin",
+    "dtc-playwright-plugin",
+    "nock-aws",
+    "yaml"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

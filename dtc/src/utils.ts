@@ -6,6 +6,11 @@ export const retry = async <T>(fn: () => Promise<T>, times = 2, seconds = 1): Pr
   const errors: unknown[] = []
 
   // If times is 0 we call the function at least one time
+  if (times === 0) {
+    const result = await fn()
+    return result
+  }
+  
   times++
 
   for (let i = 0; i < times; i++) {

@@ -2,6 +2,7 @@
   "name": "@cgauge/yaml",
   "version": "0.1.0",
   "description": "YAML parser with extra tags",
+  "repository": "github:cgauge/packages",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

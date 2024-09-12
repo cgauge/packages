@@ -2,6 +2,7 @@
   "name": "@cgauge/dtc",
   "version": "0.1.0",
   "description": "Declarative TestCases",
+  "repository": "github:cgauge/packages",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

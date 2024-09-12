@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Extra assert library",
   "type": "module",
+  "repository": "github:cgauge/packages",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist"],

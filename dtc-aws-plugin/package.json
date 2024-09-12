@@ -2,6 +2,7 @@
   "name": "@cgauge/dtc-aws-plugin",
   "version": "0.1.0",
   "description": "AWS plugin for Declarative TestCases",
+  "repository": "github:cgauge/packages",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

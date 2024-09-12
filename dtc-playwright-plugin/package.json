@@ -2,6 +2,7 @@
   "name": "@cgauge/dtc-playwright-plugin",
   "version": "0.1.0",
   "description": "Playwright plugin for Declarative TestCases",
+  "repository": "github:cgauge/packages",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

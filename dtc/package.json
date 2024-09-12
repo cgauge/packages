@@ -2,14 +2,19 @@
   "name": "@cgauge/dtc",
   "version": "0.1.0",
   "description": "Declarative TestCases",
-  "repository": "github:cgauge/packages",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgauge/packages.git"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "dtc" : "./dist/cli.js"
+    "dtc": "dist/cli.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {

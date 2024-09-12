@@ -1,7 +1,3 @@
-# JS-YAML - YAML parse with extra tags
+# YAML
 
-## Custom tags
-
-| Tag | Description | Sample | 
-| --- | ----------- | ------ |
-| !param | Get param value by name | `!param varName`<br>`!param Object.value`
+YAML parse with extra tags

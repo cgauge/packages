@@ -1,7 +1,11 @@
 # CustomerGauge Public Packages
 
-- JS-YAML - YAML parse with extra tags
-- DTC - Declarative TestCases
+- DTC - Declarative Test Cases
+- DTC AWS Plugin - Interact with AWS services
+- DTC MySQL Plugin - Interact and Mock MySQL calls
+- DTC Playwright Plugin - Test Runner and Interaction
+- Nock AWS - Helper to mock AWS API calls
+- YAML - YAML parse with extra tags
 
 ## Contributing
 

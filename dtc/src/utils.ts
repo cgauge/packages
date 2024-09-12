@@ -2,8 +2,11 @@ export const debug = (message: string) => process.env.DTC_DEBUG && process.stdou
 
 export const sleep = (ms: number): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const retry = async <T>(fn: () => Promise<T>, times = 3, seconds = 1): Promise<T> => {
+export const retry = async <T>(fn: () => Promise<T>, times = 2, seconds = 1): Promise<T> => {
   const errors: unknown[] = []
+
+  // If times is 0 we call the function at least one time
+  times++
 
   for (let i = 0; i < times; i++) {
     try {

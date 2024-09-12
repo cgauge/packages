@@ -8,6 +8,8 @@ export interface Plugin {
 }
 
 export type TypeTestCase = {
+  retry?: number
+  delay?: number
   arrange?: Record<string, unknown>,
   act?: Record<string, unknown>,
   assert?: unknown,

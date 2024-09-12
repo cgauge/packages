@@ -1,5 +1,5 @@
 import {Plugin, isRecord, sleep} from '@cgauge/dtc'
-import {Page, expect, Locator} from 'playwright'
+import {Page, expect, Locator} from '@playwright/test'
 
 type PlaywrightActionTarget = {
   name: 'getByTestId' | 'getByPlaceholder' | 'getByText' | 'getByTitle' | 'getByLabel',

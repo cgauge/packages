@@ -1,6 +1,5 @@
 {
   "name": "@cgauge/packages",
-  "version": "0.1.0",
   "description": "Monorepo for public packages",
   "type": "module",
   "author": "Abdala Cerqueira",

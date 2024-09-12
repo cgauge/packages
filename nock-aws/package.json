@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "test": "AWS_MAX_ATTEMPTS=0 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --test test/*.test.ts",
-    "test:coverage": "AWS_MAX_ATTEMPTS=0 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --experimental-test-coverage --test test/*.test.ts"
+    "test": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --test test/*.test.ts",
+    "test:coverage": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --experimental-test-coverage --test test/*.test.ts"
   }
 }

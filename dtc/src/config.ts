@@ -2,6 +2,11 @@ import {dirname} from 'node:path'
 import type {Plugins, TestCase} from './domain'
 import {defaultPlugins} from './index.js'
 
+export type Config = {
+  plugins: (basePath: string, testCase: TestCase) => Plugins
+  load: (filePath: string) => void
+}
+
 export const resolveConfig = async (path: string, config?: string) => {
   let testCase: TestCase
   let plugins: Plugins

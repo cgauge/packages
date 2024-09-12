@@ -20,7 +20,7 @@ export const defaultPlugins = (basePath: string): Plugins => ({
 })
 
 export const executeTestCase = async (testCase: TypeTestCase, plugins: Plugin[], testRunnerArgs: unknown) => {
-  await Promise.all(plugins.map((plugin) => plugin.setTestRunnerArgs?.(testRunnerArgs)))
+  plugins.forEach((plugin) => plugin.setTestRunnerArgs?.(testRunnerArgs))
 
   await Promise.all(plugins.map((plugin) => plugin.arrange?.(testCase.arrange)))
   await Promise.all(plugins.map((plugin) => plugin.act?.(testCase.act)))

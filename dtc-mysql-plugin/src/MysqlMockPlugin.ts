@@ -2,7 +2,7 @@ import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import {isRecord, Plugin} from '@cgauge/dtc'
 import {Mock, mock} from 'node:test'
-import * as mysql from './mock'
+import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
 
 type MockMysql = {

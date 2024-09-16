@@ -1,4 +1,4 @@
-export const debug = (message: string) => process.env.DTC_DEBUG && process.stdout.write(message)
+export const debug = (message: string) => process.env.DTC_DEBUG && process.stdout.write(`[DTC_DEBUG] ${message}`)
 
 export const sleep = (ms: number): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, ms))
 

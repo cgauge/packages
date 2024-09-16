@@ -1,6 +1,6 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
-import {isRecord, Plugin} from '@cgauge/dtc'
+import {debug, isRecord, Plugin} from '@cgauge/dtc'
 import {Mock, mock} from 'node:test'
 import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
@@ -50,7 +50,11 @@ export class MysqlMockPlugin implements Plugin {
       const calls = this.executions[index].mock.calls
 
       if (calls.length !== arrange.length) {
-        throw new Error('Not all MySQL calls were executed')
+        debug(`Arrangements: ${JSON.stringify(arrange)}\n`)
+        
+        throw new Error(`Number of MySQL calls is not equal the number of arrangements.
+          MySQL Calls: ${calls.length}, Arrangements Calls: ${arrange.length}
+        `)
       }
 
       for (const i of arrange.keys()) {

@@ -25,15 +25,6 @@ export default {
               var: 'value',
             },
           },
-          {
-            input: 'SELECT :varThree',
-            variables: {
-              var: 'value',
-            },
-            output: {
-              var: 'value',
-            },
-          },
         ],
       },
     },

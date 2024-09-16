@@ -49,6 +49,10 @@ export class MysqlMockPlugin implements Plugin {
     for (const [index, arrange] of this.arrangeMysql.entries()) {
       const calls = this.executions[index].mock.calls
 
+      if (calls.length !== arrange.length) {
+        throw new Error('Not all MySQL calls were executed')
+      }
+
       for (const i of arrange.keys()) {
         const sql = arrange[i].input
         const variables = arrange[i].variables

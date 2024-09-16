@@ -33,9 +33,9 @@ export class MysqlMockPlugin implements Plugin {
 
       for (const i of arrange.keys()) {
         if (arrange[i].output) {
-          this.executions[index].mock.mockImplementationOnce(() => mysql.result(arrange[i].output), i)
+          this.executions[index].mock.mockImplementationOnce(async () => mysql.result(arrange[i].output), i)
         } else {
-          this.executions[index].mock.mockImplementationOnce(() => mysql.emptyResult, i)
+          this.executions[index].mock.mockImplementationOnce(async () => mysql.emptyResult, i)
         }
       }
 

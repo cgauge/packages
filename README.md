@@ -1,5 +1,6 @@
 # CustomerGauge Public Packages
 
+- Assert - Extra asserts
 - DTC - Declarative Test Cases
 - DTC AWS Plugin - Interact with AWS services
 - DTC MySQL Plugin - Interact and Mock MySQL calls

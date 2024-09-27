@@ -1,9 +1,10 @@
-import {PlaywrightBootPlugin} from '../../dist/PlaywrightBootPlugin.js'
+import {PlaywrightRunner} from '../../dist/PlaywrightRunner.js'
 import {PlaywrightPlugin} from '../../dist/PlaywrightPlugin.js'
 
 export default {
-  plugins: (basePath, _testCase) => ({
-    boot: [new PlaywrightBootPlugin(basePath)],
+  runner: new PlaywrightRunner(),
+
+  plugins: (_basePath, _testCase) => ({
     playwright: [new PlaywrightPlugin()],
   })
 }

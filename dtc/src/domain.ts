@@ -1,10 +1,17 @@
 export interface Plugin {
   setTestRunnerArgs?: (args: unknown) => void,
-  boot?: (path: string, testCase: TestCase, plugins: Plugins, type: string, config?: string) => void,
   arrange?: (args: unknown) => void,
   act?: (args: unknown) => void,
   assert?: (args: unknown) => void,
   clean?: (args: unknown) => void,
+}
+
+export type Plugins = {
+  [type: string]: Plugin[],
+}
+
+export interface Runner {
+  run: (path: string, testCase: TestCase, plugins: Plugins, type: string, config?: string) => Promise<void>,
 }
 
 export type TypeTestCase = {
@@ -16,16 +23,11 @@ export type TypeTestCase = {
   clean?: Record<string, unknown>,
 }
 
-export type Plugins = {
-  boot: Plugin[],
-  [runner: string]: Plugin[],
-}
-
 type CommonTestCase = {
   name: string,
   debug: boolean,
 } 
 
 export type TestCase = CommonTestCase & {
-  [runner: string]: TypeTestCase,
+  [type: string]: TypeTestCase,
 }

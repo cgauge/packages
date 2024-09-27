@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/yaml",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "YAML parser with extra tags",
   "repository": {
     "type": "git",

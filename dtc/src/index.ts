@@ -3,17 +3,18 @@ import {DisableNetConnectPlugin} from './plugins/DisableNetConnectPlugin.js'
 import {FunctionCallPlugin} from './plugins/FunctionCallPlugin.js'
 import {HttpCallPlugin} from './plugins/HttpCallPlugin.js'
 import {HttpMockPlugin} from './plugins/HttpMockPlugin.js'
-import {NodeTestRunnerPlugin} from './plugins/NodeTestRunnerPlugin.js'
+import {NodeTestRunner} from './runners/NodeTestRunner.js'
 import {retry} from './utils.js'
 
 export type * from './domain'
 export * from './utils.js'
 export * from './config.js'
 
-export {DisableNetConnectPlugin, FunctionCallPlugin, HttpCallPlugin, HttpMockPlugin, NodeTestRunnerPlugin}
+export {DisableNetConnectPlugin, FunctionCallPlugin, HttpCallPlugin, HttpMockPlugin, NodeTestRunner}
+
+export const defaultTestRunner = new NodeTestRunner()
 
 export const defaultPlugins = (basePath: string): Plugins => ({
-  boot: [new NodeTestRunnerPlugin()],
   unit: [new DisableNetConnectPlugin(), new FunctionCallPlugin(basePath)],
   narrow: [new DisableNetConnectPlugin(), new FunctionCallPlugin(basePath), new HttpMockPlugin()],
   broad: [new FunctionCallPlugin(basePath), new HttpCallPlugin()],

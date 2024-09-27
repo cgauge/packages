@@ -1,2 +1,2 @@
-export * from './PlaywrightBootPlugin.js'
+export * from './PlaywrightRunner.js'
 export * from './PlaywrightPlugin.js'

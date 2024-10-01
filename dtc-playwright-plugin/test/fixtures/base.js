@@ -1,11 +1,16 @@
+import {fileURLToPath} from 'url'
+import {dirname} from 'path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
 export default {
   name: 'Test case',
   playwright: {
-    act: {
-      url: 'http://login.eu.customergauge.com',
+    arrange: {
+      url: `file://${__dirname}/login.html`,
       actions: [
         {
-          target: 'Your username',
+          target: 'Username',
           fill: '',
         },
         {
@@ -24,7 +29,7 @@ export default {
             args: [
               'button',
               {
-                name: 'Log in',
+                type: 'submit',
               },
             ],
           },
@@ -32,20 +37,19 @@ export default {
             name: 'click',
           },
         },
+        {
+          target: "input#username[required]:invalid",
+          toBeVisible: true,
+        },
       ],
+    },
+    act: {
+      url: `file://${__dirname}/index.html`,
     },
     assert: {
       playwright: [
         {
-          target: {
-            name: 'getByText',
-            args: [
-              'This field is required.',
-              {
-                id: '#username-error',
-              },
-            ],
-          },
+          target: "Index page",
           toBeVisible: true,
         },
       ],

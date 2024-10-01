@@ -2,26 +2,26 @@ import {Plugin, isRecord, sleep} from '@cgauge/dtc'
 import {Page, expect, Locator} from '@playwright/test'
 
 type PlaywrightActionTarget = {
-  name: 'getByTestId' | 'getByPlaceholder' | 'getByText' | 'getByTitle' | 'getByLabel',
-  args: [string | RegExp],
+  name: 'getByTestId' | 'getByPlaceholder' | 'getByText' | 'getByTitle' | 'getByLabel'
+  args: [string | RegExp]
 }
 
 type PlaywrightActionArgs = {
-  name: string,
-  args?: unknown[],
+  name: string
+  args?: unknown[]
 }
 
 type PlaywrightAction = {
-  target: string | PlaywrightActionTarget,
-  action?: string | PlaywrightActionArgs,
-  fill?: string,
-  click?: boolean,
-  toBeVisible?: boolean,
+  target: string | PlaywrightActionTarget
+  action?: string | PlaywrightActionArgs
+  fill?: string
+  click?: boolean
+  toBeVisible?: boolean
 }
 
 export type Playwright = {
-  url: string,
-  actions?: PlaywrightAction[],
+  url: string
+  actions?: PlaywrightAction[]
 }
 
 const isPlaywright = (v: unknown): v is Playwright => isRecord(v) && 'url' in v
@@ -32,20 +32,25 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
     let element: undefined | Locator
 
     if (typeof act.target === 'string') {
-      element =
-        (await page.getByTestId(act.target).count()) > 0
-          ? page.getByTestId(act.target)
-          : (await page.getByPlaceholder(act.target).count()) > 0
-          ? page.getByPlaceholder(act.target)
-          : (await page.getByText(act.target).count()) > 0
-          ? page.getByText(act.target)
-          : (await page.getByTitle(act.target).count()) > 0
-          ? page.getByTitle(act.target)
-          : (await page.getByLabel(act.target).count()) > 0
-          ? page.getByLabel(act.target)
-          : (await page.getByRole(act.target as 'status').count()) > 0
-          ? page.getByRole(act.target as 'status')
-          : page.locator(act.target)
+      const selectorMatch = act.target.match(/[:\[\]#\.]/)
+      if (selectorMatch && selectorMatch.length > 0) {
+        element = page.locator(act.target)
+      } else {
+        element =
+          (await page.getByTestId(act.target).count()) > 0
+            ? page.getByTestId(act.target)
+            : (await page.getByPlaceholder(act.target).count()) > 0
+            ? page.getByPlaceholder(act.target)
+            : (await page.getByText(act.target).count()) > 0
+            ? page.getByText(act.target)
+            : (await page.getByTitle(act.target).count()) > 0
+            ? page.getByTitle(act.target)
+            : (await page.getByLabel(act.target).count()) > 0
+            ? page.getByLabel(act.target)
+            : (await page.getByRole(act.target as 'status').count()) > 0
+            ? page.getByRole(act.target as 'status')
+            : page.locator(act.target)
+      }
     } else {
       if (typeof page[act.target.name] === 'function') {
         element = page[act.target.name].apply(page, act.target.args)
@@ -77,7 +82,7 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
 export class PlaywrightPlugin implements Plugin {
   private page?: Page
 
-  setTestRunnerArgs (args: unknown) {
+  setTestRunnerArgs(args: unknown) {
     if (isRecord(args) && args.page) {
       this.page = args.page as Page
     }
@@ -87,13 +92,13 @@ export class PlaywrightPlugin implements Plugin {
     if (!this.page) {
       throw new Error('Page not defined')
     }
-    
+
     if (!isPlaywright(args)) {
       return
-    } 
-    
+    }
+
     await this.page.goto(args.url)
-    
+
     if (!args.actions) {
       return
     }
@@ -108,12 +113,12 @@ export class PlaywrightPlugin implements Plugin {
 
     if (!isPlaywright(args)) {
       return
-    } 
+    }
 
     await sleep(300)
-    
+
     await this.page.goto(args.url)
-    
+
     if (!args.actions) {
       return
     }
@@ -125,11 +130,11 @@ export class PlaywrightPlugin implements Plugin {
     if (!this.page) {
       throw new Error('Page not defined')
     }
-    
+
     if (!isRecord(args) || !('playwright' in args)) {
       return
     }
-    
+
     if (!args.playwright || !Array.isArray(args.playwright)) {
       return
     }

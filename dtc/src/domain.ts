@@ -25,7 +25,7 @@ export type TypeTestCase = {
 
 type CommonTestCase = {
   name: string,
-  debug: boolean,
+  debug?: boolean,
 } 
 
 export type TestCase = CommonTestCase & {

@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-playwright-plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Playwright plugin for Declarative TestCases",
   "repository": {
     "type": "git",

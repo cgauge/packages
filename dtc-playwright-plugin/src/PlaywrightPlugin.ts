@@ -36,10 +36,9 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       if (selectorMatch && selectorMatch.length > 0) {
         element = page.locator(act.target)
       } else {
+        const targetWithoutSpaces = act.target.replaceAll(/\s/g,'')
         element =
-          (await page.getByTestId(act.target).count()) > 0
-            ? page.getByTestId(act.target)
-            : (await page.getByPlaceholder(act.target).count()) > 0
+          (await page.getByPlaceholder(act.target).count()) > 0
             ? page.getByPlaceholder(act.target)
             : (await page.getByText(act.target).count()) > 0
             ? page.getByText(act.target)
@@ -47,8 +46,10 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
             ? page.getByTitle(act.target)
             : (await page.getByLabel(act.target).count()) > 0
             ? page.getByLabel(act.target)
-            : (await page.getByRole(act.target as 'status').count()) > 0
-            ? page.getByRole(act.target as 'status')
+            : (await page.getByTestId(targetWithoutSpaces).count()) > 0
+            ? page.getByTestId(targetWithoutSpaces)
+            : (await page.getByRole(targetWithoutSpaces as 'status').count()) > 0
+            ? page.getByRole(targetWithoutSpaces as 'status')
             : page.locator(act.target)
       }
     } else {

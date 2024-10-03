@@ -5,6 +5,7 @@ import {HttpCallPlugin} from './plugins/HttpCallPlugin.js'
 import {HttpMockPlugin} from './plugins/HttpMockPlugin.js'
 import {NodeTestRunner} from './runners/NodeTestRunner.js'
 import {retry} from './utils.js'
+import {dirname} from 'node:path'
 
 export type * from './domain'
 export * from './utils.js'
@@ -14,14 +15,17 @@ export {DisableNetConnectPlugin, FunctionCallPlugin, HttpCallPlugin, HttpMockPlu
 
 export const defaultTestRunner = new NodeTestRunner()
 
-export const defaultPlugins = (basePath: string): Plugins => ({
-  unit: [new DisableNetConnectPlugin(), new FunctionCallPlugin(basePath)],
-  narrow: [new DisableNetConnectPlugin(), new FunctionCallPlugin(basePath), new HttpMockPlugin()],
-  broad: [new FunctionCallPlugin(basePath), new HttpCallPlugin()],
+export const defaultPlugins: Plugins = ({
+  unit: [new DisableNetConnectPlugin(), new FunctionCallPlugin()],
+  narrow: [new DisableNetConnectPlugin(), new FunctionCallPlugin(), new HttpMockPlugin()],
+  broad: [new FunctionCallPlugin(), new HttpCallPlugin()],
 })
 
-export const executeTestCase = async (testCase: TypeTestCase, plugins: Plugin[], testRunnerArgs?: unknown) => {
-  plugins.forEach((plugin) => plugin.setTestRunnerArgs?.(testRunnerArgs))
+export const executeTestCase = async (testCase: TypeTestCase, plugins: Plugin[], path: string, testRunnerArgs?: unknown) => {
+  plugins.forEach((plugin) => {
+    plugin.setTestRunnerArgs?.(testRunnerArgs)
+    plugin.setBasePath?.(dirname(path))
+  })
 
   await Promise.all(plugins.map((plugin) => plugin.arrange?.(testCase.arrange)))
   await Promise.all(plugins.map((plugin) => plugin.act?.(testCase.act)))

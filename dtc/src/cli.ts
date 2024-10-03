@@ -5,7 +5,7 @@ import {resolveConfig} from './config.js'
 
 const argv = cli({
   name: 'cli.ts',
-  parameters: ['<path>'],
+  parameters: [],
   flags: {
     type: {
       alias: 't',
@@ -23,12 +23,15 @@ const argv = cli({
 
 const type = argv.flags.type
 const config = argv.flags.config
-const path = `${process.cwd()}/${argv._.path}`
+const projectPath = process.cwd()
+const fileNamePath = argv._[0] ?? null
 
-const {testCase, plugins, runner} = await resolveConfig(path, config)
+const {testCases, plugins, runner} = await resolveConfig(fileNamePath, config)
 
-if (!(type in testCase)) {
-  throw new Error(`Invalid test type (${type})`)
+for (const testCase of testCases) {
+  if (!(type in testCase)) {
+    throw new Error(`Invalid test type (${type})`)
+  }
 }
 
 if (!(type in plugins)) {
@@ -39,4 +42,4 @@ if (!runner) {
   throw new Error(`No test runner found`)
 }
 
-await runner.run(path, testCase, plugins, type, config)
+await runner.run(`${projectPath}/${fileNamePath}`, testCases, plugins, type, config)

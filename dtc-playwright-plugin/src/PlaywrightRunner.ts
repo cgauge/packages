@@ -7,7 +7,7 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 export class PlaywrightRunner implements Runner {
   constructor(private args: string[] = []) {}
 
-  async run(path: string, _testCase: TestCase, _plugins: Plugins, type: string, config?: string) {
+  async run(path: string, _testCase: TestCase[], _plugins: Plugins, type: string, config?: string) {
     spawnSync(`npx playwright test ${this.args.join(' ')} ${__dirname}`, {
       stdio: 'inherit',
       shell: true,

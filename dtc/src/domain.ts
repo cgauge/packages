@@ -1,5 +1,6 @@
 export interface Plugin {
   setTestRunnerArgs?: (args: unknown) => void,
+  setBasePath?: (path: string) => void,
   arrange?: (args: unknown) => void,
   act?: (args: unknown) => void,
   assert?: (args: unknown) => void,
@@ -11,7 +12,7 @@ export type Plugins = {
 }
 
 export interface Runner {
-  run: (path: string, testCase: TestCase, plugins: Plugins, type: string, config?: string) => Promise<void>,
+  run: (path: string, testCases: TestCase[], plugins: Plugins, type: string, config?: string) => Promise<void>,
 }
 
 export type TypeTestCase = {
@@ -30,4 +31,4 @@ type CommonTestCase = {
 
 export type TestCase = CommonTestCase & {
   [type: string]: TypeTestCase,
-}
+} & {fileName: string}

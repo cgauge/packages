@@ -22,12 +22,13 @@ test('It runs plugins methods', async () => {
 
 test('It pass parameters to plugins methods', async () => {
   const setTestRunnerArgs = mock.fn()
+  const setBasePath = mock.fn()
   const arrange = mock.fn()
   const act = mock.fn()
   const assert = mock.fn()
   const clean = mock.fn()
 
-  const mockedPlugin = {setTestRunnerArgs, arrange, act, assert, clean}
+  const mockedPlugin = {setTestRunnerArgs, setBasePath, arrange, act, assert, clean}
 
   const testCase = {
     arrange: {a: 'b'},
@@ -35,9 +36,10 @@ test('It pass parameters to plugins methods', async () => {
     assert: {e: 'f'},
     clean: {g: 'h'},
   }
+  const filePath = 'path/to/file'
   const testArgs = {i: 'j'}
 
-  await executeTestCase(testCase, [mockedPlugin], testArgs)
+  await executeTestCase(testCase, [mockedPlugin], filePath, testArgs)
 
   nodeAssert.deepEqual(setTestRunnerArgs.mock.calls[0].arguments, [testArgs])
   nodeAssert.deepEqual(arrange.mock.calls[0].arguments, [testCase.arrange])
@@ -47,7 +49,7 @@ test('It pass parameters to plugins methods', async () => {
 })
 
 test('It ensure plugins methods are optional', async () => {
-  await executeTestCase({}, [{}], {})
+  await executeTestCase({}, [{}], '', {})
 
   nodeAssert.ok(true)
 })

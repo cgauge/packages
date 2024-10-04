@@ -1,82 +1,80 @@
-import type {Runner, Plugins, TestCase} from './domain'
-import {defaultPlugins, defaultTestRunner} from './index.js'
+import type {Runner, Plugins, TestCase, TestCaseExecution} from './domain'
+import {defaultLoader, defaultPlugins, defaultTestRunner} from './index.js'
 import {readdirSync, statSync} from 'fs'
 import {join} from 'path'
 
 export type Config = {
   plugins: Plugins
-  loader: (filePath: string) => TestCase
+  loader: (filePath: string) => Promise<TestCase>
   runner: Runner
   testDir: string
   testRegex: string
 }
 
-export const resolveConfig = async (fileNamePath: string | null, config?: string) => {
+export const resolveConfig = async (filePath?: string, configPath?: string) => {
   const projectPath = process.cwd()
   let runner: Runner = defaultTestRunner
-  let loader: ((filePath: string) => TestCase) | null = null
-  let testRegex = /.*\.dtc\.[jt]s?$/
   let plugins = defaultPlugins
+  let loader = defaultLoader
+  let testRegex = /.*\.dtc\.[jt]s?$/
 
-  if (config) {
+  if (configPath) {
     const {
       plugins: customPlugins,
       loader: customLoad,
       runner: customTestRunner,
       testRegex: customTestRegex,
-    } = (await import(`${process.cwd()}/${config}`)).default
+    } = await defaultLoader(`${process.cwd()}/${configPath}`)
 
     runner = customTestRunner ?? defaultTestRunner
-    testRegex = customTestRegex ?? testRegex
     loader = customLoad ?? loader
     plugins = customPlugins ? customPlugins : defaultPlugins
+    testRegex = customTestRegex ?? testRegex
   }
 
-  const testCases = await getTestCases(projectPath, fileNamePath, loader, testRegex)
-  return {testCases, plugins, runner}
+  const testCaseExecutions = await getTestCases(projectPath, loader, testRegex, filePath)
+
+  return {testCaseExecutions, plugins, runner}
 }
+
+const generateTestCaseExecution = async (filePath: string, loader: Config['loader']): Promise<TestCaseExecution> => ({
+  filePath,
+  testCase: await loader(filePath),
+})
 
 const getTestCases = async (
   projectPath: string,
-  fileNamePath: string | null,
-  loader: ((filePath: string) => TestCase) | null,
+  loader: Config['loader'] | null,
   testRegex: RegExp,
-): Promise<TestCase[]> => {
-  if (fileNamePath) {
-    fileNamePath = `${projectPath}/${fileNamePath}`
-    const testCase = loader ? await loader(fileNamePath) : (await import(fileNamePath)).default
-    
-    return [
-      {
-        ...testCase,
-        fileName: fileNamePath,
-      },
-    ]
+  filePath?: string,
+): Promise<TestCaseExecution[]> => {
+  if (filePath) {
+    return loader
+      ? [await generateTestCaseExecution(filePath, loader)]
+      : [await generateTestCaseExecution(filePath, defaultLoader)]
   }
 
   const files = loadTestFiles(projectPath, testRegex)
-  return await Promise.all(
-    files.map(async (file) => {
-      const testCase = loader ? await loader(file) : (await import(file)).default
 
-      return {
-        ...testCase,
-        fileName: file,
-      }
-    }),
+  return await Promise.all(
+    files.map((file) =>
+      loader ? generateTestCaseExecution(file, loader) : generateTestCaseExecution(file, defaultLoader),
+    ),
   )
 }
 
-export const loadTestFiles = (dir: string, testRegex: RegExp, fileList: string[] = []): string[] => {
-  readdirSync(dir).forEach((file) => {
-    const filePath = join(dir, file)
+export const loadTestFiles = (currentPath: string, testRegex: RegExp): string[] =>
+  readdirSync(currentPath)
+    .map((file) => {
+      const filePath = join(currentPath, file)
 
-    if (statSync(filePath).isDirectory()) {
-      loadTestFiles(filePath, testRegex, fileList)
-    } else if (testRegex.test(filePath)) {
-      fileList.push(filePath)
-    }
-  })
+      if (statSync(filePath).isDirectory()) {
+        return loadTestFiles(filePath, testRegex)
+      } else if (testRegex.test(filePath)) {
+        return filePath
+      }
 
-  return fileList
-}
+      return null
+    })
+    .filter((item) => item !== null)
+    .flat()

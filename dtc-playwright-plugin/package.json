@@ -22,6 +22,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "tsx --test test/*.test.ts",
+    "test:only": "tsx --test --test-only test/*.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
   }
 }

@@ -24,6 +24,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "tsx --env-file .env --test test/*.test.ts",
+    "test:only": "tsx --env-file .env --test --test-only test/*.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
   }
 }

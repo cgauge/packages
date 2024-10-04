@@ -1,8 +1,9 @@
 export default {
+  name: 'Unit test',
   unit: {
     act: {
       import: 'syncFunction',
-      from: 'functions.js',
+      from: './functions.js',
       attributes: [
         {a: 'b'}
       ]

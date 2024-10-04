@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "test:only": "npm run test:only --workspaces --if-present"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

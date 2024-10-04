@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/nock-aws",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "AWS Request mocker based on Nock",
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --test test/*.test.ts",
+    "test:only": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --test --test-only test/*.test.ts",
     "test:coverage": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --experimental-test-coverage --test test/*.test.ts"
   }
 }

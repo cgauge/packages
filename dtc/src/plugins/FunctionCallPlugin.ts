@@ -12,8 +12,11 @@ const isFunctionCallAct = (v: unknown): v is FunctionCallAct => typeof v === 'ob
 
 export class FunctionCallPlugin implements Plugin {
   private response: any
+  private basePath?: string
 
-  constructor(private readonly basePath: string) {}
+  setBasePath(path: string) {
+    this.basePath = path
+  }
 
   async act(args: unknown): Promise<any> {
     if (!isFunctionCallAct(args)) {

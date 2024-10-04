@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/yaml",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "YAML parser with extra tags",
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "tsx --env-file .env --test test/*.test.ts",
+    "test:only": "tsx --env-file .env --test --test-only test/*.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
   }
 }

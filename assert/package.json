@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/assert",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Extra assert library",
   "type": "module",
   "repository": {
@@ -20,6 +20,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "tsx --test test/*.test.ts",
+    "test:only": "tsx --test --test-only test/*.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
   }
 }

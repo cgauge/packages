@@ -4,7 +4,7 @@ export default {
     act: {
       import: 'syncFunction',
       from: './functions.js',
-      attributes: [
+      arguments: [
         {a: 'b'}
       ]
     },

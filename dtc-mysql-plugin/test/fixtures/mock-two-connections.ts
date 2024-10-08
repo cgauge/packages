@@ -31,7 +31,7 @@ export default {
     act: {
       import: 'queryTwo',
       from: './mysql.ts',
-      attributes: [
+      arguments: [
         {
           var: 'value',
         },

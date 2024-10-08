@@ -1,0 +1,11 @@
+title: CustomerGauge
+description: CustomerGauge public node packages documentation
+theme: just-the-docs
+
+url: https://cgauge.github.io/packages
+
+mermaid:
+  version: "11.3.0"
+
+aux_links:
+  Github: https://github.com/cgauge/packages

@@ -18,26 +18,26 @@ test('It call a sync function without args', async () => {
 
 test('It call a sync function with args', async () => {
   const functionCallPlugin = new FunctionCallPlugin(__dirname)
-  const attributes = {a: 'b'}
+  const args = {a: 'b'}
 
   await functionCallPlugin.act({
     import: 'syncFunction',
     from: '../fixtures/functions.js',
-    attributes: [attributes],
+    arguments: [args],
   })
 
-  functionCallPlugin.assert(attributes)
+  functionCallPlugin.assert(args)
 })
 
 test('It call a async function with args', async () => {
   const functionCallPlugin = new FunctionCallPlugin(__dirname)
-  const attributes = {a: 'b'}
+  const args = {a: 'b'}
 
   await functionCallPlugin.act({
     import: 'asyncFunction',
     from: '../fixtures/functions.js',
-    attributes: [attributes],
+    arguments: [args],
   })
 
-  functionCallPlugin.assert(attributes)
+  functionCallPlugin.assert(args)
 })

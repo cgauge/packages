@@ -5,7 +5,7 @@ import {isRecord} from '../utils.js'
 type FunctionCallAct = {
   import: string
   from: string
-  attributes?: unknown[]
+  arguments?: unknown[]
 }
 
 const isFunctionCallAct = (v: unknown): v is FunctionCallAct => typeof v === 'object' && v !== null && 'import' in v
@@ -31,7 +31,7 @@ export class FunctionCallPlugin implements Plugin {
     }
     /* c8 ignore end */
 
-    this.response = await module[args.import].apply(null, args.attributes)
+    this.response = await module[args.import].apply(null, args.arguments)
   }
 
   assert(args: unknown) {

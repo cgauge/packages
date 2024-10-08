@@ -12,7 +12,7 @@ export default {
     act: {
       import: 'query',
       from: './mysql.ts',
-      attributes: [
+      arguments: [
         {
           var: 'value',
         },

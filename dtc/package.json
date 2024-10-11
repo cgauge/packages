@@ -24,9 +24,9 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc && chmod +x ./dist/cli.js",
-    "test": "tsx --test test/*.test.ts",
-    "test:only": "tsx --test --test-only test/*.test.ts",
+    "test": "tsx --test test/*.test.ts test/**/*.test.ts",
+    "test:only": "tsx --test --test-only test/*.test.ts test/**/*.test.ts",
     "test:single": "tsx --test",
-    "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
+    "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts test/**/*.test.ts"
   }
 }

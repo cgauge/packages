@@ -6,7 +6,9 @@ import {fileURLToPath} from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 test('It call a sync function without args', async () => {
-  const functionCallPlugin = new FunctionCallPlugin(__dirname)
+  const functionCallPlugin = new FunctionCallPlugin()
+
+  functionCallPlugin.setBasePath(__dirname)
 
   await functionCallPlugin.act({
     import: 'noArgs',
@@ -17,8 +19,10 @@ test('It call a sync function without args', async () => {
 })
 
 test('It call a sync function with args', async () => {
-  const functionCallPlugin = new FunctionCallPlugin(__dirname)
+  const functionCallPlugin = new FunctionCallPlugin()
   const args = {a: 'b'}
+
+  functionCallPlugin.setBasePath(__dirname)
 
   await functionCallPlugin.act({
     import: 'syncFunction',
@@ -30,8 +34,10 @@ test('It call a sync function with args', async () => {
 })
 
 test('It call a async function with args', async () => {
-  const functionCallPlugin = new FunctionCallPlugin(__dirname)
+  const functionCallPlugin = new FunctionCallPlugin()
   const args = {a: 'b'}
+
+  functionCallPlugin.setBasePath(__dirname)
 
   await functionCallPlugin.act({
     import: 'asyncFunction',

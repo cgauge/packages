@@ -8,6 +8,6 @@ export default {
     ]
   },
   assert: {
-    a: 'b'
+    a: 'c'
   }
 }

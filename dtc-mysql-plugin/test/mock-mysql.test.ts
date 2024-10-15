@@ -1,29 +1,37 @@
-import {executeTestCase, FunctionCallPlugin} from '@cgauge/dtc'
-import {MysqlMockPlugin} from '../src/MysqlMockPlugin'
-import {dirname} from 'node:path'
 import {test} from 'node:test'
-import assert from 'node:assert'
-import {fileURLToPath} from 'node:url'
+import nodeAssert from 'node:assert'
 import mockTestCase from './fixtures/mock'
 import mockTwoConnectionsTestCase from './fixtures/mock-two-connections'
 import invalidQueryTestCase from './fixtures/mock-invalid-query'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
+import {arrange, assert} from '../src/mysql-mock-plugin'
+import {query, queryTwo} from './fixtures/mysql'
 
 test('It mocks mysql calls', async () => {
-  await executeTestCase(mockTestCase.narrow, [new FunctionCallPlugin(), new MysqlMockPlugin()], `${__dirname}/fixtures/mock.ts`)
+  await arrange(mockTestCase.arrange)
+
+  await query({var: 'value'})
+
+  assert()
 })
 
 test('It supports more than one mysql connection', async () => {
-  await executeTestCase(mockTwoConnectionsTestCase.narrow, [new FunctionCallPlugin(), new MysqlMockPlugin()], `${__dirname}/fixtures/mockTwoConnectionsTestCase.ts`)
+  await arrange(mockTwoConnectionsTestCase.arrange)
+
+  await queryTwo({var: 'value'})
+
+  assert()
 })
 
 test('It validates SQL queries', async () => {
   try {
-    await executeTestCase(invalidQueryTestCase.narrow, [new FunctionCallPlugin(), new MysqlMockPlugin()], `${__dirname}/fixtures/invalidQueryTestCase.ts`)
+    await arrange(invalidQueryTestCase.arrange)
+
+    await query({var: 'value'})
+
+    assert()
   } catch (e) {
     if (e.code === 'ERR_ASSERTION' && e.operator === 'doesNotThrow') {
-      assert.ok(true)
+      nodeAssert.ok(true)
     }
   }
 })

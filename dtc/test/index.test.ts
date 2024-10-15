@@ -1,55 +1,40 @@
-import {test, mock} from 'node:test'
+import {test} from 'node:test'
 import nodeAssert from 'node:assert'
 import {executeTestCase} from '../src/index.js'
+import {arrange, act, assert, clean} from './fixtures/plugin.ts'
+import {arrange as arrangeArgs, act as actArgs, assert as assertArgs, clean as cleanArgs} from './fixtures/plugin-args.ts'
 
 test('It runs plugins methods', async () => {
-  const setTestRunnerArgs = mock.fn()
-  const arrange = mock.fn()
-  const act = mock.fn()
-  const assert = mock.fn()
-  const clean = mock.fn()
+  await executeTestCase({name: 'Test'}, ['../test/fixtures/plugin.ts'], './filePath.js')
 
-  const mockedPlugin = {setTestRunnerArgs, arrange, act, assert, clean}
-
-  await executeTestCase({}, [mockedPlugin], {})
-
-  nodeAssert.equal(setTestRunnerArgs.mock.callCount(), 1)
   nodeAssert.equal(arrange.mock.callCount(), 1)
   nodeAssert.equal(act.mock.callCount(), 1)
   nodeAssert.equal(assert.mock.callCount(), 1)
   nodeAssert.equal(clean.mock.callCount(), 1)
 })
 
-test('It pass parameters to plugins methods', async () => {
-  const setTestRunnerArgs = mock.fn()
-  const setBasePath = mock.fn()
-  const arrange = mock.fn()
-  const act = mock.fn()
-  const assert = mock.fn()
-  const clean = mock.fn()
-
-  const mockedPlugin = {setTestRunnerArgs, setBasePath, arrange, act, assert, clean}
-
+test('It pass parameters to plugins functions', async () => {
   const testCase = {
+    name: 'Test',
     arrange: {a: 'b'},
     act: {c: 'd'},
     assert: {e: 'f'},
     clean: {g: 'h'},
   }
-  const filePath = 'path/to/file'
+  const filePath = './path/to/file'
+  const basePath = './path/to'
   const testArgs = {i: 'j'}
 
-  await executeTestCase(testCase, [mockedPlugin], filePath, testArgs)
+  await executeTestCase(testCase, ['../test/fixtures/plugin-args.ts'], filePath, testArgs)
 
-  nodeAssert.deepEqual(setTestRunnerArgs.mock.calls[0].arguments, [testArgs])
-  nodeAssert.deepEqual(arrange.mock.calls[0].arguments, [testCase.arrange])
-  nodeAssert.deepEqual(act.mock.calls[0].arguments, [testCase.act])
-  nodeAssert.deepEqual(assert.mock.calls[0].arguments, [testCase.assert])
-  nodeAssert.deepEqual(clean.mock.calls[0].arguments, [testCase.clean])
+  nodeAssert.deepEqual(arrangeArgs.mock.calls[0].arguments, [testCase.arrange, basePath, testArgs])
+  nodeAssert.deepEqual(actArgs.mock.calls[0].arguments, [testCase.act, basePath, testArgs])
+  nodeAssert.deepEqual(assertArgs.mock.calls[0].arguments, [testCase.assert, basePath, testArgs])
+  nodeAssert.deepEqual(cleanArgs.mock.calls[0].arguments, [testCase.clean, basePath, testArgs])
 })
 
 test('It ensure plugins methods are optional', async () => {
-  await executeTestCase({}, [{}], '', {})
+  await executeTestCase({name: 'Test'}, ['../test/fixtures/blank-plugin.ts'], '', {})
 
   nodeAssert.ok(true)
 })

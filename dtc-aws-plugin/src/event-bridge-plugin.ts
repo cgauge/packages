@@ -1,4 +1,4 @@
-import {Plugin, isRecord} from '@cgauge/dtc'
+import {isRecord} from '@cgauge/dtc'
 import {EventBridge} from '@aws-sdk/client-eventbridge'
 
 type EventBridgeCall = {
@@ -13,8 +13,7 @@ const isEventBridgeAct = (v: unknown): v is EventBridgeCall =>
 
 const eventBridge = new EventBridge({})
 
-export class EventBridgePlugin implements Plugin {
-  async act(args: unknown): Promise<void> {
+export const act = async (args: unknown) => {
     if (!isEventBridgeAct(args)) {
       return
     }
@@ -31,4 +30,3 @@ export class EventBridgePlugin implements Plugin {
       ],
     })
   }
-}

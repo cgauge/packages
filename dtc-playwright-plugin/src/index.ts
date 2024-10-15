@@ -1,2 +1,2 @@
-export * from './PlaywrightRunner.js'
-export * from './PlaywrightPlugin.js'
+export * as playwrightRunner from './playwright-runner.js'
+export * as PlaywrightPlugin from './playwright-plugin.js'

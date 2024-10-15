@@ -1,49 +1,39 @@
 import {test} from 'node:test'
-import {FunctionCallPlugin} from '../../src/plugins/FunctionCallPlugin'
+import {act, assert} from '../../src/plugins/function-call-plugin'
 import {dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 test('It call a sync function without args', async () => {
-  const functionCallPlugin = new FunctionCallPlugin()
-
-  functionCallPlugin.setBasePath(__dirname)
-
-  await functionCallPlugin.act({
+  await act({
     import: 'noArgs',
     from: '../fixtures/functions.js',
-  })
+  }, __dirname)
 
-  functionCallPlugin.assert(true)
+  assert(true)
 })
 
 test('It call a sync function with args', async () => {
-  const functionCallPlugin = new FunctionCallPlugin()
   const args = {a: 'b'}
 
-  functionCallPlugin.setBasePath(__dirname)
-
-  await functionCallPlugin.act({
+  await act({
     import: 'syncFunction',
     from: '../fixtures/functions.js',
     arguments: [args],
-  })
+  }, __dirname)
 
-  functionCallPlugin.assert(args)
+  assert(args)
 })
 
 test('It call a async function with args', async () => {
-  const functionCallPlugin = new FunctionCallPlugin()
   const args = {a: 'b'}
 
-  functionCallPlugin.setBasePath(__dirname)
-
-  await functionCallPlugin.act({
+  await act({
     import: 'asyncFunction',
     from: '../fixtures/functions.js',
     arguments: [args],
-  })
+  }, __dirname)
 
-  functionCallPlugin.assert(args)
+  assert(args)
 })

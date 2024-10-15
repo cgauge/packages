@@ -1,4 +1,4 @@
-import {Plugin, isRecord, sleep} from '@cgauge/dtc'
+import {isRecord, sleep} from '@cgauge/dtc'
 import {Page, expect, Locator} from '@playwright/test'
 
 type PlaywrightActionTarget = {
@@ -36,7 +36,7 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       if (selectorMatch && selectorMatch.length > 0) {
         element = page.locator(act.target)
       } else {
-        const targetWithoutSpaces = act.target.replaceAll(/\s/g,'')
+        const targetWithoutSpaces = act.target.replaceAll(/\s/g, '')
         element =
           (await page.getByPlaceholder(act.target).count()) > 0
             ? page.getByPlaceholder(act.target)
@@ -80,66 +80,56 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
   }
 }
 
-export class PlaywrightPlugin implements Plugin {
-  private page?: Page
-
-  setTestRunnerArgs(args: unknown) {
-    if (isRecord(args) && args.page) {
-      this.page = args.page as Page
-    }
+export const arrange = async (args: unknown, _basePath: string, {page}: {page: Page}) => {
+  if (!page) {
+    throw new Error('Page not defined')
   }
 
-  async arrange(args: unknown) {
-    if (!this.page) {
-      throw new Error('Page not defined')
-    }
-
-    if (!isPlaywright(args)) {
-      return
-    }
-
-    await this.page.goto(args.url)
-
-    if (!args.actions) {
-      return
-    }
-
-    await executeActions(args.actions, this.page)
+  if (!isPlaywright(args)) {
+    return
   }
 
-  async act(args: unknown) {
-    if (!this.page) {
-      throw new Error('Page not defined')
-    }
+  await page.goto(args.url)
 
-    if (!isPlaywright(args)) {
-      return
-    }
-
-    await sleep(300)
-
-    await this.page.goto(args.url)
-
-    if (!args.actions) {
-      return
-    }
-
-    await executeActions(args.actions, this.page)
+  if (!args.actions) {
+    return
   }
 
-  async assert(args: unknown) {
-    if (!this.page) {
-      throw new Error('Page not defined')
-    }
+  await executeActions(args.actions, page)
+}
 
-    if (!isRecord(args) || !('playwright' in args)) {
-      return
-    }
-
-    if (!args.playwright || !Array.isArray(args.playwright)) {
-      return
-    }
-
-    await executeActions(args.playwright, this.page)
+export const act = async (args: unknown, _basePath: string, {page}: {page: Page}) => {
+  if (!page) {
+    throw new Error('Page not defined')
   }
+
+  if (!isPlaywright(args)) {
+    return
+  }
+
+  await sleep(300)
+
+  await page.goto(args.url)
+
+  if (!args.actions) {
+    return
+  }
+
+  await executeActions(args.actions, page)
+}
+
+export const assert = async (args: unknown, _basePath: string, {page}: {page: Page}) => {
+  if (!page) {
+    throw new Error('Page not defined')
+  }
+
+  if (!isRecord(args) || !('playwright' in args)) {
+    return
+  }
+
+  if (!args.playwright || !Array.isArray(args.playwright)) {
+    return
+  }
+
+  await executeActions(args.playwright, page)
 }

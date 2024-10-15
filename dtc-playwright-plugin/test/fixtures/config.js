@@ -1,12 +1,7 @@
-import {PlaywrightRunner} from '../../src/PlaywrightRunner.js'
-import {PlaywrightPlugin} from '../../src/PlaywrightPlugin.js'
+import playwrightRunner from '../../src/playwright-runner.js'
 
 export default {
-  runner: new PlaywrightRunner(),
-
+  runner: playwrightRunner(),
   testRegex: /^(?!.*node_modules).*dtc-playwright-plugin\/.*\.dtc\.[jt]s?$/,
-
-  plugins: {
-    playwright: [new PlaywrightPlugin()],
-  },
+  plugins: ['../../dtc-playwright-plugin/src/playwright-plugin.js']
 }

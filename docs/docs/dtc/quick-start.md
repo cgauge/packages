@@ -25,14 +25,12 @@ export const greeting = (name) => `Hello ${name}`
 // hello.dtc.js
 export default {
   name: 'My first test case',
-  unit: {
-    act: {
-      import: 'greeting',
-      from: './hello.js',
-      arguments: ['World']
-    },
-    assert: 'Hello World'
-  }
+  act: {
+    import: 'greeting',
+    from: './hello.js',
+    arguments: ['World']
+  },
+  assert: 'Hello World'
 }
 ```
 

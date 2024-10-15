@@ -1,10 +1,8 @@
 import {test} from 'node:test'
-import {DisableNetConnectPlugin} from '../../src/plugins/DisableNetConnectPlugin'
+import * as disableNetConnect from '../../src/plugins/disable-net-connect-plugin'
 import assert from 'node:assert'
 
 test('It does not allow http connections', async () => {
-  new DisableNetConnectPlugin().arrange()
-
   try {
     await fetch('https://customergauge.com')
   } catch (error) {

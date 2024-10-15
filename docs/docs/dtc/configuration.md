@@ -15,11 +15,8 @@ It is possible to configure custom loaders, runners, test types and plugins.
 // dtc.config.js
 export default {
   loader: async (filePath) => customLoader(filePath),
-  runner: new CustomTestRunner(),
-  plugins: {
-    unit: [new CustomPlugin()],
-    customTestType: [new CustomPlugin(), new AnotherPlugin()],
-  },
+  runner: customTestRunner,
+  plugins: ['../local/plugin.js', '@package/dtc-plugin'],
   testRegex: /.*\.dtc\.[jt]s?$/
 }
 ```
@@ -28,10 +25,4 @@ export default {
 
 ```sh
 npx dtc -c dtc.config.js
-```
-
-## Executing a custom test type
-
-```sh
-npx dtc -c dtc.config.js -t customTestType
 ```

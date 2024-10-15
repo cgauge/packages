@@ -1,2 +1,1 @@
-export * from './MysqlMockPlugin.js'
-export * from './MysqlPlugin.js'
+export * as MysqlMockPlugin from './mysql-mock-plugin.js'

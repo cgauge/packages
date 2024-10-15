@@ -1,4 +1,4 @@
-import {Plugin, isRecord, debug} from '@cgauge/dtc'
+import {isRecord, debug} from '@cgauge/dtc'
 import {DynamoDB, AttributeValue} from '@aws-sdk/client-dynamodb'
 import {DynamoDBDocument} from '@aws-sdk/lib-dynamodb'
 import extraAssert from '@cgauge/assert'
@@ -105,36 +105,34 @@ const cleanDynamoItems = async (clean: DynamoClean) => {
   }
 }
 
-export class DynamoDbPlugin implements Plugin {
-  async arrange(args: unknown): Promise<void> {
-    if (!isDynamoArrange(args) || !Array.isArray(args.dynamodb)) {
-      return
-    }
-
-    await Promise.all(args.dynamodb.map(executeDynamoStatement))
+export const arrange = async (args: unknown) => {
+  if (!isDynamoArrange(args) || !Array.isArray(args.dynamodb)) {
+    return
   }
 
-  async act(args: unknown): Promise<void> {
-    if (!isDynamoAct(args)) {
-      return
-    }
+  await Promise.all(args.dynamodb.map(executeDynamoStatement))
+}
 
-    await documentClient.put({TableName: args.table, Item: args.item})
+export const act = async (args: unknown) => {
+  if (!isDynamoAct(args)) {
+    return
   }
 
-  async assert(args: unknown): Promise<void> {
-    if (!isDynamoAssert(args) || !Array.isArray(args.dynamodb)) {
-      return
-    }
+  await documentClient.put({TableName: args.table, Item: args.item})
+}
 
-    await Promise.all(args.dynamodb.map(assertExists))
+export const assert = async (args: unknown) => {
+  if (!isDynamoAssert(args) || !Array.isArray(args.dynamodb)) {
+    return
   }
 
-  async clean(args: unknown) {
-    if (!isDynamoClean(args) || !Array.isArray(args.dynamodb)) {
-      return
-    }
+  await Promise.all(args.dynamodb.map(assertExists))
+}
 
-    await Promise.all(args.dynamodb.map(cleanDynamoItems))
+export const clean = async (args: unknown) => {
+  if (!isDynamoClean(args) || !Array.isArray(args.dynamodb)) {
+    return
   }
+
+  await Promise.all(args.dynamodb.map(cleanDynamoItems))
 }

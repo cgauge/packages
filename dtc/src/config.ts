@@ -1,11 +1,11 @@
-import type {Runner, Plugins, TestCase, TestCaseExecution} from './domain'
+import type {Runner, Loader, TestCaseExecution} from './domain'
 import {defaultLoader, defaultPlugins, defaultTestRunner} from './index.js'
 import {readdirSync, statSync} from 'fs'
 import {join} from 'path'
 
 export type Config = {
-  plugins: Plugins
-  loader: (filePath: string) => Promise<TestCase>
+  plugins: string[]
+  loader: Loader
   runner: Runner
   testDir: string
   testRegex: string

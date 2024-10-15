@@ -1,4 +1,4 @@
-export * from './DynamoDbPlugin.js'
-export * from './EventBridge.js'
-export * from './LambdaPlugin.js'
-export * from './SnsPlugin.js'
+export * as DynamoDbPlugin from './dynamo-db-plugin.js'
+export * as EventBridgePlugin from './event-bridge-plugin.js'
+export * as LambdaPlugin from './lambda-plugin.js'
+export * as SnsPlugin from './sns-plugin.js'

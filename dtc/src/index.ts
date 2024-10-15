@@ -1,45 +1,44 @@
-import type {TypeTestCase, Plugin, Plugins} from './domain'
-import {DisableNetConnectPlugin} from './plugins/DisableNetConnectPlugin.js'
-import {FunctionCallPlugin} from './plugins/FunctionCallPlugin.js'
-import {HttpCallPlugin} from './plugins/HttpCallPlugin.js'
-import {HttpMockPlugin} from './plugins/HttpMockPlugin.js'
-import {NodeTestRunner} from './runners/NodeTestRunner.js'
+import type {TestCase, TestCaseExecution} from './domain'
 import {retry} from './utils.js'
 import {dirname} from 'node:path'
+import test from 'node:test'
 
 export type * from './domain'
 export * from './utils.js'
 export * from './config.js'
+export * as DisableNetConnectPlugin from './plugins/disable-net-connect-plugin.js'
+export * as FunctionCallPlugin from './plugins/function-call-plugin.js'
 
-export {DisableNetConnectPlugin, FunctionCallPlugin, HttpCallPlugin, HttpMockPlugin, NodeTestRunner}
-
-export const defaultTestRunner = new NodeTestRunner()
+export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[], plugins: string[]) => {
+  for (const {filePath, testCase} of testCaseExecutions) {
+    test(testCase.name, (args) => executeTestCase(testCase, plugins, filePath, args))
+  }
+}
 
 export const defaultLoader = async (filePath: string) => (await import(filePath)).default
 
-export const defaultPlugins: Plugins = {
-  unit: [new DisableNetConnectPlugin(), new FunctionCallPlugin()],
-  narrow: [new DisableNetConnectPlugin(), new FunctionCallPlugin(), new HttpMockPlugin()],
-  broad: [new FunctionCallPlugin(), new HttpCallPlugin()],
-}
+export const defaultPlugins = [
+  './plugins/disable-net-connect-plugin.js', 
+  './plugins/function-call-plugin.js',
+  './plugins/http-mock-plugin.js',
+]
 
 export const executeTestCase = async (
-  testCase: TypeTestCase,
-  plugins: Plugin[],
+  testCase: TestCase,
+  plugins: string[],
   filePath: string,
   testRunnerArgs?: unknown,
 ) => {
-  plugins.forEach((plugin) => {
-    plugin.setTestRunnerArgs?.(testRunnerArgs)
-    plugin.setBasePath?.(dirname(filePath))
-  })
+  const basePath = dirname(filePath)
 
-  await Promise.all(plugins.map((plugin) => plugin.arrange?.(testCase.arrange)))
-  await Promise.all(plugins.map((plugin) => plugin.act?.(testCase.act)))
+  const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
+
+  await Promise.all(loadedPlugins.map(({arrange}) => arrange?.(testCase.arrange, basePath, testRunnerArgs)))
+  await Promise.all(loadedPlugins.map(({act}) => act?.(testCase.act, basePath, testRunnerArgs)))
   await Promise.all(
-    plugins.map((plugin) =>
-      retry(async () => plugin.assert?.(testCase.assert), testCase.retry ?? 0, testCase.delay ?? 0),
+    loadedPlugins.map(({assert}) =>
+      retry(async () => assert?.(testCase.assert, basePath, testRunnerArgs), testCase.retry ?? 0, testCase.delay ?? 0),
     ),
   )
-  await Promise.all(plugins.map((plugin) => plugin.clean?.(testCase.clean)))
+  await Promise.all(loadedPlugins.map(({clean}) => clean?.(testCase.clean, basePath, testRunnerArgs)))
 }

@@ -32,7 +32,7 @@ test('It replaces parameters placeholders', async () => {
   nodeAssert.equal(`${__dirname}/fixtures/t1.dtc.ts`, testCaseExecutions[0].filePath)
   nodeAssert.equal('Test 1', testCaseExecutions[0].testCase.name)
 
-  nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'b'}])
+  nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'b', d: 'e'}])
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.assert, {a: 'b'})
 })
 

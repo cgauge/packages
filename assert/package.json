@@ -14,9 +14,6 @@
   ],
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
-  "dependencies": {
-    "@jest/expect-utils": "^29.7.0"
-  },
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "tsx --test test/*.test.ts",

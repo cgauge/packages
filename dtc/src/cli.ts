@@ -2,6 +2,7 @@
 
 import {cli} from 'cleye'
 import {resolveConfig} from './config.js'
+import { loadTestCases } from './loader.js'
 
 const argv = cli({
   name: 'cli.ts',
@@ -17,8 +18,11 @@ const argv = cli({
 
 const config = argv.flags.config
 const filePath = argv._[0] ?? null
+const projectPath = process.cwd()
 
-const {testCaseExecutions, plugins, runner} = await resolveConfig(filePath, config)
+const {loader, plugins, runner, testRegex} = await resolveConfig(config)
+
+const testCaseExecutions = await loadTestCases(projectPath, loader, testRegex, filePath)
 
 if (!runner) {
   throw new Error(`No test runner found`)

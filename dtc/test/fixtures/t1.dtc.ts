@@ -1,13 +1,15 @@
 export default {
+  parameters: {
+    a: 'b',
+    b: '${a}',
+  },
   name: 'Test 1',
-  unit: {
-    act: {
-      import: 'syncFunction',
-      from: 'functions.js',
-      arguments: [{a: 'b'}],
-    },
-    assert: {
-      a: 'b',
-    },
+  act: {
+    import: 'syncFunction',
+    from: 'functions.js',
+    arguments: [{a: '${a}'}],
+  },
+  assert: {
+    a: '${b}',
   },
 }

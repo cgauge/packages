@@ -5,7 +5,6 @@ export type Config = {
   plugins: string[]
   loader: Loader
   runner: Runner
-  testDir: string
   testRegex: string
 }
 

@@ -7,6 +7,7 @@ export type TestCase = {
   debug?: boolean
   retry?: number
   delay?: number
+  parameters?: Record<string, unknown> | Record<string, unknown>[]
   arrange?: Record<string, unknown>
   act?: Record<string, unknown>
   assert?: unknown

@@ -2,7 +2,7 @@
 
 import {cli} from 'cleye'
 import {resolveConfig} from './config.js'
-import { loadTestCases } from './loader.js'
+import {loadTestCases} from './loader.js'
 
 const argv = cli({
   name: 'cli.ts',

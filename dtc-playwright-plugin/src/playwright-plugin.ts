@@ -85,17 +85,21 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
     throw new Error('Page not defined')
   }
 
-  if (!isPlaywright(args)) {
+  if (!isRecord(args) || !('playwright' in args)) {
     return
   }
 
-  await page.goto(args.url)
-
-  if (!args.actions) {
+  if (!isPlaywright(args.playwright)) {
     return
   }
 
-  await executeActions(args.actions, page)
+  await page.goto(args.playwright.url)
+
+  if (!args.playwright.actions) {
+    return
+  }
+
+  await executeActions(args.playwright.actions, page)
 }
 
 export const act = async (args: unknown, _basePath: string, {page}: {page: Page}) => {

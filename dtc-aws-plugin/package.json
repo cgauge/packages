@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-aws-plugin",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "AWS plugin for Declarative TestCases",
   "repository": {
     "type": "git",
@@ -15,9 +15,9 @@
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "@cgauge/assert": "^0.5.0",
-    "@cgauge/dtc": "^0.5.0",
-    "@cgauge/nock-aws": "^0.5.0",
+    "@cgauge/assert": "^0.6.0",
+    "@cgauge/dtc": "^0.6.0",
+    "@cgauge/nock-aws": "^0.6.0",
     "@aws-sdk/client-dynamodb": "^3.645.0",
     "@aws-sdk/client-eventbridge": "^3.645.0",
     "@aws-sdk/client-lambda": "^3.645.0",

@@ -10,5 +10,9 @@ const projectPath = process.cwd()
 const testCaseExecutions = await loadTestCases(projectPath, loader, testRegex, path)
 
 for (const {filePath, testCase} of testCaseExecutions) {
+    if (testCase.use) {
+        test.use(testCase.use)
+    }
+    
     test(testCase.name, async ({page}) => executeTestCase(testCase, plugins, filePath, {page}))
 }

@@ -5,8 +5,8 @@ import {resolveConfig} from './config.js'
 import {loadTestCases} from './loader.js'
 
 const argv = cli({
-  name: 'cli.ts',
-  parameters: [],
+  name: 'dtc',
+  parameters: ['[filePath]', '--', '[runnerArgs...]'],
   flags: {
     config: {
       alias: 'c',
@@ -17,7 +17,7 @@ const argv = cli({
 })
 
 const config = argv.flags.config
-const filePath = argv._[0] ?? null
+const filePath = argv._.filePath
 const projectPath = process.cwd()
 
 const {loader, plugins, runner, testRegex} = await resolveConfig(config)
@@ -28,4 +28,4 @@ if (!runner) {
   throw new Error(`No test runner found`)
 }
 
-await runner(testCaseExecutions, plugins, argv._['--'], config)
+await runner(testCaseExecutions, plugins, argv._.runnerArgs, config)

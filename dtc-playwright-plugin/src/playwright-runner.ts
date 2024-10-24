@@ -5,8 +5,9 @@ import * as url from 'url'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
-export default (args?: string[]) =>
-  async (testCaseExecutions: TestCaseExecution[], _plugins: string[], config?: string) => {
+export default (constructorArgs?: string[]) =>
+  async (testCaseExecutions: TestCaseExecution[], _plugins: string[], runnerArgs: string[], config?: string) => {
+    const args = [...runnerArgs,  ...constructorArgs ?? []]
     const childProcess = spawnSync(`npx playwright test ${args?.join(' ')} ${__dirname}`, {
       stdio: 'inherit',
       shell: true,

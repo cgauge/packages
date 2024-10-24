@@ -28,4 +28,4 @@ if (!runner) {
   throw new Error(`No test runner found`)
 }
 
-await runner(testCaseExecutions, plugins, config)
+await runner(testCaseExecutions, plugins, argv._['--'], config)

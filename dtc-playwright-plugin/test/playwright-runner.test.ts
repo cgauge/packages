@@ -17,6 +17,7 @@ test('It calls playwright runner', async () => {
       {filePath: `${__dirname}/fixtures/t2.dtc.js`, testCase: testCase2},
     ],
     [],
+    [],
     `./test/fixtures/config.js`,
   )
 

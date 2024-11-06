@@ -11,6 +11,7 @@ export type TestCase = GenericAttributes & {
   debug?: boolean
   retry?: number
   delay?: number
+  timeout?: number 
   parameters?: Record<string, unknown> | Record<string, unknown>[]
   arrange?: Record<string, unknown>
   act?: Record<string, unknown>

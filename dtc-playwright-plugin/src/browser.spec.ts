@@ -13,6 +13,9 @@ for (const {filePath, testCase} of testCaseExecutions) {
     if (testCase.use) {
         test.use(testCase.use)
     }
-    
-    test(testCase.name, async ({page}) => executeTestCase(testCase, plugins, filePath, {page}))
+
+    test(testCase.name, async ({page}) => {
+        testCase.timeout && test.setTimeout(testCase.timeout)
+        await executeTestCase(testCase, plugins, filePath, {page})
+    })
 }

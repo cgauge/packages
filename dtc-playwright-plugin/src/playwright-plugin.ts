@@ -1,4 +1,4 @@
-import {isRecord, sleep} from '@cgauge/dtc'
+import {isRecord} from '@cgauge/dtc'
 import {Page, expect, Locator} from '@playwright/test'
 
 type PlaywrightActionTarget = {
@@ -17,14 +17,23 @@ type PlaywrightAction = {
   fill?: string
   click?: boolean
   toBeVisible?: boolean
+  options?: Record<string, unknown>
 }
 
 export type Playwright = {
   url: string
   actions?: PlaywrightAction[]
+  options?: Record<string, unknown>
+}
+
+export type PlaywrightAssert = {
+  url?: string
+  actions?: PlaywrightAction[]
+  options?: Record<string, unknown>
 }
 
 const isPlaywright = (v: unknown): v is Playwright => isRecord(v) && 'url' in v
+const isPlaywrightAssert = (v: unknown): v is Playwright => isRecord(v) && 'actions' in v
 
 const executeActions = async (actions: PlaywrightAction[], page: Page) => {
   for (const act of actions) {
@@ -36,21 +45,7 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       if (selectorMatch && selectorMatch.length > 0) {
         element = page.locator(act.target)
       } else {
-        const targetWithoutSpaces = act.target.replaceAll(/\s/g, '')
-        element =
-          (await page.getByPlaceholder(act.target).count()) > 0
-            ? page.getByPlaceholder(act.target)
-            : (await page.getByText(act.target).count()) > 0
-            ? page.getByText(act.target)
-            : (await page.getByTitle(act.target).count()) > 0
-            ? page.getByTitle(act.target)
-            : (await page.getByLabel(act.target).count()) > 0
-            ? page.getByLabel(act.target)
-            : (await page.getByTestId(targetWithoutSpaces).count()) > 0
-            ? page.getByTestId(targetWithoutSpaces)
-            : (await page.getByRole(targetWithoutSpaces as 'status').count()) > 0
-            ? page.getByRole(targetWithoutSpaces as 'status')
-            : page.locator(act.target)
+        element = page.getByTestId(act.target)
       }
     } else {
       if (typeof page[act.target.name] === 'function') {
@@ -58,6 +53,7 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       }
     }
 
+    
     if (element) {
       if (act.action) {
         if (typeof act.action === 'string') {
@@ -69,12 +65,12 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
 
         //@ts-ignore
         await element[actionName].apply(element, actionArgs)
-      } else if (act.fill) {
-        await element.fill(act.fill)
-      } else if (act.click) {
-        await element.click({timeout: 5000})
-      } else if (act.toBeVisible) {
-        await expect(element.first()).toBeVisible()
+      } else if (act.fill !== undefined) {
+        await element.fill(act.fill, act.options)
+      } else if (act.click !== undefined) {
+        await element.click(act.options)
+      } else if (act.toBeVisible !== undefined) {
+        await expect(element.first()).toBeVisible({visible: act.toBeVisible, ...act.options})
       }
     }
   }
@@ -84,16 +80,16 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
   if (!page) {
     throw new Error('Page not defined')
   }
-
+  
   if (!isRecord(args) || !('playwright' in args)) {
     return
   }
-
+  
   if (!isPlaywright(args.playwright)) {
     return
   }
 
-  await page.goto(args.playwright.url)
+  await page.goto(args.playwright.url, args.playwright.options)
 
   if (!args.playwright.actions) {
     return
@@ -111,9 +107,7 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
     return
   }
 
-  await sleep(300)
-
-  await page.goto(args.url)
+  await page.goto(args.url, args.options)
 
   if (!args.actions) {
     return
@@ -131,9 +125,17 @@ export const assert = async (args: unknown, _basePath: string, {page}: {page: Pa
     return
   }
 
-  if (!args.playwright || !Array.isArray(args.playwright)) {
+  if (!isPlaywrightAssert(args.playwright)) {
     return
   }
 
-  await executeActions(args.playwright, page)
+  if (args.playwright.url) {
+    await page.goto(args.playwright.url, args.playwright.options)
+  }
+
+  if (!args.playwright.actions) {
+    return
+  }
+
+  await executeActions(args.playwright.actions, page)
 }

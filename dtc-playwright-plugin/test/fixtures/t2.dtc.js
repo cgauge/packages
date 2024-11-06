@@ -6,51 +6,58 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 export default {
   name: 'Test case 2',
   arrange: {
-    url: `file://${__dirname}/login.html`,
-    actions: [
-      {
-        target: 'Username',
-        fill: '',
-      },
-      {
-        target: {
-          name: 'getByPlaceholder',
-          args: ['Your password'],
+    playwright: {
+      url: `file://${__dirname}/login.html`,
+      actions: [
+        {
+          target: 'username-test-id',
+          fill: '',
         },
-        action: {
-          name: 'fill',
-          args: [''],
+        {
+          target: {
+            name: 'getByPlaceholder',
+            args: ['Your password'],
+          },
+          action: {
+            name: 'fill',
+            args: [''],
+          },
         },
-      },
-      {
-        target: {
-          name: 'getByRole',
-          args: [
-            'button',
-            {
-              type: 'submit',
-            },
-          ],
+        {
+          target: {
+            name: 'getByRole',
+            args: [
+              'button',
+              {
+                type: 'submit',
+              },
+            ],
+          },
+          action: {
+            name: 'click',
+          },
         },
-        action: {
-          name: 'click',
+        {
+          target: 'input#username[required]:invalid',
+          toBeVisible: true,
         },
-      },
-      {
-        target: "input#username[required]:invalid",
-        toBeVisible: true,
-      },
-    ],
+      ],
+    },
   },
   act: {
     url: `file://${__dirname}/index.html`,
   },
   assert: {
-    playwright: [
-      {
-        target: "Index page",
-        toBeVisible: true,
-      },
-    ],
+    playwright: {
+      actions: [
+        {
+          target: {
+            name: 'getByText',
+            args: ['Index page'],
+          },
+          toBeVisible: true,
+        },
+      ],
+    },
   },
 }

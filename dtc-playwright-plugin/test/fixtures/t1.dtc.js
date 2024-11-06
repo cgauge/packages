@@ -5,52 +5,66 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default {
   name: 'Test case',
+  timeout: 1000,
   arrange: {
-    url: `file://${__dirname}/login.html`,
-    actions: [
-      {
-        target: 'Username',
-        fill: '',
-      },
-      {
-        target: {
-          name: 'getByPlaceholder',
-          args: ['Your password'],
+    playwright: {
+      url: `file://${__dirname}/login.html`,
+      actions: [
+        {
+          target: 'username-test-id',
+          fill: '',
+          options: {timeout: 1000},
         },
-        action: {
-          name: 'fill',
-          args: [''],
+        {
+          target: {
+            name: 'getByPlaceholder',
+            args: ['Your password'],
+          },
+          action: {
+            name: 'fill',
+            args: ['', {timeout: 1000}],
+          },
         },
-      },
-      {
-        target: {
-          name: 'getByRole',
-          args: [
-            'button',
-            {
-              type: 'submit',
-            },
-          ],
+        {
+          target: {
+            name: 'getByRole',
+            args: [
+              'button',
+              {
+                type: 'submit',
+              },
+            ],
+          },
+          action: {
+            name: 'click',
+          },
         },
-        action: {
-          name: 'click',
+        {
+          target: 'input#username[required]:invalid',
+          toBeVisible: true,
         },
-      },
-      {
-        target: "input#username[required]:invalid",
-        toBeVisible: true,
-      },
-    ],
+      ],
+    },
   },
   act: {
     url: `file://${__dirname}/index.html`,
+    options: {timeout: 1000},
   },
   assert: {
-    playwright: [
-      {
-        target: "Index page",
-        toBeVisible: true,
-      },
-    ],
+    playwright: {
+      actions: [
+        {
+          target: {
+            name: 'getByText',
+            args: ['Index page'],
+          },
+          toBeVisible: true,
+        },
+        {
+          target: 'invalid-id',
+          toBeVisible: false,
+        },
+      ],
+    },
   },
 }

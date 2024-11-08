@@ -26,7 +26,7 @@ const assertions: ExtraAssertions = {
           throw new Error(`Type mismatch for key '${String(key)}'. Expected ${typeof expected[key]} but got ${typeof actual[key]}. ${message}`);
         }
     
-        if (typeof expected[key] === 'object') {
+        if (typeof expected[key] === 'object' && expected[key] !== null) {
           try {
             assertions.objectContains(actual[key], expected[key], message);
           } catch (e: any) {

@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 test('It executes test using cli', async () => {
-  const childProcess = spawnSync(`npx tsx ${__dirname}/../src/cli.ts ${__dirname}/fixtures/unit.js`, {
+  const childProcess = spawnSync(`npx tsx ${__dirname}/../src/cli.ts ./test/fixtures/unit.js`, {
     stdio: 'inherit',
     shell: true,
   })
@@ -16,7 +16,7 @@ test('It executes test using cli', async () => {
 })
 
 test('It fails test using cli', async () => {
-  const childProcess = spawnSync(`npx tsx ${__dirname}/../src/cli.ts ${__dirname}/fixtures/unit-fail.js`, {
+  const childProcess = spawnSync(`npx tsx ${__dirname}/../src/cli.ts ./test/fixtures/unit-fail.js`, {
     shell: true,
   })
 

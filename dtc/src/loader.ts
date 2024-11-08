@@ -100,7 +100,7 @@ export const loadTestCases = async (
   filePath?: string,
 ): Promise<TestCaseExecution[]> => {
   if (filePath) {
-    const testCaseExecutions = await generateTestCaseExecution(filePath, loader)
+    const testCaseExecutions = await generateTestCaseExecution(projectPath + '/' + filePath, loader)
     return resolveParameters(testCaseExecutions)
   }
 

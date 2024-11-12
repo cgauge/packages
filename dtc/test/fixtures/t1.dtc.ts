@@ -11,10 +11,10 @@ export default {
     import: 'syncFunction',
     from: 'functions.js',
     arguments: [
-      {a: '${a}', d: '${c.d}'},
+      {a: 'content ${a} more ${b}', c: '${c}', d: '${c.d}'},
     ],
   },
   assert: {
-    a: '${b}',
+    a: 'content ${a} more ${b}'
   },
 }

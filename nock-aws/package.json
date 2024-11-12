@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/nock-aws",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "AWS Request mocker based on Nock",
   "repository": {
     "type": "git",

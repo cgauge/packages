@@ -7,8 +7,6 @@ export type * from './domain'
 export * from './utils.js'
 export * from './config.js'
 export * from './loader.js'
-export * as DisableNetConnectPlugin from './plugins/disable-net-connect-plugin.js'
-export * as FunctionCallPlugin from './plugins/function-call-plugin.js'
 
 export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[], plugins: string[]) => {
   for (const {filePath, testCase} of testCaseExecutions) {

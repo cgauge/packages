@@ -1,3 +1,5 @@
 import nock from 'nock'
 
-nock.disableNetConnect()
+export const arrange = () => {
+  nock.disableNetConnect()
+} 

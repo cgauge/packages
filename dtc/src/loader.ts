@@ -42,24 +42,39 @@ const recursiveMap = (obj: any, callback: (v: any) => any): any => {
   return callback(obj)
 }
 
-const replacePlaceholders = (obj: any, params: any) =>
-  recursiveMap(obj, (value: string | number | boolean) => {
+const getValueByPath = (path: string, params: Record<string, unknown>): unknown => {
+  const attributes = path.split('.')
+  let resolvedValue: unknown = params
+
+  for (const attribute of attributes) {
+    if (resolvedValue && typeof resolvedValue === 'object') {
+      resolvedValue = (resolvedValue as Record<string, unknown>)[attribute]
+    } else {
+      throw new Error(`Invalid parameter property: ${attribute} (${path}).`)
+    }
+  }
+
+  return resolvedValue
+}
+
+const replacePlaceholders = (template: unknown, params: Record<string, unknown>) =>
+  recursiveMap(template, (value: string | number | boolean) => {
     if (typeof value !== 'string') {
       return value
     }
 
-    return value.replace(/\${(.*?)}/g, (match, group) => {
-      const path = group.split('.')
-      let value = params
-      for (const prop of path) {
-        if (value && typeof value === 'object') {
-          value = value[prop]
-        } else {
-          return match
-        }
+    const regex = new RegExp(/\${(.*?)}/g)
+    const matches = regex.exec(value)
+
+    if (matches !== null) {
+      if (matches[0] !== matches.input) {
+        return value.replace(regex, (_, path) => getValueByPath(path, params) as string)
       }
-      return value
-    })
+
+      return getValueByPath(matches[1], params)
+    }
+
+    return value
   })
 
 const resolveParameters = (testCaseExecution: TestCaseExecution): TestCaseExecution[] => {

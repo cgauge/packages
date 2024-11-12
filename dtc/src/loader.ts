@@ -67,7 +67,7 @@ const replacePlaceholders = (template: unknown, params: Record<string, unknown>)
     const matches = regex.exec(value)
 
     if (matches !== null) {
-      if (matches.index > 0) {
+      if (matches[0] !== matches.input) {
         return value.replace(regex, (_, path) => getValueByPath(path, params) as string)
       }
 

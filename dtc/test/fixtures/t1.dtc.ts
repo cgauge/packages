@@ -11,7 +11,7 @@ export default {
     import: 'syncFunction',
     from: 'functions.js',
     arguments: [
-      {a: 'content ${a} more ${b}', c: '${c}', d: '${c.d}'},
+      {a: 'content ${a} more ${b}', b: '${b} content', c: '${c}', d: '${c.d}'},
     ],
   },
   assert: {

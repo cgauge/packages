@@ -26,7 +26,7 @@ test('It loads files using regex', async () => {
   nodeAssert.equal('Test 2 (provider 0)', testCaseExecutions[1].testCase.name)
 })
 
-test.only('It replaces parameters placeholders', async () => {
+test('It replaces parameters placeholders', async () => {
   const testCaseExecutions = await loadTestCases(__dirname, defaultLoader, /.*\.dtc\.[jt]s?$/, `./fixtures/t1.dtc.ts`)
 
   nodeAssert.equal(`${__dirname}/./fixtures/t1.dtc.ts`, testCaseExecutions[0].filePath)

@@ -18,6 +18,7 @@ export const act = async (args: unknown) => {
   })
 
   response = await graphQLClient.request(args.query, args.variables)
+  console.log(response)
 }
 
 export const assert = async (args: unknown) => {

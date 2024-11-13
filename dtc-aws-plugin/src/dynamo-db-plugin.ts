@@ -76,7 +76,7 @@ const cleanDynamoItems = async (clean: DynamoClean) => {
 
   if ('query' in clean) {
     const result = await documentClient.query({
-      ConsistentRead: true,
+      ConsistentRead: clean.index ? false : true,
       TableName: clean.table,
       IndexName: clean.index,
       KeyConditionExpression: Object.entries(clean.query)

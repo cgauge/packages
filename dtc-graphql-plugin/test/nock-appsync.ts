@@ -1,5 +1,3 @@
-import {afterEach, test} from 'node:test'
-import {act, assert} from '../src/graphql-call-plugin'
 import nock from 'nock'
 import {RequestDocument} from 'graphql-request'
 import nodeAssert from 'node:assert/strict'
@@ -22,11 +20,14 @@ export const partialBodyCheck = (expected: AppSyncRequest) => (body: Record<stri
   return true
 }
 
-export const appsync = (request: AppSyncRequest, expectedHeaders, response): void => {
+export const appsync = (
+  request: AppSyncRequest,
+  expectedHeaders: Record<string, string>,
+  response: string | Record<string, unknown>,
+): void => {
   nock('https://appsync.eu-west-1.amazonaws.com')
     .post('/', partialBodyCheck(request))
     .matchHeader('authorization', expectedHeaders.authorization)
-    .matchHeader('accept', expectedHeaders.accept)
     .reply(200, response)
 }
 

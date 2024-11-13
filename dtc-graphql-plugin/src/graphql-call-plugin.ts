@@ -2,7 +2,7 @@ import extraAssert from '@cgauge/assert'
 import {isRecord} from '@cgauge/dtc'
 import {GraphQLClient} from 'graphql-request'
 
-type GraphQlCall = {url: string; query: string; variables: {}} & RequestInit
+type GraphQlCall = {url: string; query: string; variables: {}; headers?: Record<string, string>}
 
 const isGraphQlCall = (v: unknown): v is GraphQlCall => isRecord(v) && 'url' in v
 
@@ -18,6 +18,7 @@ export const act = async (args: unknown) => {
       ...args.headers,
       authorization: process.env.AUTHORIZATION_TOKEN || '',
     },
+    ...args,
   })
 
   response = await graphQLClient.request(args.query, args.variables)

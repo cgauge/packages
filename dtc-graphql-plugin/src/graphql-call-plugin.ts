@@ -14,7 +14,10 @@ export const act = async (args: unknown) => {
   }
 
   const graphQLClient = new GraphQLClient(args.url, {
-    headers: {authorization: process.env.AUTHORIZATION_TOKEN as string},
+    headers: {
+      ...args.headers,
+      authorization: process.env.AUTHORIZATION_TOKEN || '',
+    },
   })
 
   response = await graphQLClient.request(args.query, args.variables)

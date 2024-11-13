@@ -1,0 +1,28 @@
+{
+  "name": "@cgauge/dtc-graphql-plugin",
+  "version": "0.8.2",
+  "description": "GraphQl plugin for Declarative TestCases",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgauge/packages.git"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "Salam Suleymanov",
+  "license": "LGPL-3.0-or-later",
+  "dependencies": {
+    "@cgauge/assert": "^0.8.0",
+    "@cgauge/dtc": "^0.8.0",
+    "graphql-request": "^7.1.2"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "test": "tsx --test test/*.test.ts",
+    "test:only": "tsx --test --test-only test/*.test.ts",
+    "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
+  }
+}

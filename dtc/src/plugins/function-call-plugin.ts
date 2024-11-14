@@ -34,7 +34,7 @@ export const act = async (args: unknown, basePath: string) => {
 }
 
 export const assert = (args: {exception?: {name?: string}; [x: string]: unknown}) => {
-  if (exception) {
+  if (args.exception?.name) {
     nodeAssert.equal(args?.exception?.name, exception.name)
   }
 

@@ -10,6 +10,7 @@
     "dtc-aws-plugin",
     "dtc-mysql-plugin",
     "dtc-playwright-plugin",
+    "dtc-graphql-plugin",
     "nock-aws",
     "yaml"
   ],

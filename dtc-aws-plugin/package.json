@@ -23,7 +23,7 @@
     "@aws-sdk/util-dynamodb": "^3.645.0",
     "@cgauge/assert": "^0.9.0",
     "@cgauge/dtc": "^0.9.0",
-    "@cgauge/nock-aws": "^0.9.0",
+    "@cgauge/nock-aws": "^0.9.0"
   },
   "scripts": {
     "build": "rm -rf dist && tsc",

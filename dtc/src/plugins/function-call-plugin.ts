@@ -1,5 +1,6 @@
 import extraAssert from '@cgauge/assert'
 import {isRecord} from '../utils.js'
+import nodeAssert from 'node:assert'
 
 type FunctionCallAct = {
   import: string
@@ -10,6 +11,7 @@ type FunctionCallAct = {
 const isFunctionCallAct = (v: unknown): v is FunctionCallAct => typeof v === 'object' && v !== null && 'import' in v
 
 let response: any
+let exception: any
 
 export const act = async (args: unknown, basePath: string) => {
   if (!isFunctionCallAct(args)) {
@@ -24,10 +26,18 @@ export const act = async (args: unknown, basePath: string) => {
   }
   /* c8 ignore end */
 
-  response = await module[args.import].apply(null, args.arguments)
+  try {
+    response = await module[args.import].apply(null, args.arguments)
+  } catch (e) {
+    exception = e
+  }
 }
 
-export const assert = (args: unknown) => {
+export const assert = (args: {exception?: {name?: string}; [x: string]: unknown}) => {
+  if (exception) {
+    nodeAssert.equal(args?.exception?.name, exception.name)
+  }
+
   if (response && isRecord(args) && args) {
     extraAssert.objectContains(response, args)
   }

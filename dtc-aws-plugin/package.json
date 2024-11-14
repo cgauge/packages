@@ -15,15 +15,15 @@
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "@cgauge/assert": "^0.8.0",
-    "@cgauge/dtc": "^0.8.0",
-    "@cgauge/nock-aws": "^0.8.0",
     "@aws-sdk/client-dynamodb": "^3.645.0",
     "@aws-sdk/client-eventbridge": "^3.645.0",
     "@aws-sdk/client-lambda": "^3.645.0",
     "@aws-sdk/client-sns": "^3.645.0",
     "@aws-sdk/lib-dynamodb": "^3.645.0",
-    "@aws-sdk/util-dynamodb": "^3.645.0"
+    "@aws-sdk/util-dynamodb": "^3.645.0",
+    "@cgauge/assert": "^0.8.0",
+    "@cgauge/dtc": "^0.8.0",
+    "@cgauge/nock-aws": "^0.8.0"
   },
   "scripts": {
     "build": "rm -rf dist && tsc",

@@ -1,20 +1,24 @@
 import extraAssert from '@cgauge/assert'
-import {isRecord} from '../utils.js'
+import {info} from '../utils.js'
 import nodeAssert from 'node:assert'
+import {is, optional, unknown, record, diff} from 'type-assurance'
+import { intersection } from '@cgauge/type-guard'
 
-type FunctionCallAct = {
-  import: string
-  from: string
-  arguments?: unknown[]
+const FunctionCallAct = {
+  import: String,
+  from: String,
+  'arguments': optional([unknown])
 }
 
-const isFunctionCallAct = (v: unknown): v is FunctionCallAct => typeof v === 'object' && v !== null && 'import' in v
+const FunctionCallResponse = intersection({exception: optional({name: String})}, record(String, unknown))
 
 let response: any
 let exception: any
 
 export const act = async (args: unknown, basePath: string) => {
-  if (!isFunctionCallAct(args)) {
+  if (!is(args, FunctionCallAct)) {
+    const mismatch = diff(args, FunctionCallAct)
+    info(`Function Call plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
     return
   }
 
@@ -33,12 +37,20 @@ export const act = async (args: unknown, basePath: string) => {
   }
 }
 
-export const assert = (args: {exception?: {name?: string}; [x: string]: unknown}) => {
-  if (args.exception?.name) {
-    nodeAssert.equal(args?.exception?.name, exception.name)
+export const assert = (args: unknown) => {
+  if (!is(args, FunctionCallResponse)) {
+    return
   }
 
-  if (response && isRecord(args) && args) {
+  if (args.exception) {
+    if (!exception) {
+      throw Error(`Exception ${exception.name} was not thrown.`)
+    }
+    
+    nodeAssert.equal(args.exception.name, exception.name)
+  }
+
+  if (response) {
     extraAssert.objectContains(response, args)
   }
 }

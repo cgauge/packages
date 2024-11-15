@@ -1,30 +1,28 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
-import {debug, isRecord} from '@cgauge/dtc'
+import {debug} from '@cgauge/dtc'
 import {Mock, mock} from 'node:test'
 import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
+import {is, unknown, record, optional, TypeFromSchema} from 'type-assurance'
 
-type MockMysql = {
-  input: string
-  output?: Record<string, unknown>
-  variables?: Record<string, unknown>
+const MockMysql = {
+  input: String,
+  output: optional(record(String, unknown)),
+  variables: optional(record(String, unknown)),
 }
+type MockMysql = TypeFromSchema<typeof MockMysql>
 
-const isMockMysql = (v: unknown): v is {mysql: MockMysql[]} => isRecord(v) && 'mysql' in v
-
-let arrangeMysql: MockMysql[][] = []
+let arrangeMysql: any
 let executions: Mock<any>[] = []
 
 export const arrange = async (args: unknown) => {
-  if (!isMockMysql(args)) {
-    return
-  }
-
-  if (Array.isArray(args.mysql)) {
+  if (is(args, {mysql: [MockMysql]})) {
     arrangeMysql = [args.mysql]
-  } else {
+  } else if (is(args, {mysql: record(String, [MockMysql])})) {
     arrangeMysql = Object.values(args.mysql)
+  } else {
+    return
   }
 
   for (const [index, arrange] of arrangeMysql.entries()) {

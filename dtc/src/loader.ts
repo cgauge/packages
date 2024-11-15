@@ -1,11 +1,13 @@
-import type {TestCaseExecution, Loader} from './domain'
+import {TestCaseExecution, Loader, TestCase} from './domain'
 import {readdir, stat} from 'node:fs/promises'
 import {join} from 'path'
+import {assert} from 'type-assurance'
 
-const generateTestCaseExecution = async (filePath: string, loader: Loader): Promise<TestCaseExecution> => ({
-  filePath,
-  testCase: await loader(filePath),
-})
+const generateTestCaseExecution = async (filePath: string, loader: Loader): Promise<TestCaseExecution> => {
+  const testCase = await loader(filePath)
+  assert(testCase, TestCase)
+  return {filePath, testCase: testCase}
+}
 
 const loadTestFiles = async (currentPath: string, testRegex: RegExp): Promise<string[]> => {
   const files = await readdir(currentPath)

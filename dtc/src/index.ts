@@ -30,14 +30,29 @@ export const executeTestCase = async (
 ) => {
   const basePath = dirname(filePath)
 
+  if (!plugins) {
+    throw new Error('No plugins defined.')
+  }
+
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
 
-  await Promise.all(loadedPlugins.map(({arrange}) => arrange?.(testCase.arrange, basePath, testRunnerArgs)))
-  await Promise.all(loadedPlugins.map(({act}) => act?.(testCase.act, basePath, testRunnerArgs)))
-  await Promise.all(
-    loadedPlugins.map(({assert}) =>
-      retry(async () => assert?.(testCase.assert, basePath, testRunnerArgs), testCase.retry ?? 0, testCase.delay ?? 0),
-    ),
-  )
-  await Promise.all(loadedPlugins.map(({clean}) => clean?.(testCase.clean, basePath, testRunnerArgs)))
+  if (testCase.arrange) {
+    await Promise.all(loadedPlugins.map(({arrange}) => arrange?.(testCase.arrange, basePath, testRunnerArgs)))
+  }
+
+  if (testCase.act) {
+    await Promise.all(loadedPlugins.map(({act}) => act?.(testCase.act, basePath, testRunnerArgs)))
+  }
+
+  if (testCase.assert) {
+    await Promise.all(
+      loadedPlugins.map(({assert}) =>
+        retry(async () => assert?.(testCase.assert, basePath, testRunnerArgs), testCase.retry ?? 0, testCase.delay ?? 0),
+      ),
+    )
+  }
+  
+  if (testCase.clean) {
+    await Promise.all(loadedPlugins.map(({clean}) => clean?.(testCase.clean, basePath, testRunnerArgs)))
+  }
 }

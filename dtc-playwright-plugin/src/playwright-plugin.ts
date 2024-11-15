@@ -1,39 +1,37 @@
-import {isRecord} from '@cgauge/dtc'
 import {Page, expect, Locator} from '@playwright/test'
+import {is, unknown, record, union, optional, TypeFromSchema} from 'type-assurance'
 
-type PlaywrightActionTarget = {
-  name: 'getByTestId' | 'getByPlaceholder' | 'getByText' | 'getByTitle' | 'getByLabel'
-  args: [string | RegExp]
+const PlaywrightActionTarget = {
+  name: union('getByTestId', 'getByPlaceholder', 'getByText', 'getByTitle', 'getByLabel'),
+  args: [unknown],
 }
 
-type PlaywrightActionArgs = {
-  name: string
-  args?: unknown[]
+const PlaywrightActionArgs = {
+  name: String,
+  args: optional([unknown]),
 }
 
-type PlaywrightAction = {
-  target: string | PlaywrightActionTarget
-  action?: string | PlaywrightActionArgs
-  fill?: string
-  click?: boolean
-  toBeVisible?: boolean
-  options?: Record<string, unknown>
+const PlaywrightAction = {
+  target: union(String, PlaywrightActionTarget),
+  action: optional(union(String, PlaywrightActionArgs)),
+  fill: optional(String),
+  click: optional(Boolean),
+  toBeVisible: optional(Boolean),
+  options: optional(record(String, unknown)),
+}
+type PlaywrightAction = TypeFromSchema<typeof PlaywrightAction>
+
+const Playwright = {
+  url: String,
+  actions: optional([PlaywrightAction]),
+  options: optional(record(String, unknown)),
 }
 
-export type Playwright = {
-  url: string
-  actions?: PlaywrightAction[]
-  options?: Record<string, unknown>
+const PlaywrightAssert = {
+  url: optional(String),
+  actions: optional([PlaywrightAction]),
+  options: optional(record(String, unknown)),
 }
-
-export type PlaywrightAssert = {
-  url?: string
-  actions?: PlaywrightAction[]
-  options?: Record<string, unknown>
-}
-
-const isPlaywright = (v: unknown): v is Playwright => isRecord(v) && 'url' in v
-const isPlaywrightAssert = (v: unknown): v is Playwright => isRecord(v) && 'actions' in v
 
 const executeActions = async (actions: PlaywrightAction[], page: Page) => {
   for (const act of actions) {
@@ -49,11 +47,10 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       }
     } else {
       if (typeof page[act.target.name] === 'function') {
-        element = page[act.target.name].apply(page, act.target.args)
+        element = page[act.target.name].apply(page, act.target.args as [string])
       }
     }
 
-    
     if (element) {
       if (act.action) {
         if (typeof act.action === 'string') {
@@ -81,11 +78,7 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
     throw new Error('Page not defined')
   }
   
-  if (!isRecord(args) || !('playwright' in args)) {
-    return
-  }
-  
-  if (!isPlaywright(args.playwright)) {
+  if (!is(args, {playwright: Playwright})) {
     return
   }
 
@@ -103,7 +96,7 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
     throw new Error('Page not defined')
   }
 
-  if (!isPlaywright(args)) {
+  if (!is(args, Playwright)) {
     return
   }
 
@@ -121,11 +114,7 @@ export const assert = async (args: unknown, _basePath: string, {page}: {page: Pa
     throw new Error('Page not defined')
   }
 
-  if (!isRecord(args) || !('playwright' in args)) {
-    return
-  }
-
-  if (!isPlaywrightAssert(args.playwright)) {
+  if (!is(args, {playwright: PlaywrightAssert})) {
     return
   }
 

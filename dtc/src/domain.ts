@@ -1,3 +1,6 @@
+import {intersection} from '@cgauge/type-guard'
+import {optional, record, TypeFromSchema, union, unknown} from 'type-assurance'
+
 export type Loader = (filePath: string) => Promise<TestCase>
 
 export type Runner = (
@@ -7,27 +10,31 @@ export type Runner = (
   config?: string,
 ) => Promise<void>
 
-export type GenericAttributes = {
-  [key: string]: string | number | boolean | Record<string, unknown> | Record<string, unknown>[]
-}
+const GenericAttributes = record(
+  String,
+  union(String, Number, Boolean, record(String, unknown), [record(String, unknown)]),
+)
+type GenericAttributes = TypeFromSchema<typeof GenericAttributes>
 
-export type TestCase = GenericAttributes & {
-  name: string
-  debug?: boolean
-  retry?: number
-  delay?: number
-  timeout?: number
-  parameters?: Record<string, unknown> | Record<string, unknown>[]
-  arrange?: Record<string, unknown>
-  act?: Record<string, unknown>
-  assert?: {
-    exception?: unknown
-    [x: string]: unknown
-  }
-  clean?: Record<string, unknown>
-}
+export const TestCase = intersection(GenericAttributes, {
+  name: String,
+  debug: optional(Boolean),
+  retry: optional(Number),
+  delay: optional(Number),
+  timeout: optional(Number),
+  parameters: optional(union(record(String, unknown), [record(String, unknown)])),
+  arrange: optional(record(String, unknown)),
+  act: optional(record(String, unknown)),
+  assert: optional(union(String, intersection({exception: optional({name: String})}, record(String, unknown)))),
+  clean: optional(record(String, unknown)),
+})
+export type TestCase = TypeFromSchema<typeof TestCase>
 
+export const TestCaseExecution = {
+  filePath: String,
+  testCase: TestCase,
+}
 export type TestCaseExecution = {
-  filePath: string
-  testCase: TestCase
+  filePath: string,
+  testCase: TestCase,
 }

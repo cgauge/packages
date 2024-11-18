@@ -29,5 +29,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: npm i
+      - run: npm run build -w type-guard
       - run: npm run build
       - run: npm publish --workspaces --access public

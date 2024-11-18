@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-aws-plugin",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "AWS plugin for Declarative TestCases",
   "repository": {
     "type": "git",
@@ -21,10 +21,10 @@
     "@aws-sdk/client-sns": "^3.645.0",
     "@aws-sdk/lib-dynamodb": "^3.645.0",
     "@aws-sdk/util-dynamodb": "^3.645.0",
-    "@cgauge/assert": "^0.9.0",
-    "@cgauge/dtc": "^0.9.0",
-    "@cgauge/nock-aws": "^0.9.0",
-    "@cgauge/type-guard": "^0.9.0"
+    "@cgauge/assert": "^0.10.0",
+    "@cgauge/dtc": "^0.10.0",
+    "@cgauge/nock-aws": "^0.10.0",
+    "@cgauge/type-guard": "^0.10.0"
   },
   "scripts": {
     "build": "rm -rf dist && tsc",

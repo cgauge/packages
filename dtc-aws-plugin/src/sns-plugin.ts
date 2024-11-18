@@ -1,18 +1,22 @@
-import {isRecord} from '@cgauge/dtc'
-import {MessageAttributeValue, SNS} from '@aws-sdk/client-sns'
+import {SNS} from '@aws-sdk/client-sns'
+import { info } from '@cgauge/dtc'
+import {is, unknown, record, optional, union, diff} from 'type-assurance'
 
-type SnsCall = {
-  topic: string
-  message: Record<string, unknown>
-  messageAttributes?: Record<string, MessageAttributeValue>
+const SnsCall = {
+  topic: String,
+  message: record(String, unknown),
+  messageAttributes: optional(record(String, {
+    DataType: union(String, undefined),
+    StringValue: optional(String),
+  }))
 }
-
-const isSnsAct = (v: unknown): v is SnsCall => isRecord(v) && 'topic' in v && 'message' in v
 
 const sns = new SNS({})
 
 export const act = async (args: unknown) => {
-  if (!isSnsAct(args)) {
+  if (!is(args, SnsCall)) {
+    const mismatch = diff(args, SnsCall)
+    info(`SNS plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
     return
   }
 

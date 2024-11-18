@@ -1,42 +1,42 @@
-import {isRecord, debug} from '@cgauge/dtc'
+import {debug, info} from '@cgauge/dtc'
 import {DynamoDB, AttributeValue} from '@aws-sdk/client-dynamodb'
 import {DynamoDBDocument} from '@aws-sdk/lib-dynamodb'
 import extraAssert from '@cgauge/assert'
 import nodeAssert from 'node:assert'
+import {is, optional, unknown, record, diff, TypeFromSchema, union} from 'type-assurance'
 
-type DynamoArrange = {
-  table: string
-  item: Record<string, unknown>
+const DynamoArrange = {
+  table: String,
+  item: record(String, unknown),
+}
+type DynamoArrange = TypeFromSchema<typeof DynamoArrange>
+
+const DynamoAct = DynamoArrange
+type DynamoAct = TypeFromSchema<typeof DynamoAct>
+
+const DynamoAssert = {
+  table: String,
+  key: record(String, unknown),
+  item: record(String, unknown),
+}
+type DynamoAssert = TypeFromSchema<typeof DynamoAssert>
+
+const CleanDynamoDBDelete = {
+  table: String,
+  key: record(String, unknown),
 }
 
-type DynamoAct = DynamoArrange
-
-type DynamoAssert = {
-  table: string
-  key: Record<string, unknown>
-  item: Record<string, unknown>
+const CleanDynamoDBQuery = {
+  table: String,
+  index: optional(String),
+  query: record(String, unknown),
+  keys: [String],
 }
 
-export type CleanDynamoDBDelete = {
-  table: string
-  key: Record<string, unknown>
-}
-
-export type CleanDynamoDBQuery = {
-  table: string
-  index?: string
-  query: Record<string, unknown>
-  keys: string[]
-}
-
-export type DynamoClean = CleanDynamoDBDelete | CleanDynamoDBQuery
+const DynamoClean = union(CleanDynamoDBDelete, CleanDynamoDBQuery)
+type DynamoClean = TypeFromSchema<typeof DynamoClean>
 
 const documentClient = DynamoDBDocument.from(new DynamoDB({}))
-
-const isDynamoAct = (v: unknown): v is DynamoAct => isRecord(v) && 'table' in v && 'item' in v
-const isDynamoArrange = (v: unknown): v is {dynamodb: DynamoArrange[]} => isRecord(v) && 'dynamodb' in v
-const isDynamoAssert = (v: unknown): v is {dynamodb: DynamoAssert[]} => isRecord(v) && 'dynamodb' in v
-const isDynamoClean = (v: unknown): v is {dynamodb: DynamoClean[]} => isRecord(v) && 'dynamodb' in v
 
 const executeDynamoStatement = async (statement: DynamoArrange) => {
   debug(`  [Arrange] Table: ${statement.table}\n`)
@@ -106,7 +106,7 @@ const cleanDynamoItems = async (clean: DynamoClean) => {
 }
 
 export const arrange = async (args: unknown) => {
-  if (!isDynamoArrange(args) || !Array.isArray(args.dynamodb)) {
+  if (!is(args, {dynamodb: [DynamoArrange]})) {
     return
   }
 
@@ -114,7 +114,9 @@ export const arrange = async (args: unknown) => {
 }
 
 export const act = async (args: unknown) => {
-  if (!isDynamoAct(args)) {
+  if (!is(args, DynamoAct)) {
+    const mismatch = diff(args, DynamoAct)
+    info(`DynamoDB plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
     return
   }
 
@@ -122,7 +124,7 @@ export const act = async (args: unknown) => {
 }
 
 export const assert = async (args: unknown) => {
-  if (!isDynamoAssert(args) || !Array.isArray(args.dynamodb)) {
+  if (!is(args, {dynamodb: [DynamoAssert]})) {
     return
   }
 
@@ -130,7 +132,7 @@ export const assert = async (args: unknown) => {
 }
 
 export const clean = async (args: unknown) => {
-  if (!isDynamoClean(args) || !Array.isArray(args.dynamodb)) {
+  if (!is(args, {dynamodb: [DynamoClean]})) {
     return
   }
 

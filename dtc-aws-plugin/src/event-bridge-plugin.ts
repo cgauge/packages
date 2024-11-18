@@ -1,32 +1,32 @@
-import {isRecord} from '@cgauge/dtc'
 import {EventBridge} from '@aws-sdk/client-eventbridge'
+import {info} from '@cgauge/dtc'
+import {is, unknown, record, diff} from 'type-assurance'
 
-type EventBridgeCall = {
-  eventBus: string
-  source: string
-  eventType: string
-  event: Record<string, unknown>
+const EventBridgeAct = {
+  eventBus: String,
+  source: String,
+  eventType: String,
+  event: record(String, unknown),
 }
-
-const isEventBridgeAct = (v: unknown): v is EventBridgeCall =>
-  isRecord(v) && 'eventBus' in v && 'source' in v && 'eventType' in v && 'event' in v
 
 const eventBridge = new EventBridge({})
 
 export const act = async (args: unknown) => {
-    if (!isEventBridgeAct(args)) {
-      return
-    }
-
-    await eventBridge.putEvents({
-      Entries: [
-        {
-          Time: new Date(),
-          EventBusName: args.eventBus,
-          Source: args.source,
-          DetailType: args.eventType,
-          Detail: JSON.stringify(args.event),
-        },
-      ],
-    })
+  if (!is(args, EventBridgeAct)) {
+    const mismatch = diff(args, EventBridgeAct)
+    info(`EventBridge plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
+    return
   }
+
+  await eventBridge.putEvents({
+    Entries: [
+      {
+        Time: new Date(),
+        EventBusName: args.eventBus,
+        Source: args.source,
+        DetailType: args.eventType,
+        Detail: JSON.stringify(args.event),
+      },
+    ],
+  })
+}

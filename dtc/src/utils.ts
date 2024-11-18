@@ -1,4 +1,6 @@
 export const debug = (message: string) => process.env.DTC_DEBUG && process.stdout.write(`[DTC_DEBUG] ${message}`)
+export const info = (message: string) => process.env.DTC_DEBUG && process.stdout.write(`[DTC_INFO] ${message}`)
+export const warn = (message: string) => process.stdout.write(`[DTC_WARN] ${message}`)
 
 export const sleep = (ms: number): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -27,12 +29,4 @@ export const retry = async <T>(fn: () => Promise<T>, times = 2, seconds = 1): Pr
   debug(`Errors ${JSON.stringify(errors)}`)
 
   throw new Error(`Failed retrying ${times} times`)
-}
-
-export const isRecord = (v: unknown): v is Record<string, unknown> => {
-  if (typeof v !== 'object' || Array.isArray(v) || Object.getOwnPropertySymbols(v).length > 0) {
-    return false
-  }
-
-  return Object.getOwnPropertyNames(v).length > 0
 }

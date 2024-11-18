@@ -12,6 +12,7 @@
     "dtc-playwright-plugin",
     "dtc-graphql-plugin",
     "nock-aws",
+    "type-guard",
     "yaml"
   ],
   "scripts": {
@@ -23,5 +24,8 @@
     "@types/node": "^20.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "type-assurance": "^1.6.2"
   }
 }

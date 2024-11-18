@@ -5,6 +5,10 @@ import {fileURLToPath} from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+test('It does not act if type does not match', () => act({}, __dirname))
+
+test('It does not assert if type does not match', () => assert({}))
+
 test('It call a sync function with args', async () => {
   const args = {a: 'b'}
 

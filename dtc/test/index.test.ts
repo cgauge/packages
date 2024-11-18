@@ -2,10 +2,19 @@ import {test} from 'node:test'
 import nodeAssert from 'node:assert'
 import {executeTestCase} from '../src/index.js'
 import {arrange, act, assert, clean} from './fixtures/plugin.ts'
-import {arrange as arrangeArgs, act as actArgs, assert as assertArgs, clean as cleanArgs} from './fixtures/plugin-args.ts'
+import {
+  arrange as arrangeArgs,
+  act as actArgs,
+  assert as assertArgs,
+  clean as cleanArgs,
+} from './fixtures/plugin-args.ts'
 
 test('It runs plugins methods', async () => {
-  await executeTestCase({name: 'Test'}, ['../test/fixtures/plugin.ts'], './filePath.js')
+  await executeTestCase(
+    {name: 'Test', act: {}, arrange: {}, assert: {}, clean: {}},
+    ['../test/fixtures/plugin.ts'],
+    './filePath.js',
+  )
 
   nodeAssert.equal(arrange.mock.callCount(), 1)
   nodeAssert.equal(act.mock.callCount(), 1)

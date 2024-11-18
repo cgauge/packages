@@ -1,13 +1,14 @@
 {
-  "name": "@cgauge/dtc-playwright-plugin",
+  "name": "@cgauge/type-guard",
   "version": "0.10.0",
-  "description": "Playwright plugin for Declarative TestCases",
+  "description": "Typescript type guards",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cgauge/packages.git"
   },
   "type": "module",
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
@@ -15,10 +16,7 @@
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "@cgauge/assert": "^0.10.0",
-    "@cgauge/dtc": "^0.10.0",
-    "@cgauge/type-guard": "^0.10.0",
-    "@playwright/test": "^1.47.0"
+    "type-assurance": "^1.6.1"
   },
   "scripts": {
     "build": "rm -rf dist && tsc",

@@ -8,6 +8,14 @@ nock.disableNetConnect()
 
 afterEach(() => {network.checkForPendingMocks()})
 
+test('It does not arrange if type does not match', () => arrange({}))
+
+test('It does not act if type does not match', () => act({}))
+
+test('It does not assert if type does not match', () => assert({}))
+
+test('It does not clean if type does not match', () => clean({}))
+
 test('It executes put item during arrange', async () => {
   const item = {table: 'table', item: {a: 'b'}}
 

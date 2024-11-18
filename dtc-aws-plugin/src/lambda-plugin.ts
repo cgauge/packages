@@ -1,13 +1,12 @@
-import {isRecord} from '@cgauge/dtc'
 import {Lambda} from '@aws-sdk/client-lambda'
 import extraAssert from '@cgauge/assert'
+import {info} from '@cgauge/dtc'
+import {is, unknown, record, diff} from 'type-assurance'
 
-type LambdaCall = {
-  functionName: string
-  payload: Record<string, unknown>
+const LambdaCall = {
+  functionName: String,
+  payload: record(String, unknown),
 }
-
-const isLambdaAct = (v: unknown): v is LambdaCall => isRecord(v) && 'functionName' in v && 'payload' in v
 
 const lambda = new Lambda({})
 
@@ -22,14 +21,10 @@ export const invokeLambda = async (functionName: string, event: unknown): Promis
   return JSON.parse(payload)
 }
 
-let response: unknown | undefined
+let response: any
 
 export const arrange = async (args: unknown) => {
-  if (!isRecord(args) || !('lambda' in args)) {
-    return
-  }
-
-  if (!Array.isArray(args.lambda)) {
+  if (!is(args, {lambda: [LambdaCall]})) {
     return
   }
 
@@ -37,7 +32,9 @@ export const arrange = async (args: unknown) => {
 }
 
 export const act = async (args: unknown) => {
-  if (!isLambdaAct(args)) {
+  if (!is(args, LambdaCall)) {
+    const mismatch = diff(args, LambdaCall)
+    info(`Lambda plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
     return
   }
 
@@ -45,23 +42,15 @@ export const act = async (args: unknown) => {
 }
 
 export const assert = async (args: unknown) => {
-  if (!isRecord(args) || !('lambda' in args)) {
+  if (!is(args, {lambda: LambdaCall})) {
     return
   }
 
-  if (!isRecord(args.lambda)) {
-    return
-  }
-
-  extraAssert.objectContains(args.lambda, response as Record<string, unknown>)
+  extraAssert.objectContains(args.lambda, response)
 }
 
 export const clean = async (args: unknown) => {
-  if (!isRecord(args) || !('lambda' in args)) {
-    return
-  }
-
-  if (!Array.isArray(args.lambda)) {
+  if (!is(args, {lambda: [LambdaCall]})) {
     return
   }
 

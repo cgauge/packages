@@ -1,20 +1,18 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
-import {isRecord} from '../utils.js'
 import nock from 'nock'
+import {is, optional, record, union} from 'type-assurance'
 
-type MockHttp = {
-  url: string
-  method?: 'get' | 'post' | 'put' | 'delete' | 'options' | 'patch' | 'head'
-  path?: string
-  status?: number
-  queries?: Record<string, string | string[]>
-  headers?: Record<string, string>
-  body?: string | Record<string, unknown>
-  response?: string | Record<string, unknown>
+const MockHttp = {
+  url: String,
+  method: optional(union('get', 'post', 'put', 'delete', 'options', 'patch', 'head')),
+  path: optional(String),
+  status: optional(Number),
+  queries: optional(record(String, union(String, [String]))),
+  headers: optional(record(String, String)),
+  body: optional(union(String, record(String, String))),
+  response: optional(union(String, record(String, String))),
 }
-
-const isMockHttp = (v: unknown): v is {http: MockHttp[]} => isRecord(v) && 'http' in v
 
 export const partialBodyCheck = (expected: string | Record<string, unknown>) => (body: Record<string, unknown>) => {
   if (typeof expected === 'string') {
@@ -27,7 +25,7 @@ export const partialBodyCheck = (expected: string | Record<string, unknown>) => 
 }
 
 export const arrange = async (args: unknown) => {
-  if (!isMockHttp(args)) {
+  if (!is(args, {http: [MockHttp]})) {
     return
   }
 
@@ -67,6 +65,6 @@ export const assert = () => {
     const error = nock.pendingMocks()
     console.log(error)
     nock.cleanAll()
-    throw new Error('Not all nock interceptors were used!')
+    throw new Error('[HTTP_MOCK] Not all nock interceptors were used!')
   }
 }

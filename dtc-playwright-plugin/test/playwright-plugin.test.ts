@@ -1,12 +1,41 @@
 import {test, mock} from 'node:test'
-import {act} from '../src/playwright-plugin'
-import assert from 'node:assert'
+import {arrange, act, assert} from '../src/playwright-plugin'
+import nodeAssert from 'node:assert'
+
+const page = {goto: mock.fn()}
+
+test('It does not arrange if type does not match', () => arrange(
+  {},
+  'basePath',
+  //@ts-ignore
+  {page}
+))
+
+test('It does not act if type does not match', () => act(
+  {},
+  'basePath',
+  //@ts-ignore
+  {page}
+))
+
+test('It does not assert if type does not match', () => assert(
+  {},
+  'basePath',
+  //@ts-ignore
+  {page}
+))
 
 test('It calls playwright triggers', async () => {
   const page = {goto: mock.fn()}
 
-  //@ts-ignore
-  await act({url: 'https://customergauge.com'}, 'basePath', {page})
+  await act(
+    {
+      url: 'https://customergauge.com',
+    },
+    'basePath',
+    //@ts-ignore
+    {page: page},
+  )
 
-  assert.equal(page.goto.mock.callCount(), 1)
+  nodeAssert.equal(page.goto.mock.callCount(), 1)
 })

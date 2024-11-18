@@ -28,6 +28,6 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: npm ci
+      - run: npm i
       - run: npm run build
       - run: npm publish --workspaces --access public

@@ -32,6 +32,8 @@ export const arrange = async (args: unknown) => {
 }
 
 export const act = async (args: unknown) => {
+  response = undefined
+  
   if (!is(args, LambdaCall)) {
     const mismatch = diff(args, LambdaCall)
     info(`Lambda plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)

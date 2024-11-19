@@ -17,6 +17,8 @@ const HttpCall = {
 const HttpCallResponse = {http: union(String, record(String, unknown))}
 
 export const act = async (args: unknown) => {
+  response = undefined
+  
   if (!is(args, HttpCall)) {
     const mismatch = diff(args, HttpCall)
     info(`HTTP Call plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)

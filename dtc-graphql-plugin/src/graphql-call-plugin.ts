@@ -13,6 +13,8 @@ const GraphQlCall = {
 let response: any
 
 export const act = async (args: unknown) => {
+  response = undefined
+  
   if (!is(args, GraphQlCall)) {
     const mismatch = diff(args, GraphQlCall)
     info(`GraphQL plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)

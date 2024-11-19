@@ -2,12 +2,12 @@ import extraAssert from '@cgauge/assert'
 import {info} from '../utils.js'
 import nodeAssert from 'node:assert'
 import {is, optional, unknown, record, diff} from 'type-assurance'
-import { intersection } from '@cgauge/type-guard'
+import {intersection} from '@cgauge/type-guard'
 
 const FunctionCallAct = {
   import: String,
   from: String,
-  'arguments': optional([unknown])
+  arguments: optional([unknown]),
 }
 
 const FunctionCallResponse = intersection({exception: optional({name: String})}, record(String, unknown))
@@ -16,6 +16,9 @@ let response: any
 let exception: any
 
 export const act = async (args: unknown, basePath: string) => {
+  response = undefined
+  exception = undefined
+
   if (!is(args, FunctionCallAct)) {
     const mismatch = diff(args, FunctionCallAct)
     info(`Function Call plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
@@ -46,7 +49,7 @@ export const assert = (args: unknown) => {
     if (!exception) {
       throw Error(`Exception ${exception.name} was not thrown.`)
     }
-    
+
     nodeAssert.equal(args.exception.name, exception.name)
   }
 

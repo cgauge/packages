@@ -1,7 +1,7 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import nock from 'nock'
-import {is, optional, record, union} from '@cgauge/type-guard'
+import {is, optional, record, union, unknown} from '@cgauge/type-guard'
 
 const MockHttp = {
   url: String,
@@ -10,8 +10,8 @@ const MockHttp = {
   status: optional(Number),
   queries: optional(record(String, union(String, [String]))),
   headers: optional(record(String, String)),
-  body: optional(union(String, record(String, String))),
-  response: optional(union(String, record(String, String))),
+  body: optional(union(String, record(String, unknown))),
+  response: optional(union(String, record(String, unknown))),
 }
 
 export const partialBodyCheck = (expected: string | Record<string, unknown>) => (body: Record<string, unknown>) => {

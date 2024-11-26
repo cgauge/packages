@@ -1,14 +1,16 @@
 import {SNS} from '@aws-sdk/client-sns'
-import { info } from '@cgauge/dtc'
-import {is, unknown, record, optional, union, diff} from 'type-assurance'
+import {info} from '@cgauge/dtc'
+import {is, unknown, record, optional, union, diff} from '@cgauge/type-guard'
 
 const SnsCall = {
   topic: String,
   message: record(String, unknown),
-  messageAttributes: optional(record(String, {
-    DataType: union(String, undefined),
-    StringValue: optional(String),
-  }))
+  messageAttributes: optional(
+    record(String, {
+      DataType: union(String, undefined),
+      StringValue: optional(String),
+    }),
+  ),
 }
 
 const sns = new SNS({})

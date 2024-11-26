@@ -1,7 +1,7 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import nock from 'nock'
-import {is, optional, record, union} from 'type-assurance'
+import {is, optional, record, union} from '@cgauge/type-guard'
 
 const MockHttp = {
   url: String,

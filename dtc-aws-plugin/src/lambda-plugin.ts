@@ -1,7 +1,7 @@
 import {Lambda} from '@aws-sdk/client-lambda'
 import extraAssert from '@cgauge/assert'
 import {info} from '@cgauge/dtc'
-import {is, unknown, record, diff} from 'type-assurance'
+import {is, unknown, record, diff} from '@cgauge/type-guard'
 
 const LambdaCall = {
   functionName: String,

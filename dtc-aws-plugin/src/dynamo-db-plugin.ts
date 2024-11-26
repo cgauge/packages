@@ -3,7 +3,7 @@ import {DynamoDB, AttributeValue} from '@aws-sdk/client-dynamodb'
 import {DynamoDBDocument} from '@aws-sdk/lib-dynamodb'
 import extraAssert from '@cgauge/assert'
 import nodeAssert from 'node:assert'
-import {is, optional, unknown, record, diff, TypeFromSchema, union} from 'type-assurance'
+import {is, optional, unknown, record, diff, TypeFromSchema, union} from '@cgauge/type-guard'
 
 const DynamoArrange = {
   table: String,

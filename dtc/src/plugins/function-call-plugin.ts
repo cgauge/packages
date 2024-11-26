@@ -1,8 +1,7 @@
 import extraAssert from '@cgauge/assert'
 import {info} from '../utils.js'
 import nodeAssert from 'node:assert'
-import {is, optional, unknown, record, diff} from 'type-assurance'
-import {intersection} from '@cgauge/type-guard'
+import {is, optional, unknown, record, diff, intersection} from '@cgauge/type-guard'
 
 const FunctionCallAct = {
   import: String,

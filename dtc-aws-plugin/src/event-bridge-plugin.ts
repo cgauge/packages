@@ -1,6 +1,6 @@
 import {EventBridge} from '@aws-sdk/client-eventbridge'
 import {info} from '@cgauge/dtc'
-import {is, unknown, record, diff} from 'type-assurance'
+import {is, unknown, record, diff} from '@cgauge/type-guard'
 
 const EventBridgeAct = {
   eventBus: String,

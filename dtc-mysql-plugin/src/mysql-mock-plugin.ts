@@ -4,7 +4,7 @@ import {debug} from '@cgauge/dtc'
 import {Mock, mock} from 'node:test'
 import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
-import {is, unknown, record, optional, TypeFromSchema} from 'type-assurance'
+import {is, unknown, record, optional, TypeFromSchema} from '@cgauge/type-guard'
 
 const MockMysql = {
   input: String,

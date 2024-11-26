@@ -1,7 +1,7 @@
 import extraAssert from '@cgauge/assert'
-import { info } from '@cgauge/dtc'
+import {info} from '@cgauge/dtc'
 import {GraphQLClient} from 'graphql-request'
-import {is, record, diff, optional, unknown} from 'type-assurance'
+import {is, record, diff, optional, unknown} from '@cgauge/type-guard'
 
 const GraphQlCall = {
   url: String,
@@ -14,7 +14,7 @@ let response: any
 
 export const act = async (args: unknown) => {
   response = undefined
-  
+
   if (!is(args, GraphQlCall)) {
     const mismatch = diff(args, GraphQlCall)
     info(`GraphQL plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)

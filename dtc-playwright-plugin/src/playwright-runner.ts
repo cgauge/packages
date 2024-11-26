@@ -7,10 +7,9 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 export default (constructorArgs?: string[]) =>
   async (testCaseExecutions: TestCaseExecution[], _plugins: string[], runnerArgs: string[], config?: string) => {
-    const args = [...runnerArgs,  ...constructorArgs ?? []]
-    const childProcess = spawnSync(`npx playwright test ${args?.join(' ')} ${__dirname}`, {
+    const args = ['playwright', 'test', ...runnerArgs,  ...constructorArgs ?? [], __dirname]
+    const childProcess = spawnSync('npx', args, {
       stdio: 'inherit',
-      shell: true,
       env: {
         ...process.env,
         ...(testCaseExecutions.length === 1 && {DTC_PLAYWRIGHT_PATH: testCaseExecutions[0].filePath}),

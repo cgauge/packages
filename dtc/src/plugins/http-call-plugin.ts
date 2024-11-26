@@ -1,6 +1,6 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
-import {is, union, optional, unknown, record, assert as typeAssert, diff} from 'type-assurance'
+import {is, union, optional, unknown, record, assert as typeAssert, diff} from '@cgauge/type-guard'
 import {info} from '../utils'
 
 let response: Response | undefined

@@ -1,5 +1,5 @@
 import {Page, expect, Locator} from '@playwright/test'
-import {is, unknown, record, union, optional, TypeFromSchema} from 'type-assurance'
+import {is, unknown, record, union, optional, TypeFromSchema} from '@cgauge/type-guard'
 
 const PlaywrightActionTarget = {
   name: union('getByTestId', 'getByPlaceholder', 'getByText', 'getByTitle', 'getByLabel'),

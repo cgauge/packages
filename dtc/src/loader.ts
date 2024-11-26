@@ -1,7 +1,7 @@
 import {TestCaseExecution, Loader, TestCase} from './domain'
 import {readdir, stat} from 'node:fs/promises'
 import {join} from 'path'
-import {assert} from 'type-assurance'
+import {assert} from '@cgauge/type-guard'
 
 const generateTestCaseExecution = async (filePath: string, loader: Loader): Promise<TestCaseExecution> => {
   const testCase = await loader(filePath)

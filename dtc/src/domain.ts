@@ -1,5 +1,4 @@
-import {intersection} from '@cgauge/type-guard'
-import {optional, record, TypeFromSchema, union, unknown} from 'type-assurance'
+import {intersection, optional, record, TypeFromSchema, union, unknown} from '@cgauge/type-guard'
 
 export type Loader = (filePath: string) => Promise<TestCase>
 

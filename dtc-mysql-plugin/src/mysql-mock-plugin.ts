@@ -41,6 +41,10 @@ export const arrange = async (args: unknown) => {
 }
 
 export const assert = () => {
+  if (!arrangeMysql) {
+    return
+  }
+
   const parser = new nodeSqlParser.Parser()
 
   for (const [index, arrange] of arrangeMysql.entries()) {
@@ -70,7 +74,7 @@ export const assert = () => {
 
     nodeAssert.equal(executions[index].mock.calls.length, arrange.length)
   }
-  
+
   arrangeMysql = []
   executions = []
 }

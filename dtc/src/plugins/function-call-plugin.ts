@@ -50,7 +50,11 @@ export const assert = (args: unknown) => {
     }
 
     nodeAssert.equal(args.exception.name, exception.name)
-  }
+  } else {
+    if (exception) {
+        throw exception
+    }
+}
 
   if (response) {
     extraAssert.objectContains(response, args)

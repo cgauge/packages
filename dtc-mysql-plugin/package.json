@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-mysql-plugin",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "MySQL plugin for Declarative TestCases",
   "repository": {
     "type": "git",

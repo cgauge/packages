@@ -2,6 +2,7 @@ import {test} from 'node:test'
 import {act, assert} from '../../src/plugins/function-call-plugin'
 import {dirname} from 'node:path'
 import {fileURLToPath} from 'node:url'
+import nodeAssert from 'node:assert'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -52,4 +53,23 @@ test('It call a sync function with exception', async () => {
   )
 
   assert(args)
+})
+
+test('It call a sync function and throw exception if id does not exist in assert', async () => {
+  const args = {}
+
+  await act(
+    {
+      import: 'functionWithException',
+      from: '../fixtures/functions.js',
+      arguments: [args],
+    },
+    __dirname,
+  )
+
+  try {
+    assert(args)
+  } catch (e) {
+    nodeAssert.ok(true)
+  } 
 })

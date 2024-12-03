@@ -2,7 +2,7 @@ import {Page, expect, Locator} from '@playwright/test'
 import {is, unknown, record, union, optional, TypeFromSchema} from '@cgauge/type-guard'
 
 const PlaywrightActionTarget = {
-  name: union('getByTestId', 'getByPlaceholder', 'getByText', 'getByTitle', 'getByLabel'),
+  name: String,
   args: [unknown],
 }
 
@@ -46,8 +46,8 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
         element = page.getByTestId(act.target)
       }
     } else {
-      if (typeof page[act.target.name] === 'function') {
-        element = page[act.target.name].apply(page, act.target.args as [string])
+      if (typeof (page as any)[act.target.name] === 'function') {
+        element = (page as any)[act.target.name].apply(page, act.target.args as [string])
       }
     }
 

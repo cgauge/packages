@@ -1,4 +1,4 @@
-import {TestCaseExecution, Loader, TestCase} from './domain'
+import {TestCaseExecution, Loader, TestCase} from './domain.js'
 import {readdir, stat} from 'node:fs/promises'
 import {join} from 'path'
 import {assert} from '@cgauge/type-guard'

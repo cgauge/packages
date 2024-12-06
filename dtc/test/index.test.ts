@@ -8,6 +8,12 @@ import {
   assert as assertArgs,
   clean as cleanArgs,
 } from './fixtures/plugin-args.ts'
+import {
+  arrange as arrangeArray,
+  act as actArray,
+  assert as assertArray,
+  clean as cleanArray,
+} from './fixtures/plugin-array.ts'
 
 test('It runs plugins methods', async () => {
   await executeTestCase(
@@ -46,4 +52,17 @@ test('It ensure plugins methods are optional', async () => {
   await executeTestCase({name: 'Test'}, ['../test/fixtures/blank-plugin.ts'], '', {})
 
   nodeAssert.ok(true)
+})
+
+test('It supports array on arrange, assert and clean', async () => {
+  await executeTestCase(
+    {name: 'Test', act: {}, arrange: [{}, {}], assert: [{}, {}], clean: [{}, {}]},
+    ['../test/fixtures/plugin-array.ts'],
+    './filePath.js',
+  )
+
+  nodeAssert.equal(arrangeArray.mock.callCount(), 2)
+  nodeAssert.equal(actArray.mock.callCount(), 1)
+  nodeAssert.equal(assertArray.mock.callCount(), 2)
+  nodeAssert.equal(cleanArray.mock.callCount(), 2)
 })

@@ -17,10 +17,22 @@ export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[],
 export const defaultLoader = async (filePath: string) => (await import(filePath)).default
 
 export const defaultPlugins = [
-  './plugins/disable-net-connect-plugin.js', 
+  './plugins/disable-net-connect-plugin.js',
   './plugins/function-call-plugin.js',
   './plugins/http-mock-plugin.js',
 ]
+
+const preparePluginFunction =
+  (plugins: any[], basePath: string, testRunnerArgs?: unknown) => async (functionName: string, data: unknown) => {
+    await Promise.all(
+      plugins
+        .map((module) => {
+          const normalizedData: unknown[] = Array.isArray(data) ? data : [data]
+          return normalizedData.map((x) => module[functionName]?.(x, basePath, testRunnerArgs))
+        })
+        .flat(),
+    )
+  }
 
 export const executeTestCase = async (
   testCase: TestCase,
@@ -35,24 +47,21 @@ export const executeTestCase = async (
   }
 
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
+  const executePluginFunction = preparePluginFunction(loadedPlugins, basePath, testRunnerArgs)
 
   if (testCase.arrange) {
-    await Promise.all(loadedPlugins.map(({arrange}) => arrange?.(testCase.arrange, basePath, testRunnerArgs)))
+    await executePluginFunction('arrange', testCase.arrange)
   }
 
   if (testCase.act) {
-    await Promise.all(loadedPlugins.map(({act}) => act?.(testCase.act, basePath, testRunnerArgs)))
+    await executePluginFunction('act', testCase.act)
   }
 
   if (testCase.assert) {
-    await Promise.all(
-      loadedPlugins.map(({assert}) =>
-        retry(async () => assert?.(testCase.assert, basePath, testRunnerArgs), testCase.retry ?? 0, testCase.delay ?? 0),
-      ),
-    )
+    await retry(() => executePluginFunction('assert', testCase.assert), testCase.retry, testCase.delay)
   }
-  
+
   if (testCase.clean) {
-    await Promise.all(loadedPlugins.map(({clean}) => clean?.(testCase.clean, basePath, testRunnerArgs)))
+    await executePluginFunction('clean', testCase.clean)
   }
 }

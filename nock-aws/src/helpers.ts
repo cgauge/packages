@@ -2,6 +2,8 @@ import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import nock from 'nock'
 
+const debug = (...message: any) => { process.env.NOCK_AWS_DEBUG && console.log(...message) }
+
 export const checkForPendingMocks = (): void => {
   if (!nock.isDone()) {
     const error = nock.pendingMocks()
@@ -12,6 +14,8 @@ export const checkForPendingMocks = (): void => {
 }
 
 export const partialBodyCheck = (expected: string | Record<string, unknown>) => (body: Record<string, unknown>) => {
+  debug('[NOCK_AWS] Body check', body, expected)
+  
   if (typeof expected === 'string') {
     nodeAssert.equal(body, expected)
     return true

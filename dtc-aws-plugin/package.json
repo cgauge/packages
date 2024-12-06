@@ -17,6 +17,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.645.0",
     "@aws-sdk/client-eventbridge": "^3.645.0",
+    "@aws-sdk/client-rds-data": "^3.645.0",
     "@aws-sdk/client-lambda": "^3.645.0",
     "@aws-sdk/client-sns": "^3.645.0",
     "@aws-sdk/lib-dynamodb": "^3.645.0",

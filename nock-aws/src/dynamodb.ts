@@ -13,10 +13,10 @@ export const streamDynamodb = (request: any, response?: any): void => {
   nock(streamUrl).post('/', partialBodyCheck(request)).reply(200, response)
 }
 
-export const failDynamodb = (request: any): void => {
+export const dynamodbFailWith = (request: any): void => {
   nock(url).post('/', partialBodyCheck(request)).reply(400)
 }
 
-export const failDynamodbEmpty = (): void => {
+export const dynamodbFail = (): void => {
   nock(url).post('/').reply(400)
 }

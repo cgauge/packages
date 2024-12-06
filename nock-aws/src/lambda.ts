@@ -19,6 +19,23 @@ type LambdaRequest = {
   InvokeArgs?: any
 }
 
+export const lambda = (request: LambdaRequest, response?: any): void => {
+  nock(url)
+    .post(
+      `/2014-11-13/functions/${request.FunctionName || ''}/invoke`,
+      partialBodyCheck({
+        ...JSON.parse(request.InvokeArgs?.toString() || ''),
+      }),
+    )
+    .reply(200, response)
+}
+
+export const lambdaFail = (request: LambdaRequest): void => {
+  nock(url)
+    .post(`/2014-11-13/functions/${request.FunctionName || ''}/invoke`)
+    .reply(500)
+}
+
 export const lambdaAsync = (request: LambdaRequest, response?: any): void => {
   nock(url)
     .post(
@@ -30,7 +47,7 @@ export const lambdaAsync = (request: LambdaRequest, response?: any): void => {
     .reply(200, response ?? lambdaAsyncResponse)
 }
 
-export const failLambdaAsync = (request: LambdaRequest): void => {
+export const lambdaAsyncFail = (request: LambdaRequest): void => {
   nock(url)
     .post(`/2014-11-13/functions/${request.FunctionName || ''}/invoke-async`)
     .reply(500)

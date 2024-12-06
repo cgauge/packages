@@ -2,6 +2,7 @@ import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import nock from 'nock'
 import {is, optional, record, union, unknown} from '@cgauge/type-guard'
+import { debug } from '../utils'
 
 const MockHttp = {
   url: String,
@@ -15,6 +16,8 @@ const MockHttp = {
 }
 
 export const partialBodyCheck = (expected: string | Record<string, unknown>) => (body: Record<string, unknown>) => {
+  debug(`[HTTP_MOCK] Body check:\n ${JSON.stringify(body, null, 2)}\n ${JSON.stringify(expected, null, 2)}`)
+
   if (typeof expected === 'string') {
     nodeAssert.equal(body, expected)
     return true
@@ -26,6 +29,7 @@ export const partialBodyCheck = (expected: string | Record<string, unknown>) => 
 
 export const arrange = async (args: unknown) => {
   if (!is(args, {http: [MockHttp]})) {
+    debug('[HTTP_MOCK] Arrange does not match')
     return
   }
 

@@ -1,5 +1,7 @@
 import nodeAssert from 'node:assert'
 
+const debug = (...message: any) => { process.env.ASSERT_DEBUG && console.log(...message) }
+
 interface ExtraAssertions {
   objectContains<T extends Record<string, any>>(
     actual: Record<string, any>,
@@ -14,6 +16,8 @@ const assertions: ExtraAssertions = {
     expected: T,
     message?: string | Error,
   ): asserts actual is Partial<T> {
+    debug('[ASSERT] objectContains', actual, expected)
+
     if (typeof actual !== 'object' || typeof expected !== 'object') {
       throw new Error('Both actual and expected values must be objects');
     }
@@ -23,7 +27,7 @@ const assertions: ExtraAssertions = {
     for (const key of expectedKeys) {
       if (key in actual) {
         if (typeof actual[key] !== typeof expected[key]) {
-          throw new Error(`Type mismatch for key '${String(key)}'. Expected ${typeof expected[key]} but got ${typeof actual[key]}. ${message}`);
+          throw new Error(`Type mismatch for key '${String(key)}'. Expected ${typeof expected[key]} but got ${typeof actual[key]}. ${message ?? ''}`);
         }
     
         if (typeof expected[key] === 'object' && expected[key] !== null) {

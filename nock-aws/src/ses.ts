@@ -40,11 +40,11 @@ export const ses = (request: SesRequest, response?: any): void => {
     .reply(200, response ?? sendEmailResponse)
 }
 
-export const failSes = (): void => {
+export const sesFail = (): void => {
   nock(url).post('/').reply(500)
 }
 
-export const failSesWith = (request: SesRequest): void => {
+export const sesFailWith = (request: SesRequest): void => {
   const params = {
     Action: 'SendEmail',
     'Destination.ToAddresses.member.1': request.Destination?.ToAddresses?.[0],

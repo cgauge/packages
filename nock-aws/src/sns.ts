@@ -18,3 +18,11 @@ const snsResponse = `
 export const sns = (request: any, response?: any): void => {
   nock(url).post('/', partialBodyCheck(request)).reply(200, response ?? snsResponse)
 }
+
+export const snsFailWith = (request: any): void => {
+  nock(url).post('/', partialBodyCheck(request)).reply(400)
+}
+
+export const snsFail = (): void => {
+  nock(url).post(`/Execute`).reply(500)
+}

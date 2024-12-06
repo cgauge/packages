@@ -10,6 +10,6 @@ export const eventBridge = (entries: unknown[]): void => {
     .reply(200, {FailedEntryCount: 0})
 }
 
-export const failEventBridge = (): void => {
+export const eventBridgeFail = (): void => {
   nock(url).post('/').reply(200, {FailedEntryCount: 1})
 }

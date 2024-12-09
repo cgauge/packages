@@ -49,6 +49,10 @@ export const executeTestCase = async (
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
   const executePluginFunction = preparePluginFunction(loadedPlugins, basePath, testRunnerArgs)
 
+  if (testCase.layers) {
+    await Promise.all(testCase.layers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)))
+  }
+
   if (testCase.arrange) {
     await executePluginFunction('arrange', testCase.arrange)
   }
@@ -59,6 +63,10 @@ export const executeTestCase = async (
 
   if (testCase.assert) {
     await retry(() => executePluginFunction('assert', testCase.assert), testCase.retry, testCase.delay)
+  }
+
+  if (testCase.layers) {
+    await Promise.all(testCase.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)))
   }
 
   if (testCase.clean) {

@@ -30,3 +30,15 @@ export const retry = async <T>(fn: () => Promise<T>, times = 2, seconds = 1): Pr
 
   throw new Error(`Failed retrying ${times} times`)
 }
+
+export const merge = (to: any, from: any) => {
+  to = {...to}
+  for (const n in from) {
+    if (typeof to[n] != 'object') {
+      to[n] = from[n]
+    } else if (typeof from[n] == 'object') {
+      to[n] = merge(to[n], from[n])
+    }
+  }
+  return to
+}

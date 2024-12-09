@@ -14,6 +14,12 @@ import {
   assert as assertArray,
   clean as cleanArray,
 } from './fixtures/plugin-array.ts'
+import {
+  arrange as arrangeLayers,
+  act as actLayers,
+  assert as assertLayers,
+  clean as cleanLayers,
+} from './fixtures/layers.ts'
 
 test('It runs plugins methods', async () => {
   await executeTestCase(
@@ -28,7 +34,7 @@ test('It runs plugins methods', async () => {
   nodeAssert.equal(clean.mock.callCount(), 1)
 })
 
-test('It pass parameters to plugins functions', async () => {
+test('It passes parameters to plugins functions', async () => {
   const testCase = {
     name: 'Test',
     arrange: {a: 'b'},
@@ -48,7 +54,7 @@ test('It pass parameters to plugins functions', async () => {
   nodeAssert.deepEqual(cleanArgs.mock.calls[0].arguments, [testCase.clean, basePath, testArgs])
 })
 
-test('It ensure plugins methods are optional', async () => {
+test('It ensures plugins methods are optional', async () => {
   await executeTestCase({name: 'Test'}, ['../test/fixtures/blank-plugin.ts'], '', {})
 
   nodeAssert.ok(true)
@@ -65,4 +71,24 @@ test('It supports array on arrange, assert and clean', async () => {
   nodeAssert.equal(actArray.mock.callCount(), 1)
   nodeAssert.equal(assertArray.mock.callCount(), 2)
   nodeAssert.equal(cleanArray.mock.callCount(), 2)
+})
+
+test('It executes layers', async () => {
+  await executeTestCase(
+    {
+      name: 'Test', 
+      act: {}, 
+      layers: [
+        {arrange: {}, assert: {}, clean: {}},
+        {arrange: [{}, {}], assert: [{}, {}], clean: [{}, {}]}
+      ]
+    },
+    ['../test/fixtures/layers.ts'],
+    './filePath.js',
+  )
+
+  nodeAssert.equal(arrangeLayers.mock.callCount(), 3)
+  nodeAssert.equal(actLayers.mock.callCount(), 1)
+  nodeAssert.equal(assertLayers.mock.callCount(), 3)
+  nodeAssert.equal(cleanLayers.mock.callCount(), 3)
 })

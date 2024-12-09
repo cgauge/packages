@@ -17,12 +17,22 @@ type GenericAttributes = TypeFromSchema<typeof GenericAttributes>
 
 const UnionRecordRecordArray = union(record(String, unknown), [record(String, unknown)])
 
+const Layer = {
+  retry: optional(Number),
+  delay: optional(Number),
+  parameters: optional(record(String, unknown)),
+  arrange: optional(UnionRecordRecordArray),
+  // assert: optional(union(String, intersection({exception: optional({name: String})}, UnionRecordRecordArray))),
+  clean: optional(UnionRecordRecordArray),
+}
+
 export const TestCase = intersection(GenericAttributes, {
   name: String,
   debug: optional(Boolean),
   retry: optional(Number),
   delay: optional(Number),
   timeout: optional(Number),
+  layers: optional([Layer]),
   parameters: optional(UnionRecordRecordArray),
   arrange: optional(UnionRecordRecordArray),
   act: optional(record(String, unknown)),

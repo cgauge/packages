@@ -2,6 +2,7 @@ import {TestCaseExecution, Loader, TestCase} from './domain.js'
 import {readdir, stat} from 'node:fs/promises'
 import {join} from 'path'
 import {assert} from '@cgauge/type-guard'
+import {merge} from './utils.js'
 
 const generateTestCaseExecution = async (filePath: string, loader: Loader): Promise<TestCaseExecution> => {
   const testCase = await loader(filePath)
@@ -81,10 +82,18 @@ const replacePlaceholders = (template: unknown, params: Record<string, unknown>)
 
 const resolveParameters = (testCaseExecution: TestCaseExecution): TestCaseExecution[] => {
   if (testCaseExecution.testCase.parameters) {
-    const params = testCaseExecution.testCase.parameters
+    let params = testCaseExecution.testCase.parameters
 
     if (Array.isArray(params)) {
       return params.map((param, i) => {
+        if (testCaseExecution.testCase.layers) {
+          testCaseExecution.testCase.layers
+            .filter((v) => v.parameters)
+            .forEach((v) => {
+              params = merge(v.parameters, params)
+            })
+        }
+
         const resolvedParams = replacePlaceholders(param, param)
 
         return {
@@ -95,6 +104,14 @@ const resolveParameters = (testCaseExecution: TestCaseExecution): TestCaseExecut
           },
         }
       })
+    }
+
+    if (testCaseExecution.testCase.layers) {
+      testCaseExecution.testCase.layers
+        .filter((v) => v.parameters)
+        .forEach((v) => {
+          params = merge(v.parameters, params)
+        })
     }
 
     const resolvedParams = replacePlaceholders(params, params)

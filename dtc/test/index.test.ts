@@ -79,8 +79,8 @@ test('It executes layers', async () => {
       name: 'Test', 
       act: {}, 
       layers: [
-        {arrange: {}, assert: {}, clean: {}},
-        {arrange: [{}, {}], assert: [{}, {}], clean: [{}, {}]}
+        {arrange: {}, clean: {}},
+        {arrange: [{}, {}], clean: [{}, {}]}
       ]
     },
     ['../test/fixtures/layers.ts'],
@@ -89,6 +89,5 @@ test('It executes layers', async () => {
 
   nodeAssert.equal(arrangeLayers.mock.callCount(), 3)
   nodeAssert.equal(actLayers.mock.callCount(), 1)
-  nodeAssert.equal(assertLayers.mock.callCount(), 3)
   nodeAssert.equal(cleanLayers.mock.callCount(), 3)
 })

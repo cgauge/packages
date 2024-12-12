@@ -1,0 +1,6 @@
+---
+uuid: !faker string.uuid
+int: !faker number.int
+fullName: !faker person.fullName
+ip: !faker internet.ip
+sample: !faker word.sample

@@ -1,0 +1,3 @@
+---
+value: !marshall 
+  key: "string-value"

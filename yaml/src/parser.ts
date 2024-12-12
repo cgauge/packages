@@ -2,8 +2,8 @@ import {Type, load as jsYamlLoad, DEFAULT_SCHEMA, LoadOptions, Schema} from 'js-
 import {dirname} from 'node:path'
 import {URLSearchParams} from 'node:url'
 import {readFileSync} from 'node:fs'
-import {fakerType} from './faker'
-import {marshallType} from './dynamodb'
+import {fakerType} from './faker.js'
+import {marshallType} from './dynamodb.js'
 
 const jsType = new Type('!js', {
   kind: 'scalar',

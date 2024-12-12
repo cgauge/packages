@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-graphql-plugin",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "GraphQl plugin for Declarative TestCases",
   "repository": {
     "type": "git",

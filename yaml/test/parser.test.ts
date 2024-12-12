@@ -44,3 +44,20 @@ test(`it replaces interpolated env var values`, () => {
 
   assert.deepEqual(load(filename), {value: 'string-test-value'})
 })
+
+test(`it generates fake data`, () => {
+  const filename = __dirname + `/fixtures/faker.yml`
+  const data = load(filename) as Record<string, unknown>
+
+  assert.ok(typeof data.uuid === 'string')
+  assert.ok(typeof data.int === 'number')
+  assert.ok(typeof data.fullName === 'string')
+  assert.ok(typeof data.ip === 'string')
+  assert.ok(typeof data.sample === 'string')
+})
+
+test(`it marshalls objects`, () => {
+  const filename = __dirname + `/fixtures/marshall.yml`
+
+  assert.deepEqual(load(filename), {value: {key: {S: 'string-value'}}})
+})

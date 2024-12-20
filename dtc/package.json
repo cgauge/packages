@@ -24,7 +24,7 @@
     "nock": "^14.0.0-beta.15"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc && chmod +x ./dist/cli.js",
+    "build": "tsc --build --verbose && chmod +x ./dist/cli.js",
     "test": "tsx --test test/*.test.ts test/**/*.test.ts",
     "test:only": "tsx --test --test-only test/*.test.ts test/**/*.test.ts",
     "test:single": "tsx --test",

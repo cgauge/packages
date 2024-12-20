@@ -21,7 +21,7 @@
     "graphql-request": "^7.1.2"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "tsc --build --verbose",
     "test": "tsx --test test/*.test.ts",
     "test:only": "tsx --test --test-only test/*.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"

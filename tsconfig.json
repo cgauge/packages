@@ -12,7 +12,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "incremental": true,
   },
   "exclude": ["node_modules", "**/dist/**/*", "**/test/*"]
 }

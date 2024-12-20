@@ -28,7 +28,7 @@
     "@cgauge/type-guard": "^0.12.0"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "tsc --build --verbose",
     "test": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --test test/*.test.ts",
     "test:only": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --test --test-only test/*.test.ts",
     "test:coverage": "AWS_MAX_ATTEMPTS=0 AWS_REGION=eu-west-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test tsx --experimental-test-coverage --test test/*.test.ts"

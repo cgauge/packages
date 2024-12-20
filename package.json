@@ -16,9 +16,10 @@
     "yaml"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "test:only": "npm run test:only --workspaces --if-present"
+    "clean": "find . -name 'dist' -type d -prune -not -path './node_modules/*' -exec rm -rf '{}' +",
+    "dependencies": "echo assert type-guard dtc | xargs -n1 npm run build --if-present --workspace",
+    "build": "npm run dependencies && npm query .workspace | node -p 'JSON.parse(fs.readFileSync(0)).map(ws => ws.name).join(\"\\n\")' | xargs -I {} -P 0 npm run build --if-present --workspace '{}'",
+    "test": "npm query .workspace | node -p 'JSON.parse(fs.readFileSync(0)).map(ws => ws.name).join(\"\\n\")' | xargs -I {} -P 0 npm run test --if-present --workspace '{}'"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

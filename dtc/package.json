@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "description": "Declarative TestCases",
   "repository": {
     "type": "git",
@@ -18,8 +18,8 @@
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "@cgauge/assert": "^0.12.0",
-    "@cgauge/type-guard": "^0.12.0",
+    "@cgauge/assert": "^0.13.0",
+    "@cgauge/type-guard": "^0.13.0",
     "cleye": "^1.3.2",
     "nock": "^14.0.0-beta.15"
   },

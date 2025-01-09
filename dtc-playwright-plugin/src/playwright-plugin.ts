@@ -16,6 +16,7 @@ const PlaywrightAction = {
   action: optional(union(String, PlaywrightActionArgs)),
   fill: optional(String),
   click: optional(Boolean),
+  keydown: optional(Boolean),
   toBeVisible: optional(Boolean),
   options: optional(record(String, unknown)),
 }
@@ -66,6 +67,11 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
         await element.fill(act.fill, act.options)
       } else if (act.click !== undefined) {
         await element.click(act.options)
+      } else if (act.keydown !== undefined) {
+        await element.focus()
+        await element.evaluate((htmlElement, options) => {
+            htmlElement.dispatchEvent(new KeyboardEvent('keydown', {bubbles: true, key: 'ArrowDown', ...options}))
+        }, act.options)
       } else if (act.toBeVisible !== undefined) {
         await expect(element.first()).toBeVisible({visible: act.toBeVisible, ...act.options})
       }
@@ -77,7 +83,7 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
   if (!page) {
     throw new Error('Page not defined')
   }
-  
+
   if (!is(args, {playwright: Playwright})) {
     return
   }

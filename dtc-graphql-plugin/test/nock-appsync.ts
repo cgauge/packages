@@ -31,6 +31,17 @@ export const appsync = (
     .reply(200, response)
 }
 
+export const appsyncFail = (
+  request: AppSyncRequest,
+  expectedHeaders: Record<string, string>,
+  errorMessage: string
+): void => {
+  nock('https://appsync.eu-west-1.amazonaws.com')
+    .post('/', partialBodyCheck(request))
+    .matchHeader('authorization', expectedHeaders.authorization)
+    .reply(500, { error: errorMessage });
+};
+
 export const checkForPendingMocks = (): void => {
   if (!nock.isDone()) {
     const error = nock.pendingMocks()

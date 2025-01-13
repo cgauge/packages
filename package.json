@@ -11,6 +11,7 @@
     "dtc-mysql-plugin",
     "dtc-playwright-plugin",
     "dtc-graphql-plugin",
+    "dtc-react-plugin",
     "nock-aws",
     "type-guard",
     "yaml"

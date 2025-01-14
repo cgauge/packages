@@ -1,7 +1,8 @@
 import extraAssert from '@cgauge/assert'
 import {info} from '@cgauge/dtc'
 import {GraphQLClient} from 'graphql-request'
-import {is, record, diff, optional, unknown} from '@cgauge/type-guard'
+import nodeAssert from 'node:assert'
+import {is, record, diff, optional, unknown, intersection} from '@cgauge/type-guard'
 
 const GraphQlCall = {
   url: String,
@@ -10,10 +11,14 @@ const GraphQlCall = {
   headers: optional(record(String, String)),
 }
 
+const GraphQlCallResponse = intersection({exception: optional({name: String})}, {graphql: record(String, unknown)})
+
 let response: any
+let exception: any
 
 export const act = async (args: unknown) => {
   response = undefined
+  exception = undefined
 
   if (!is(args, GraphQlCall)) {
     const mismatch = diff(args, GraphQlCall)
@@ -23,12 +28,28 @@ export const act = async (args: unknown) => {
 
   const graphQLClient = new GraphQLClient(args.url, args)
 
-  response = await graphQLClient.request(args.query, args.variables)
+  try {
+    response = await graphQLClient.request(args.query, args.variables)
+  } catch (e) {
+    exception = e
+  }
 }
 
 export const assert = async (args: unknown) => {
-  if (!is(args, {graphql: GraphQlCall})) {
+  if (!is(args, GraphQlCallResponse)) {
     return
+  }
+
+  if (args.exception) {
+    if (!exception) {
+      throw Error(`Exception ${exception.name} was not thrown.`)
+    }
+
+    nodeAssert.equal(args.exception.name, exception.name)
+  } else {
+    if (exception) {
+      throw exception
+    }
   }
 
   extraAssert.objectContains(response, args.graphql)

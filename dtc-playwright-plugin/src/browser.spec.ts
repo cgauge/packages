@@ -16,6 +16,6 @@ for (const {filePath, testCase} of testCaseExecutions) {
 
     test(testCase.name, async ({page}) => {
         testCase.timeout && test.setTimeout(testCase.timeout)
-        await executeTestCase(testCase, plugins, filePath, {page})
+        await executeTestCase({testCase, filePath}, plugins, {page})
     })
 }

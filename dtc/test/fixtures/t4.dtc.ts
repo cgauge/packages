@@ -2,14 +2,7 @@ export default {
   parameters: {
     a: 'b',
   },
-  layers: [{
-    parameters: {
-      b: '${a}',
-      c: {
-        d: 'e'
-      },
-    },
-  }],
+  layers: ['layer4.json'],
   name: 'Test 4',
   act: {
     import: 'syncFunction',

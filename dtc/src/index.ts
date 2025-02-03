@@ -1,4 +1,4 @@
-import type {TestCase, TestCaseExecution} from './domain'
+import type {TestCaseExecution} from './domain'
 import {retry} from './utils.js'
 import {dirname} from 'node:path'
 import test from 'node:test'
@@ -65,11 +65,11 @@ export const executeTestCase = async (
     await retry(() => executePluginFunction('assert', testCase.assert), testCase.retry, testCase.delay)
   }
 
-  if (testCaseExecution.layers) {
-    await Promise.all(testCaseExecution.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)))
-  }
-
   if (testCase.clean) {
     await executePluginFunction('clean', testCase.clean)
+  }
+
+  if (testCaseExecution.layers) {
+    await Promise.all(testCaseExecution.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)))
   }
 }

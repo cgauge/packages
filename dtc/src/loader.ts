@@ -97,7 +97,7 @@ const resolveTestCaseExecutionParams = (testCaseExecution: TestCaseExecution, pa
       ...replacePlaceholders(testCaseExecution.testCase, resolvedParams),
       name,
     },
-    layers: loadedLayers,
+    layers: replacePlaceholders(loadedLayers, resolvedParams),
   }
 }
 

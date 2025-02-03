@@ -1,6 +1,6 @@
 import {intersection, optional, record, TypeFromSchema, union, unknown} from '@cgauge/type-guard'
 
-export type Loader = (filePath: string) => Promise<TestCase>
+export type Loader = <T = TestCase>(filePath: string) => Promise<T>
 
 export type Runner = (
   testCases: TestCaseExecution[],
@@ -17,7 +17,7 @@ type GenericAttributes = TypeFromSchema<typeof GenericAttributes>
 
 const UnionRecordRecordArray = union(record(String, unknown), [record(String, unknown)])
 
-const Layer = {
+export const Layer = {
   retry: optional(Number),
   delay: optional(Number),
   parameters: optional(record(String, unknown)),
@@ -25,6 +25,7 @@ const Layer = {
   // assert: optional(union(String, intersection({exception: optional({name: String})}, UnionRecordRecordArray))),
   clean: optional(UnionRecordRecordArray),
 }
+export type Layer = TypeFromSchema<typeof Layer>
 
 export const TestCase = intersection(GenericAttributes, {
   name: String,
@@ -32,7 +33,7 @@ export const TestCase = intersection(GenericAttributes, {
   retry: optional(Number),
   delay: optional(Number),
   timeout: optional(Number),
-  layers: optional([Layer]),
+  layers: optional([String]),
   parameters: optional(UnionRecordRecordArray),
   arrange: optional(UnionRecordRecordArray),
   act: optional(record(String, unknown)),
@@ -44,8 +45,10 @@ export type TestCase = TypeFromSchema<typeof TestCase>
 export const TestCaseExecution = {
   filePath: String,
   testCase: TestCase,
+  layers: optional([Layer])
 }
 export type TestCaseExecution = {
   filePath: string,
   testCase: TestCase,
+  layers?: Layer[]
 }

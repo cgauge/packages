@@ -23,9 +23,11 @@ import {
 
 test('It runs plugins methods', async () => {
   await executeTestCase(
-    {name: 'Test', act: {}, arrange: {}, assert: {}, clean: {}},
+    {
+      testCase: {name: 'Test', act: {}, arrange: {}, assert: {}, clean: {}},
+      filePath: './filePath.js',
+    },
     ['../test/fixtures/plugin.ts'],
-    './filePath.js',
   )
 
   nodeAssert.equal(arrange.mock.callCount(), 1)
@@ -46,7 +48,7 @@ test('It passes parameters to plugins functions', async () => {
   const basePath = './path/to'
   const testArgs = {i: 'j'}
 
-  await executeTestCase(testCase, ['../test/fixtures/plugin-args.ts'], filePath, testArgs)
+  await executeTestCase({testCase, filePath}, ['../test/fixtures/plugin-args.ts'], testArgs)
 
   nodeAssert.deepEqual(arrangeArgs.mock.calls[0].arguments, [testCase.arrange, basePath, testArgs])
   nodeAssert.deepEqual(actArgs.mock.calls[0].arguments, [testCase.act, basePath, testArgs])
@@ -55,16 +57,24 @@ test('It passes parameters to plugins functions', async () => {
 })
 
 test('It ensures plugins methods are optional', async () => {
-  await executeTestCase({name: 'Test'}, ['../test/fixtures/blank-plugin.ts'], '', {})
+  await executeTestCase({testCase: {name: 'Test'},filePath: ''}, ['../test/fixtures/blank-plugin.ts'], {})
 
   nodeAssert.ok(true)
 })
 
 test('It supports array on arrange, assert and clean', async () => {
   await executeTestCase(
-    {name: 'Test', act: {}, arrange: [{}, {}], assert: [{}, {}], clean: [{}, {}]},
+    {
+      testCase: {
+        name: 'Test',
+        act: {},
+        arrange: [{}, {}],
+        assert: [{}, {}],
+        clean: [{}, {}],
+      },
+      filePath: './filePath.js',
+    },
     ['../test/fixtures/plugin-array.ts'],
-    './filePath.js',
   )
 
   nodeAssert.equal(arrangeArray.mock.callCount(), 2)
@@ -76,15 +86,17 @@ test('It supports array on arrange, assert and clean', async () => {
 test('It executes layers', async () => {
   await executeTestCase(
     {
-      name: 'Test', 
-      act: {}, 
+      testCase: {
+        name: 'Test',
+        act: {},
+      },
+      filePath: './filePath.js',
       layers: [
         {arrange: {}, clean: {}},
-        {arrange: [{}, {}], clean: [{}, {}]}
-      ]
+        {arrange: [{}, {}], clean: [{}, {}]},
+      ],
     },
     ['../test/fixtures/layers.ts'],
-    './filePath.js',
   )
 
   nodeAssert.equal(arrangeLayers.mock.callCount(), 3)

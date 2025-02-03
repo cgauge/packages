@@ -1,6 +1,6 @@
-import {TestCaseExecution, Loader, TestCase} from './domain.js'
+import {TestCaseExecution, Loader, TestCase, Layer} from './domain.js'
 import {readdir, stat} from 'node:fs/promises'
-import {join} from 'path'
+import {join, dirname} from 'path'
 import {assert} from '@cgauge/type-guard'
 import {merge} from './utils.js'
 
@@ -80,52 +80,54 @@ const replacePlaceholders = (template: unknown, params: Record<string, unknown>)
     return value
   })
 
-const resolveParameters = (testCaseExecution: TestCaseExecution): TestCaseExecution[] => {
-  if (testCaseExecution.testCase.parameters) {
-    let params = testCaseExecution.testCase.parameters
-
-    if (Array.isArray(params)) {
-      return params.map((param, i) => {
-        if (testCaseExecution.testCase.layers) {
-          testCaseExecution.testCase.layers
-            .filter((v) => v.parameters)
-            .forEach((v) => {
-              params = merge(v.parameters, params)
-            })
-        }
-
-        const resolvedParams = replacePlaceholders(param, param)
-
-        return {
-          filePath: testCaseExecution.filePath,
-          testCase: {
-            ...replacePlaceholders(testCaseExecution.testCase, resolvedParams),
-            name: `${testCaseExecution.testCase.name} (provider ${i})`,
-          },
-        }
+const resolveTestCaseExecutionParams = (testCaseExecution: TestCaseExecution, param: Record<string, unknown>, loadedLayers: Layer[], name: string) => {
+  if (loadedLayers) {
+    loadedLayers
+      .filter((v) => v.parameters)
+      .forEach((v) => {
+        param = merge(v.parameters, param)
       })
-    }
-
-    if (testCaseExecution.testCase.layers) {
-      testCaseExecution.testCase.layers
-        .filter((v) => v.parameters)
-        .forEach((v) => {
-          params = merge(v.parameters, params)
-        })
-    }
-
-    const resolvedParams = replacePlaceholders(params, params)
-
-    return [
-      {
-        filePath: testCaseExecution.filePath,
-        testCase: replacePlaceholders(testCaseExecution.testCase, resolvedParams),
-      },
-    ]
   }
 
-  return [testCaseExecution]
+  const resolvedParams = replacePlaceholders(param, param)
+
+  return {
+    filePath: testCaseExecution.filePath,
+    testCase: {
+      ...replacePlaceholders(testCaseExecution.testCase, resolvedParams),
+      name,
+    },
+    layers: loadedLayers,
+  }
 }
+
+const resolveParameters =
+  (loader: Loader) =>
+  async (testCaseExecution: TestCaseExecution): Promise<TestCaseExecution[]> => {
+    let loadedLayers: Layer[] = []
+
+    if (testCaseExecution.testCase.layers) {
+      const testCaseExecutionFilePath = dirname(testCaseExecution.filePath)
+      const layersPromises = testCaseExecution.testCase.layers.map((filePath) =>
+        loader<Layer>(testCaseExecutionFilePath + '/' + filePath),
+      )
+      loadedLayers = await Promise.all(layersPromises)
+    }
+
+    if (testCaseExecution.testCase.parameters) {
+      let params = testCaseExecution.testCase.parameters
+
+      if (Array.isArray(params)) { //Data Provider
+        return params.map((param, i) => {
+          return resolveTestCaseExecutionParams(testCaseExecution, param, loadedLayers, `${testCaseExecution.testCase.name} (provider ${i})`)
+        })
+      }
+
+      return [resolveTestCaseExecutionParams(testCaseExecution, params, loadedLayers, testCaseExecution.testCase.name)]
+    }
+
+    return [testCaseExecution]
+  }
 
 export const loadTestCases = async (
   projectPath: string,
@@ -135,11 +137,11 @@ export const loadTestCases = async (
 ): Promise<TestCaseExecution[]> => {
   if (filePath) {
     const testCaseExecutions = await generateTestCaseExecution(projectPath + '/' + filePath, loader)
-    return resolveParameters(testCaseExecutions)
+    return resolveParameters(loader)(testCaseExecutions)
   }
 
   const files = await loadTestFiles(projectPath, testRegex)
   const testCaseExecutions = await Promise.all(files.map((file) => generateTestCaseExecution(file, loader)))
 
-  return testCaseExecutions.map(resolveParameters).flat()
+  return (await Promise.all(testCaseExecutions.map(resolveParameters(loader)))).flat()
 }

@@ -9,8 +9,8 @@ export * from './config.js'
 export * from './loader.js'
 
 export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[], plugins: string[]) => {
-  for (const {filePath, testCase} of testCaseExecutions) {
-    test(testCase.name, (args) => executeTestCase(testCase, plugins, filePath, args))
+  for (const testCaseExecution of testCaseExecutions) {
+    test(testCaseExecution.testCase.name, (args) => executeTestCase(testCaseExecution, plugins, args))
   }
 }
 
@@ -35,12 +35,11 @@ const preparePluginFunction =
   }
 
 export const executeTestCase = async (
-  testCase: TestCase,
+  testCaseExecution: TestCaseExecution,
   plugins: string[],
-  filePath: string,
   testRunnerArgs?: unknown,
 ) => {
-  const basePath = dirname(filePath)
+  const basePath = dirname(testCaseExecution.filePath)
 
   if (!plugins) {
     throw new Error('No plugins defined.')
@@ -48,9 +47,10 @@ export const executeTestCase = async (
 
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
   const executePluginFunction = preparePluginFunction(loadedPlugins, basePath, testRunnerArgs)
+  const testCase = testCaseExecution.testCase
 
-  if (testCase.layers) {
-    await Promise.all(testCase.layers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)))
+  if (testCaseExecution.layers) {
+    await Promise.all(testCaseExecution.layers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)))
   }
 
   if (testCase.arrange) {
@@ -65,8 +65,8 @@ export const executeTestCase = async (
     await retry(() => executePluginFunction('assert', testCase.assert), testCase.retry, testCase.delay)
   }
 
-  if (testCase.layers) {
-    await Promise.all(testCase.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)))
+  if (testCaseExecution.layers) {
+    await Promise.all(testCaseExecution.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)))
   }
 
   if (testCase.clean) {

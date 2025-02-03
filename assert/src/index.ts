@@ -10,6 +10,11 @@ interface ExtraAssertions {
   ): asserts actual is Partial<T>
 }
 
+const formatValues = <A, E>(actual: A, expected: E) => `\n\nActual:
+${JSON.stringify(actual, undefined, 2)}\n
+Expected:
+${JSON.stringify(expected, undefined, 2)}\n`
+
 const assertions: ExtraAssertions = {
   objectContains<T extends Record<string, any>>(
     actual: Record<string, any>,
@@ -19,7 +24,11 @@ const assertions: ExtraAssertions = {
     debug('[ASSERT] objectContains', actual, expected)
 
     if (typeof actual !== 'object' || typeof expected !== 'object') {
-      throw new Error('Both actual and expected values must be objects');
+      throw new Error(`Both actual and expected values must be objects. ${formatValues(actual, expected)}`);
+    }
+
+    if (Array.isArray(actual) && Array.isArray(expected) && actual.length !== expected.length) {
+      throw new Error(`Both actual and expected should have the same number of elements. ${formatValues(actual, expected)}`);
     }
   
     const expectedKeys = Object.keys(expected);

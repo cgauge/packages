@@ -25,8 +25,9 @@ export const fakerType = new Type('!faker', {
     }, faker) as unknown
 
     if (fakerCommand instanceof Function) {
-      return fakerCommand(...args)
-    }
+      const normalizedArgs = args.map((v) => isNaN(Number(v)) ? v : parseFloat(v))
+      return fakerCommand(...normalizedArgs)
+    } 
 
     throw new Error(`Invalid faker command: ${command}`)
   },

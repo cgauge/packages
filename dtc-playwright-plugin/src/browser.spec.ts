@@ -9,13 +9,13 @@ const {loader, plugins, testRegex} = await resolveConfig(config)
 
 const testCaseExecutions = await loadTestCases(projectPath, loader, testRegex, path)
 
-for (const {filePath, testCase} of testCaseExecutions) {
-    if (testCase.use) {
-        test.use(testCase.use)
+for (const testCaseExecution of testCaseExecutions) {
+    if (testCaseExecution.testCase.use) {
+        test.use(testCaseExecution.testCase.use)
     }
 
-    test(testCase.name, async ({page}) => {
-        testCase.timeout && test.setTimeout(testCase.timeout)
-        await executeTestCase({testCase, filePath}, plugins, {page})
+    test(testCaseExecution.testCase.name, async ({page}) => {
+        testCaseExecution.testCase.timeout && test.setTimeout(testCaseExecution.testCase.timeout)
+        await executeTestCase(testCaseExecution, plugins, {page})
     })
 }

@@ -2,7 +2,7 @@ import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import nock from 'nock'
 import {diff, is, optional, record, union, unknown} from '@cgauge/type-guard'
-import { debug } from '../utils'
+import {debug} from '../utils'
 
 const MockHttp = {
   url: String,
@@ -53,9 +53,7 @@ export const arrange = async (args: unknown): Promise<boolean> => {
     }
 
     if (request.queries) {
-      for (const [queryKey, queryValue] of Object.entries(request.queries)) {
-        interceptor.query({[queryKey]: queryValue})
-      }
+      interceptor.query(request.queries)
     }
 
     if (request.headers) {
@@ -72,10 +70,9 @@ export const arrange = async (args: unknown): Promise<boolean> => {
 
 export const assert = (): boolean => {
   if (!nock.isDone()) {
-    const error = nock.pendingMocks()
-    console.log(error)
+    const pendingUrls = nock.pendingMocks()
     nock.cleanAll()
-    throw new Error('(HTTP Mock) Not all nock interceptors were used!')
+    throw new Error(`(HTTP Mock) Not all nock interceptors were used!\n${JSON.stringify(pendingUrls, null, 2)}`)
   }
   
   return true

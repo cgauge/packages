@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/nock-aws",
-  "version": "0.15.2",
+  "version": "0.15.3",
   "description": "AWS Request mocker based on Nock",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "nock": "^14.0.0-beta.15"
+    "nock": "^14.0.1"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.645.0",

@@ -1,6 +1,6 @@
 import {Page, expect, Locator} from '@playwright/test'
 import {is, unknown, record, union, optional, TypeFromSchema, diff} from '@cgauge/type-guard'
-import { debug, info } from '@cgauge/dtc'
+import {info} from '@cgauge/dtc'
 
 const PlaywrightActionTarget = {
   name: String,
@@ -71,7 +71,7 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       } else if (act.keydown !== undefined) {
         await element.focus()
         await element.evaluate((htmlElement, options) => {
-            htmlElement.dispatchEvent(new KeyboardEvent('keydown', {bubbles: true, key: 'ArrowDown', ...options}))
+          htmlElement.dispatchEvent(new KeyboardEvent('keydown', {bubbles: true, key: 'ArrowDown', ...options}))
         }, act.options)
       } else if (act.toBeVisible !== undefined) {
         await expect(element.first()).toBeVisible({visible: act.toBeVisible, ...act.options})
@@ -82,13 +82,16 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
 
 export const arrange = async (args: unknown, _basePath: string, {page}: {page: Page}): Promise<boolean> => {
   if (!page) {
-    throw new Error('Page not defined')
+    throw new Error('(Playwright) Page not defined')
+  }
+
+  if (!('playwright' in (args as any))) {
+    return false
   }
 
   if (!is(args, {playwright: Playwright})) {
     const mismatch = diff(args, {playwright: Playwright})
-    debug(`Playwright plugin declared but test declaration didn't match the arrange. Invalid ${mismatch[0]}`)
-    return false
+    throw new Error(`(Playwright) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
   await page.goto(args.playwright.url, args.playwright.options)
@@ -104,12 +107,12 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
 
 export const act = async (args: unknown, _basePath: string, {page}: {page: Page}): Promise<boolean> => {
   if (!page) {
-    throw new Error('Page not defined')
+    throw new Error('(Playwright) Page not defined')
   }
 
   if (!is(args, Playwright)) {
     const mismatch = diff(args, Playwright)
-    info(`Playwright plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    info(`(Playwright) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 
@@ -126,11 +129,16 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
 
 export const assert = async (args: unknown, _basePath: string, {page}: {page: Page}) => {
   if (!page) {
-    throw new Error('Page not defined')
+    throw new Error('(Playwright) Page not defined')
+  }
+
+  if (!('playwright' in (args as any))) {
+    return false
   }
 
   if (!is(args, {playwright: PlaywrightAssert})) {
-    return
+    const mismatch = diff(args, {playwright: PlaywrightAssert})
+    throw new Error(`(Playwright) Invalid argument on assert: ${mismatch[0]}`)
   }
 
   if (args.playwright.url) {
@@ -138,8 +146,10 @@ export const assert = async (args: unknown, _basePath: string, {page}: {page: Pa
   }
 
   if (!args.playwright.actions) {
-    return
+    return true
   }
 
   await executeActions(args.playwright.actions, page)
+
+  return true
 }

@@ -21,7 +21,7 @@ export const act = async (args: unknown): Promise<boolean> => {
   
   if (!is(args, HttpCall)) {
     const mismatch = diff(args, HttpCall)
-    info(`HTTP Call plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    info(`(HTTP) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 
@@ -31,8 +31,13 @@ export const act = async (args: unknown): Promise<boolean> => {
 }
 
 export const assert = async (args: unknown): Promise<boolean> => {
-  if (!is(args, HttpCallResponse)) {
+  if (!('http' in (args as any))) {
     return false
+  }
+
+  if (!is(args, HttpCallResponse)) {
+    const mismatch = diff(args, HttpCallResponse)
+    throw new Error(`(HTTP) Invalid argument on assert: ${mismatch[0]}`)
   }
 
   if (is(args.http, String)) {

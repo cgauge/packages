@@ -14,7 +14,7 @@ const eventBridge = new EventBridge({})
 export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, EventBridgeAct)) {
     const mismatch = diff(args, EventBridgeAct)
-    info(`EventBridge plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    info(`(EventBridge) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

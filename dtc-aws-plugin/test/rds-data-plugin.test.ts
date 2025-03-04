@@ -5,13 +5,21 @@ import nock from 'nock'
 
 nock.disableNetConnect()
 
-afterEach(() => {network.checkForPendingMocks()})
+afterEach(() => {
+  network.checkForPendingMocks()
+})
 
-test('It does not arrange if type does not match', () => arrange({}))
+test('It does not arrange if type does not match', () => {
+  arrange({})
+})
 
-test('It does not act if type does not match', () => act({}))
+test('It does not act if type does not match', () => {
+  act({})
+})
 
-test('It does not assert if type does not match', () => assert({}))
+test('It does not assert if type does not match', () => {
+  assert({})
+})
 
 test('It does not clean if type does not match', () => clean({}))
 
@@ -47,7 +55,7 @@ test('It executes a statement in RDS during assert', async () => {
     resourceArn: 'arn:resource',
     secretArn: 'arn:secret',
     database: 'database-name',
-    response: [{a: 1}]
+    response: [{a: 1}],
   }
 
   network.rdsData(statement, {$metadata: {}, formattedRecords: '[{"a": 1}]'})

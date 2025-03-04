@@ -24,8 +24,13 @@ export const invokeLambda = async (functionName: string, event: unknown): Promis
 let response: any
 
 export const arrange = async (args: unknown): Promise<boolean> => {
-  if (!is(args, {lambda: [LambdaCall]})) {
+  if (!('lambda' in (args as any))) {
     return false
+  }
+
+  if (!is(args, {lambda: [LambdaCall]})) {
+    const mismatch = diff(args, {lambda: [LambdaCall]})
+    throw new Error(`(Lambda) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
   await Promise.all(args.lambda.map((v) => invokeLambda(v.functionName, v.payload)))
@@ -38,7 +43,7 @@ export const act = async (args: unknown): Promise<boolean> => {
 
   if (!is(args, LambdaCall)) {
     const mismatch = diff(args, LambdaCall)
-    info(`Lambda plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    info(`(Lambda) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 
@@ -48,17 +53,31 @@ export const act = async (args: unknown): Promise<boolean> => {
 }
 
 export const assert = async (args: unknown) => {
+  if (!('lambda' in (args as any))) {
+    return false
+  }
+
   if (!is(args, {lambda: record(String, unknown)})) {
-    return
+    const mismatch = diff(args, {lambda: record(String, unknown)})
+    throw new Error(`(Lambda) Invalid argument on assert: ${mismatch[0]}`)
   }
 
   extraAssert.objectContains(args.lambda, response)
+
+  return true
 }
 
 export const clean = async (args: unknown) => {
+  if (!('lambda' in (args as any))) {
+    return false
+  }
+
   if (!is(args, {lambda: [LambdaCall]})) {
-    return
+    const mismatch = diff(args, {lambda: [LambdaCall]})
+    throw new Error(`(Lambda) Invalid argument on clean: ${mismatch[0]}`)
   }
 
   await Promise.all(args.lambda.map((v) => invokeLambda(v.functionName, v.payload)))
+
+  return true
 }

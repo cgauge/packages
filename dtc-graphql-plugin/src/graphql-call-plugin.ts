@@ -22,7 +22,7 @@ export const act = async (args: unknown): Promise<boolean> => {
 
   if (!is(args, GraphQlCall)) {
     const mismatch = diff(args, GraphQlCall)
-    info(`GraphQL plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    info(`(GraphQL) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 
@@ -37,14 +37,19 @@ export const act = async (args: unknown): Promise<boolean> => {
   return true
 }
 
-export const assert = async (args: unknown) => {
+export const assert = async (args: unknown): Promise<boolean> => {
+  if (!('graphql' in (args as any))) {
+    return false
+  }
+
   if (!is(args, GraphQlCallResponse)) {
-    return
+    const mismatch = diff(args, GraphQlCallResponse)
+    throw new Error(`(GraphQL) Invalid argument ${mismatch[0]}`)
   }
 
   if (args.exception) {
     if (!exception) {
-      throw Error(`Exception ${exception.name} was not thrown.`)
+      throw Error(`(GraphQL) Exception ${exception.name} was not thrown.`)
     }
 
     nodeAssert.equal(args.exception.name, exception.name)
@@ -55,4 +60,6 @@ export const assert = async (args: unknown) => {
   }
 
   extraAssert.objectContains(response, args.graphql)
+
+  return true
 }

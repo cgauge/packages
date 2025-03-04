@@ -18,7 +18,7 @@ const sns = new SNS({})
 export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, SnsCall)) {
     const mismatch = diff(args, SnsCall)
-    info(`SNS plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    info(`(SNS) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

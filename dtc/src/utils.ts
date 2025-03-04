@@ -7,7 +7,7 @@ export const error = (message: string) => { process.stdout.write(`[DTC_ERROR] ${
 export const sleep = (ms: number): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, ms))
 
 export const retry = async <T>(fn: () => Promise<T>, times = 0, seconds = 1): Promise<T> => {
-  const errors: unknown[] = []
+  const errors: Error[] = []
 
   // If times is 0 we call the function at least one time
   if (times === 0) {
@@ -21,16 +21,16 @@ export const retry = async <T>(fn: () => Promise<T>, times = 0, seconds = 1): Pr
     try {
       const result = await fn()
       return result
-    } catch (e) {
+    } catch (e: any) {
       errors.push(e)
 
       await sleep(seconds * 1000)
     }
   }
 
-  debug(`Errors ${JSON.stringify(errors)}`)
+  debug(`Errors ${errors.map((e) => e.message)}`)
 
-  throw new Error(`Failed retrying ${times} times`)
+  throw new Error(`Failed retrying ${times} times. ${errors[0].message}`)
 }
 
 export const merge = (to: any, from: any) => {

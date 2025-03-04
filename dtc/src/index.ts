@@ -1,5 +1,5 @@
 import type {TestCaseExecution} from './domain'
-import {retry} from './utils.js'
+import {debug, retry} from './utils.js'
 import {dirname} from 'node:path'
 import test from 'node:test'
 
@@ -23,8 +23,8 @@ export const defaultPlugins = [
 ]
 
 const preparePluginFunction =
-  (plugins: any[], basePath: string, testRunnerArgs?: unknown) => async (functionName: string, data: unknown) => {
-    await Promise.all(
+  (plugins: any[], basePath: string, testRunnerArgs?: unknown) => async (functionName: string, data: unknown) =>
+    Promise.all(
       plugins
         .map((module) => {
           const normalizedData: unknown[] = Array.isArray(data) ? data : [data]
@@ -32,25 +32,27 @@ const preparePluginFunction =
         })
         .flat(),
     )
-  }
 
 export const executeTestCase = async (
   testCaseExecution: TestCaseExecution,
   plugins: string[],
   testRunnerArgs?: unknown,
 ) => {
+  debug(`TestCase: ${JSON.stringify(testCaseExecution, null, 2)}`)
+  debug(`TestRunnerArgs: ${JSON.stringify(testRunnerArgs, null, 2)}`)
+
   const basePath = dirname(testCaseExecution.filePath)
 
-  if (!plugins) {
-    throw new Error('No plugins defined.')
-  }
+  debug(`Plugins: ${JSON.stringify(plugins, null, 2)}`)
 
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
   const executePluginFunction = preparePluginFunction(loadedPlugins, basePath, testRunnerArgs)
   const testCase = testCaseExecution.testCase
 
   if (testCaseExecution.layers) {
-    await Promise.all(testCaseExecution.layers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)))
+    await Promise.all(
+      testCaseExecution.layers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)),
+    )
   }
 
   if (testCase.arrange) {
@@ -58,7 +60,11 @@ export const executeTestCase = async (
   }
 
   if (testCase.act) {
-    await executePluginFunction('act', testCase.act)
+    const acts = await executePluginFunction('act', testCase.act)
+    
+    if (! acts.reduce((acc, cur) => acc || cur, false)) {
+      throw new Error('No actions executed')
+    }
   }
 
   if (testCase.assert) {
@@ -70,6 +76,8 @@ export const executeTestCase = async (
   }
 
   if (testCaseExecution.layers) {
-    await Promise.all(testCaseExecution.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)))
+    await Promise.all(
+      testCaseExecution.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)),
+    )
   }
 }

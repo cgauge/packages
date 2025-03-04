@@ -23,24 +23,28 @@ export const invokeLambda = async (functionName: string, event: unknown): Promis
 
 let response: any
 
-export const arrange = async (args: unknown) => {
+export const arrange = async (args: unknown): Promise<boolean> => {
   if (!is(args, {lambda: [LambdaCall]})) {
-    return
+    return false
   }
 
   await Promise.all(args.lambda.map((v) => invokeLambda(v.functionName, v.payload)))
+
+  return true
 }
 
-export const act = async (args: unknown) => {
+export const act = async (args: unknown): Promise<boolean> => {
   response = undefined
 
   if (!is(args, LambdaCall)) {
     const mismatch = diff(args, LambdaCall)
-    info(`Lambda plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
-    return
+    info(`Lambda plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    return false
   }
 
   response = await invokeLambda(args.functionName, args.payload)
+
+  return true
 }
 
 export const assert = async (args: unknown) => {

@@ -3,6 +3,7 @@
 import {cli} from 'cleye'
 import {resolveConfig} from './config.js'
 import {loadTestCases} from './loader.js'
+import { error, warn, warnExit } from './utils.js'
 
 const argv = cli({
   name: 'dtc',
@@ -25,7 +26,19 @@ const {loader, plugins, runner, testRegex} = await resolveConfig(config)
 const testCaseExecutions = await loadTestCases(projectPath, loader, testRegex, filePath)
 
 if (!runner) {
-  throw new Error(`No test runner found`)
+  warnExit(`No test runner found`)
 }
 
-await runner(testCaseExecutions, plugins, argv._.runnerArgs, config)
+if (testCaseExecutions.length === 0) {
+  warnExit(`No test cases found for test regex: ${testRegex}`)
+}
+
+if (plugins.length === 0) {
+  warnExit('No plugins defined')
+}
+
+try {
+  await runner(testCaseExecutions, plugins, argv._.runnerArgs, config)
+} catch (e: any) {
+  error(e.message)
+}

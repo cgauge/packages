@@ -38,19 +38,21 @@ export const arrange = async (args: unknown) => {
   await Promise.all(args.rds.map((v) => executeStatement(v as RDSDataCallSql)))
 }
 
-export const act = async (args: unknown) => {
+export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, RDSDataCall)) {
     const mismatch = diff(args, RDSDataCall)
-    info(`Lambda plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
-    return
+    info(`RDS Data plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    return false
   }
 
   await executeStatement(args as RDSDataCallSql)
+
+  return true
 }
 
-export const assert = async (args: unknown) => {
+export const assert = async (args: unknown): Promise<boolean> => {
   if (!is(args, {rds: [RDSDataCallResponse]})) {
-    return
+    return false
   }
 
   await Promise.all(
@@ -60,6 +62,8 @@ export const assert = async (args: unknown) => {
       extraAssert.objectContains(v.response, response)
     }),
   )
+
+  return true
 }
 
 export const clean = async (args: unknown) => {

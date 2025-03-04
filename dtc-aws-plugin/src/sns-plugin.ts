@@ -15,11 +15,11 @@ const SnsCall = {
 
 const sns = new SNS({})
 
-export const act = async (args: unknown) => {
+export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, SnsCall)) {
     const mismatch = diff(args, SnsCall)
-    info(`SNS plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
-    return
+    info(`SNS plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    return false
   }
 
   await sns.publish({
@@ -27,4 +27,6 @@ export const act = async (args: unknown) => {
     Message: JSON.stringify(args.message),
     MessageAttributes: args.messageAttributes,
   })
+
+  return true
 }

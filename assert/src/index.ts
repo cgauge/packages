@@ -13,7 +13,7 @@ interface ExtraAssertions {
 const formatValues = <A, E>(actual: A, expected: E) => `\n\nActual:
 ${JSON.stringify(actual, undefined, 2)}\n
 Expected:
-${JSON.stringify(expected, undefined, 2)}\n`
+${JSON.stringify(expected, undefined, 2)}`
 
 const assertions: ExtraAssertions = {
   objectContains<T extends Record<string, any>>(

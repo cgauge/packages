@@ -20,6 +20,9 @@ import {
   assert as assertLayers,
   clean as cleanLayers,
 } from './fixtures/layers.ts'
+import {
+  act as actFalse,
+} from './fixtures/plugin-act-false.ts'
 
 test('It runs plugins methods', async () => {
   await executeTestCase(
@@ -102,4 +105,16 @@ test('It executes layers', async () => {
   nodeAssert.equal(arrangeLayers.mock.callCount(), 3)
   nodeAssert.equal(actLayers.mock.callCount(), 1)
   nodeAssert.equal(cleanLayers.mock.callCount(), 3)
+})
+
+test('It fails if no action is executed', async () => {
+  await nodeAssert.rejects(executeTestCase(
+    {
+      testCase: {name: 'Test', act: {}},
+      filePath: './filePath.js',
+    },
+    ['../test/fixtures/plugin-act-false.ts'],
+  ))
+
+  nodeAssert.equal(actFalse.mock.callCount(), 1)
 })

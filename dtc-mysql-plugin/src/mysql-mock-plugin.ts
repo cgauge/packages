@@ -16,13 +16,13 @@ type MockMysql = TypeFromSchema<typeof MockMysql>
 let arrangeMysql: any
 let executions: Mock<any>[] = []
 
-export const arrange = async (args: unknown) => {
+export const arrange = async (args: unknown): Promise<boolean> => {
   if (is(args, {mysql: [MockMysql]})) {
     arrangeMysql = [args.mysql]
   } else if (is(args, {mysql: record(String, [MockMysql])})) {
     arrangeMysql = Object.values(args.mysql)
   } else {
-    return
+    return false
   }
 
   for (const [index, arrange] of arrangeMysql.entries()) {
@@ -38,6 +38,8 @@ export const arrange = async (args: unknown) => {
 
     mysql.createConnection({execute: executions[index]})
   }
+
+  return true
 }
 
 export const assert = () => {
@@ -51,7 +53,7 @@ export const assert = () => {
     const calls = executions[index].mock.calls
 
     if (calls.length !== arrange.length) {
-      debug(`Arrangements: ${JSON.stringify(arrange)}\n`)
+      debug(`Arrangements: ${JSON.stringify(arrange)}`)
 
       throw new Error(`Number of MySQL calls is not equal the number of arrangements.
           MySQL Calls: ${calls.length}, Arrangements Calls: ${arrange.length}

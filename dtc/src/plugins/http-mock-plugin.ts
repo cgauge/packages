@@ -27,10 +27,10 @@ export const partialBodyCheck = (expected: string | Record<string, unknown>) => 
   return true
 }
 
-export const arrange = async (args: unknown) => {
+export const arrange = async (args: unknown): Promise<boolean> => {
   if (!is(args, {http: [MockHttp]})) {
     debug('[HTTP_MOCK] Arrange does not match')
-    return
+    return false
   }
 
   for (const request of args.http) {
@@ -62,13 +62,17 @@ export const arrange = async (args: unknown) => {
 
     interceptor.reply(request.status, request.response)
   }
+
+  return true
 }
 
-export const assert = () => {
+export const assert = (): boolean => {
   if (!nock.isDone()) {
     const error = nock.pendingMocks()
     console.log(error)
     nock.cleanAll()
     throw new Error('[HTTP_MOCK] Not all nock interceptors were used!')
   }
+  
+  return true
 }

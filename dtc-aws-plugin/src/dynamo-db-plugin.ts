@@ -39,15 +39,15 @@ type DynamoClean = TypeFromSchema<typeof DynamoClean>
 const documentClient = DynamoDBDocument.from(new DynamoDB({}))
 
 const executeDynamoStatement = async (statement: DynamoArrange) => {
-  debug(`  [Arrange] Table: ${statement.table}\n`)
-  debug(`  [Arrange] Item: ${JSON.stringify(statement.item)}\n`)
+  debug(`  [Arrange] Table: ${statement.table}`)
+  debug(`  [Arrange] Item: ${JSON.stringify(statement.item)}`)
 
   await documentClient.put({TableName: statement.table, Item: statement.item})
 }
 
 export const assertExists = async (statement: DynamoAssert): Promise<void> => {
-  debug(`  [Assert] Table: ${statement.table}\n`)
-  debug(`  [Assert] Item: ${JSON.stringify(statement.item)}\n`)
+  debug(`  [Assert] Table: ${statement.table}`)
+  debug(`  [Assert] Item: ${JSON.stringify(statement.item)}`)
 
   const getItemResponse = await documentClient.get({
     TableName: statement.table,
@@ -63,10 +63,10 @@ export const assertExists = async (statement: DynamoAssert): Promise<void> => {
 }
 
 const cleanDynamoItems = async (clean: DynamoClean) => {
-  debug(`  [Clean] Table: ${clean.table}\n`)
+  debug(`  [Clean] Table: ${clean.table}`)
 
   if ('key' in clean) {
-    debug(`  [Clean] Key: ${JSON.stringify(clean.key)}\n`)
+    debug(`  [Clean] Key: ${JSON.stringify(clean.key)}`)
 
     await documentClient.delete({
       TableName: clean.table,
@@ -89,7 +89,7 @@ const cleanDynamoItems = async (clean: DynamoClean) => {
     })
 
     for (const item of result.Items || []) {
-      debug(`  [Clean] Item: ${JSON.stringify(item)}\n`)
+      debug(`  [Clean] Item: ${JSON.stringify(item)}`)
 
       const key: Record<string, AttributeValue> = {}
 
@@ -113,22 +113,26 @@ export const arrange = async (args: unknown) => {
   await Promise.all(args.dynamodb.map(executeDynamoStatement))
 }
 
-export const act = async (args: unknown) => {
+export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, DynamoAct)) {
     const mismatch = diff(args, DynamoAct)
-    info(`DynamoDB plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
-    return
+    info(`DynamoDB plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    return false
   }
 
   await documentClient.put({TableName: args.table, Item: args.item})
+
+  return true
 }
 
-export const assert = async (args: unknown) => {
+export const assert = async (args: unknown): Promise<boolean> => {
   if (!is(args, {dynamodb: [DynamoAssert]})) {
-    return
+    return false
   }
 
   await Promise.all(args.dynamodb.map(assertExists))
+
+  return true
 }
 
 export const clean = async (args: unknown) => {

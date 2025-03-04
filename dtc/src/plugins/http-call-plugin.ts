@@ -16,21 +16,28 @@ const HttpCall = {
 
 const HttpCallResponse = {http: union(String, record(String, unknown))}
 
-export const act = async (args: unknown) => {
+export const act = async (args: unknown): Promise<boolean> => {
   response = undefined
   
   if (!is(args, HttpCall)) {
     const mismatch = diff(args, HttpCall)
-    info(`HTTP Call plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
-    return
+    info(`(HTTP) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    return false
   }
 
   response = await fetch(args.url, args)
+
+  return true
 }
 
-export const assert = async (args: unknown) => {
+export const assert = async (args: unknown): Promise<boolean> => {
+  if (!('http' in (args as any))) {
+    return false
+  }
+
   if (!is(args, HttpCallResponse)) {
-    return
+    const mismatch = diff(args, HttpCallResponse)
+    throw new Error(`(HTTP) Invalid argument on assert: ${mismatch[0]}`)
   }
 
   if (is(args.http, String)) {
@@ -42,4 +49,6 @@ export const assert = async (args: unknown) => {
 
     extraAssert.objectContains(jsonResponse, args.http)
   }
+
+  return true
 }

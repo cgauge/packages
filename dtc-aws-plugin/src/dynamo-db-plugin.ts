@@ -39,15 +39,15 @@ type DynamoClean = TypeFromSchema<typeof DynamoClean>
 const documentClient = DynamoDBDocument.from(new DynamoDB({}))
 
 const executeDynamoStatement = async (statement: DynamoArrange) => {
-  debug(`  [Arrange] Table: ${statement.table}\n`)
-  debug(`  [Arrange] Item: ${JSON.stringify(statement.item)}\n`)
+  debug(`(DynamoDB) Arrange Table: ${statement.table}`)
+  debug(`(DynamoDB) Arrange Item: ${JSON.stringify(statement.item)}`)
 
   await documentClient.put({TableName: statement.table, Item: statement.item})
 }
 
 export const assertExists = async (statement: DynamoAssert): Promise<void> => {
-  debug(`  [Assert] Table: ${statement.table}\n`)
-  debug(`  [Assert] Item: ${JSON.stringify(statement.item)}\n`)
+  debug(`(DynamoDB) Assert Table: ${statement.table}`)
+  debug(`(DynamoDB) Assert Item: ${JSON.stringify(statement.item)}`)
 
   const getItemResponse = await documentClient.get({
     TableName: statement.table,
@@ -56,17 +56,17 @@ export const assertExists = async (statement: DynamoAssert): Promise<void> => {
   })
 
   if (!getItemResponse.Item) {
-    nodeAssert.fail('Item not found.')
+    nodeAssert.fail('(DynamoDB) Item not found')
   }
 
   extraAssert.objectContains(getItemResponse.Item, statement.item)
 }
 
 const cleanDynamoItems = async (clean: DynamoClean) => {
-  debug(`  [Clean] Table: ${clean.table}\n`)
+  debug(`(DynamoDB) Clean Table: ${clean.table}`)
 
   if ('key' in clean) {
-    debug(`  [Clean] Key: ${JSON.stringify(clean.key)}\n`)
+    debug(`(DynamoDB) Clean Key: ${JSON.stringify(clean.key)}`)
 
     await documentClient.delete({
       TableName: clean.table,
@@ -89,7 +89,7 @@ const cleanDynamoItems = async (clean: DynamoClean) => {
     })
 
     for (const item of result.Items || []) {
-      debug(`  [Clean] Item: ${JSON.stringify(item)}\n`)
+      debug(`(DynamoDB) Clean Item: ${JSON.stringify(item)}`)
 
       const key: Record<string, AttributeValue> = {}
 
@@ -106,35 +106,58 @@ const cleanDynamoItems = async (clean: DynamoClean) => {
 }
 
 export const arrange = async (args: unknown) => {
+  if (!('dynamodb' in (args as any))) {
+    return false
+  }
+
   if (!is(args, {dynamodb: [DynamoArrange]})) {
-    return
+    const mismatch = diff(args, {dynamodb: [DynamoArrange]})
+    throw new Error(`(DynamoDB) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
   await Promise.all(args.dynamodb.map(executeDynamoStatement))
+
+  return true
 }
 
-export const act = async (args: unknown) => {
+export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, DynamoAct)) {
     const mismatch = diff(args, DynamoAct)
-    info(`DynamoDB plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
-    return
+    info(`(DynamoDB) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    return false
   }
 
   await documentClient.put({TableName: args.table, Item: args.item})
+
+  return true
 }
 
-export const assert = async (args: unknown) => {
+export const assert = async (args: unknown): Promise<boolean> => {
+  if (!('dynamodb' in (args as any))) {
+    return false
+  }
+
   if (!is(args, {dynamodb: [DynamoAssert]})) {
-    return
+    const mismatch = diff(args, {dynamodb: [DynamoAssert]})
+    throw new Error(`(DynamoDB) Invalid argument on assert: ${mismatch[0]}`)
   }
 
   await Promise.all(args.dynamodb.map(assertExists))
+
+  return true
 }
 
 export const clean = async (args: unknown) => {
+  if (!('dynamodb' in (args as any))) {
+    return false
+  }
+
   if (!is(args, {dynamodb: [DynamoClean]})) {
-    return
+    const mismatch = diff(args, {dynamodb: [DynamoClean]})
+    throw new Error(`(DynamoDB) Invalid argument on clean: ${mismatch[0]}`)
   }
 
   await Promise.all(args.dynamodb.map(cleanDynamoItems))
+
+  return true
 }

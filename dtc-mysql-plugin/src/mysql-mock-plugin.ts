@@ -4,7 +4,7 @@ import {debug} from '@cgauge/dtc'
 import {Mock, mock} from 'node:test'
 import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
-import {is, unknown, record, optional, TypeFromSchema} from '@cgauge/type-guard'
+import {is, unknown, record, optional, TypeFromSchema, diff} from '@cgauge/type-guard'
 
 const MockMysql = {
   input: String,
@@ -16,13 +16,18 @@ type MockMysql = TypeFromSchema<typeof MockMysql>
 let arrangeMysql: any
 let executions: Mock<any>[] = []
 
-export const arrange = async (args: unknown) => {
+export const arrange = async (args: unknown): Promise<boolean> => {
+  if (!('mysql' in (args as any))) {
+    return false
+  }
+
   if (is(args, {mysql: [MockMysql]})) {
     arrangeMysql = [args.mysql]
   } else if (is(args, {mysql: record(String, [MockMysql])})) {
     arrangeMysql = Object.values(args.mysql)
   } else {
-    return
+    const mismatch = diff(args, {mysql: [MockMysql]})
+    throw new Error(`(Mysql Mock) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
   for (const [index, arrange] of arrangeMysql.entries()) {
@@ -38,6 +43,8 @@ export const arrange = async (args: unknown) => {
 
     mysql.createConnection({execute: executions[index]})
   }
+
+  return true
 }
 
 export const assert = () => {
@@ -51,9 +58,9 @@ export const assert = () => {
     const calls = executions[index].mock.calls
 
     if (calls.length !== arrange.length) {
-      debug(`Arrangements: ${JSON.stringify(arrange)}\n`)
+      debug(`(MySQL Mock) Arrangements: ${JSON.stringify(arrange)}`)
 
-      throw new Error(`Number of MySQL calls is not equal the number of arrangements.
+      throw new Error(`(MySQL Mock) Number of MySQL calls is not equal the number of arrangements.
           MySQL Calls: ${calls.length}, Arrangements Calls: ${arrange.length}
         `)
     }

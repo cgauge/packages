@@ -11,11 +11,11 @@ const EventBridgeAct = {
 
 const eventBridge = new EventBridge({})
 
-export const act = async (args: unknown) => {
+export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, EventBridgeAct)) {
     const mismatch = diff(args, EventBridgeAct)
-    info(`EventBridge plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}\n`)
-    return
+    info(`(EventBridge) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    return false
   }
 
   await eventBridge.putEvents({
@@ -29,4 +29,6 @@ export const act = async (args: unknown) => {
       },
     ],
   })
+
+  return true
 }

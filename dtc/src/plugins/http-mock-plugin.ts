@@ -1,7 +1,7 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import nock from 'nock'
-import {is, optional, record, union, unknown} from '@cgauge/type-guard'
+import {diff, is, optional, record, union, unknown} from '@cgauge/type-guard'
 import { debug } from '../utils'
 
 const MockHttp = {
@@ -16,7 +16,7 @@ const MockHttp = {
 }
 
 export const partialBodyCheck = (expected: string | Record<string, unknown>) => (body: Record<string, unknown>) => {
-  debug(`[HTTP_MOCK] Body check:\n ${JSON.stringify(body, null, 2)}\n ${JSON.stringify(expected, null, 2)}`)
+  debug(`(HTTP Mock) Body check:\n ${JSON.stringify(body, null, 2)}\n ${JSON.stringify(expected, null, 2)}`)
 
   if (typeof expected === 'string') {
     nodeAssert.equal(body, expected)
@@ -27,10 +27,14 @@ export const partialBodyCheck = (expected: string | Record<string, unknown>) => 
   return true
 }
 
-export const arrange = async (args: unknown) => {
+export const arrange = async (args: unknown): Promise<boolean> => {
+  if (!('http' in (args as any))) {
+    return false
+  }
+
   if (!is(args, {http: [MockHttp]})) {
-    debug('[HTTP_MOCK] Arrange does not match')
-    return
+    const mismatch = diff(args, {http: [MockHttp]})
+    throw new Error(`(HTTP Mock) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
   for (const request of args.http) {
@@ -62,13 +66,17 @@ export const arrange = async (args: unknown) => {
 
     interceptor.reply(request.status, request.response)
   }
+
+  return true
 }
 
-export const assert = () => {
+export const assert = (): boolean => {
   if (!nock.isDone()) {
     const error = nock.pendingMocks()
     console.log(error)
     nock.cleanAll()
-    throw new Error('[HTTP_MOCK] Not all nock interceptors were used!')
+    throw new Error('(HTTP Mock) Not all nock interceptors were used!')
   }
+  
+  return true
 }

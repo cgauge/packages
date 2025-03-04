@@ -1,5 +1,5 @@
 import type {TestCaseExecution} from './domain'
-import {retry} from './utils.js'
+import {debug, retry} from './utils.js'
 import {dirname} from 'node:path'
 import test from 'node:test'
 
@@ -24,7 +24,11 @@ export const defaultPlugins = [
 
 const preparePluginFunction =
   (plugins: any[], basePath: string, testRunnerArgs?: unknown) => async (functionName: string, data: unknown) => {
-    await Promise.all(
+    if (!data) {
+      return
+    }
+
+    const responses = await Promise.all(
       plugins
         .map((module) => {
           const normalizedData: unknown[] = Array.isArray(data) ? data : [data]
@@ -32,6 +36,10 @@ const preparePluginFunction =
         })
         .flat(),
     )
+
+    if (!responses.reduce((acc, cur) => acc || cur, false)) {
+      throw new Error(`No actions (${functionName}) executed`)
+    }
   }
 
 export const executeTestCase = async (
@@ -39,37 +47,33 @@ export const executeTestCase = async (
   plugins: string[],
   testRunnerArgs?: unknown,
 ) => {
-  const basePath = dirname(testCaseExecution.filePath)
+  debug(`TestCase: ${JSON.stringify(testCaseExecution, null, 2)}`)
+  debug(`TestRunnerArgs: ${JSON.stringify(testRunnerArgs, null, 2)}`)
+  debug(`Plugins: ${JSON.stringify(plugins, null, 2)}`)
 
-  if (!plugins) {
-    throw new Error('No plugins defined.')
-  }
+  const basePath = dirname(testCaseExecution.filePath)
 
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
   const executePluginFunction = preparePluginFunction(loadedPlugins, basePath, testRunnerArgs)
   const testCase = testCaseExecution.testCase
 
   if (testCaseExecution.layers) {
-    await Promise.all(testCaseExecution.layers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)))
+    await Promise.all(
+      testCaseExecution.layers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)),
+    )
   }
 
-  if (testCase.arrange) {
-    await executePluginFunction('arrange', testCase.arrange)
-  }
+  await executePluginFunction('arrange', testCase.arrange)
 
-  if (testCase.act) {
-    await executePluginFunction('act', testCase.act)
-  }
+  await executePluginFunction('act', testCase.act)
 
-  if (testCase.assert) {
-    await retry(() => executePluginFunction('assert', testCase.assert), testCase.retry, testCase.delay)
-  }
+  await retry(() => executePluginFunction('assert', testCase.assert), testCase.retry, testCase.delay)
 
-  if (testCase.clean) {
-    await executePluginFunction('clean', testCase.clean)
-  }
+  await executePluginFunction('clean', testCase.clean)
 
   if (testCaseExecution.layers) {
-    await Promise.all(testCaseExecution.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)))
+    await Promise.all(
+      testCaseExecution.layers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)),
+    )
   }
 }

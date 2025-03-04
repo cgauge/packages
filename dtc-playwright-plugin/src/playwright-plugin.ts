@@ -97,7 +97,7 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
   await page.goto(args.playwright.url, args.playwright.options)
 
   if (!args.playwright.actions) {
-    return false
+    return true
   }
 
   await executeActions(args.playwright.actions, page)
@@ -119,7 +119,7 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
   await page.goto(args.url, args.options)
 
   if (!args.actions) {
-    return false
+    return true
   }
 
   await executeActions(args.actions, page)

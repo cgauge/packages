@@ -3,7 +3,7 @@
 import {cli} from 'cleye'
 import {resolveConfig} from './config.js'
 import {loadTestCases} from './loader.js'
-import { error, warn, warnExit } from './utils.js'
+import { error, warnExit } from './utils.js'
 
 const argv = cli({
   name: 'dtc',

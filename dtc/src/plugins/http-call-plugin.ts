@@ -4,6 +4,8 @@ import {is, union, optional, unknown, record, assert as typeAssert, diff} from '
 import {info} from '../utils'
 
 let response: Response | undefined
+let textResponse: string | undefined
+let jsonResponse: unknown | undefined
 
 const HttpCall = {
   url: String,
@@ -18,7 +20,9 @@ const HttpCallResponse = {http: union(String, record(String, unknown))}
 
 export const act = async (args: unknown): Promise<boolean> => {
   response = undefined
-  
+  textResponse = undefined
+  jsonResponse = undefined
+
   if (!is(args, HttpCall)) {
     const mismatch = diff(args, HttpCall)
     info(`(HTTP) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
@@ -41,9 +45,11 @@ export const assert = async (args: unknown): Promise<boolean> => {
   }
 
   if (is(args.http, String)) {
-    nodeAssert.deepStrictEqual(await response?.text(), args.http)
+    textResponse = textResponse ?? (await response?.text())
+
+    nodeAssert.deepStrictEqual(textResponse, args.http)
   } else {
-    const jsonResponse = await response?.json()
+    jsonResponse = jsonResponse ?? (await response?.json())
 
     typeAssert(jsonResponse, record(String, unknown))
 

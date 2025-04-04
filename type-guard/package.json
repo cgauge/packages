@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/type-guard",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "description": "Typescript type guards",
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import {is, union, optional, unknown, record, assert as typeAssert, diff} from '@cgauge/type-guard'
-import {info} from '../utils'
+import {debug, info} from '../utils'
 
 let response: Response | undefined
 let textResponse: string | undefined
@@ -47,9 +47,13 @@ export const assert = async (args: unknown): Promise<boolean> => {
   if (is(args.http, String)) {
     textResponse = textResponse ?? (await response?.text())
 
+    debug(`(HTTP) Text response: ${textResponse}`);
+
     nodeAssert.deepStrictEqual(textResponse, args.http)
   } else {
     jsonResponse = jsonResponse ?? (await response?.json())
+
+    debug(`(HTTP) JSON response: ${JSON.stringify(jsonResponse, null, 2)}`);
 
     typeAssert(jsonResponse, record(String, unknown))
 

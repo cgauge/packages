@@ -1,6 +1,6 @@
 ---
 uuid: !faker "{{string.uuid}}"
-int: !faker "{{number.int}}"
+int: !faker number.int(9999)
 fullName: !faker "{{person.fullName}}"
 ip: !faker internet.ip
 sample: !faker "{{word.sample}}"

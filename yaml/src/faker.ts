@@ -1,11 +1,5 @@
 import {Type} from 'js-yaml'
-import {Faker, faker} from '@faker-js/faker'
-
-function propertyOf<T>(key: string | number | symbol, obj: T): key is keyof T {
-  return obj !== null && typeof obj === 'object' && key in obj
-}
-
-type KeyOfFaker = keyof Faker
+import {faker} from '@faker-js/faker'
 
 export const fakerType = new Type('!faker', {
   kind: 'scalar',
@@ -14,21 +8,8 @@ export const fakerType = new Type('!faker', {
       throw new Error('Invalid faker data.')
     }
 
-    const [command, ...args] = data.split(' ')
-    const commands = command.split('.')
-    const fakerCommand = commands.reduce((acc: KeyOfFaker | Faker, key) => {
-      if (propertyOf(key, acc)) {
-        return acc[key]
-      }
+    const value = faker.helpers.fake(data)
 
-      throw new Error(`Invalid faker command: ${command}`)
-    }, faker) as unknown
-
-    if (fakerCommand instanceof Function) {
-      const normalizedArgs = args.map((v) => isNaN(Number(v)) ? v : parseFloat(v))
-      return fakerCommand(...normalizedArgs)
-    } 
-
-    throw new Error(`Invalid faker command: ${command}`)
+    return isNaN(Number(value)) ? value : parseFloat(value)
   },
 })

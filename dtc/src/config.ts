@@ -5,10 +5,10 @@ export type Config = {
   plugins: string[]
   loader: Loader
   runner: Runner
-  testRegex: string
+  testRegex: RegExp
 }
 
-export const resolveConfig = async (configPath?: string) => {
+export const resolveConfig = async (configPath?: string): Promise<Config> => {
   let runner: Runner = defaultTestRunner
   let plugins = defaultPlugins
   let loader = defaultLoader

@@ -1,11 +1,11 @@
-import {TestCaseExecution, Loader, TestCase, Layer} from './domain.js'
+import {TestCaseExecution, Loader, TestCase} from './domain.js'
 import {readdir, stat} from 'node:fs/promises'
-import {join, dirname} from 'path'
+import {join, dirname} from 'node:path'
 import {assert} from '@cgauge/type-guard'
 import {merge} from './utils.js'
 
 const generateTestCaseExecution = async (filePath: string, loader: Loader): Promise<TestCaseExecution> => {
-  const testCase = await loader(filePath)
+  const testCase = await loader<TestCase>(filePath)
   assert(testCase, TestCase)
   return {filePath, testCase: testCase}
 }
@@ -60,7 +60,7 @@ const getValueByPath = (path: string, params: Record<string, unknown>): unknown 
   return resolvedValue
 }
 
-const replacePlaceholders = (template: unknown, params: Record<string, unknown>) =>
+const replacePlaceholders = <T>(template: T, params: Record<string, unknown>): T =>
   recursiveMap(template, (value: string | number | boolean) => {
     if (typeof value !== 'string') {
       return value
@@ -80,68 +80,77 @@ const replacePlaceholders = (template: unknown, params: Record<string, unknown>)
     return value
   })
 
-const resolveTestCaseExecutionParams = (testCaseExecution: TestCaseExecution, param: Record<string, unknown>, loadedLayers: Layer[], name: string) => {
-  if (loadedLayers) {
-    loadedLayers
-      .filter((v) => v.parameters)
-      .forEach((v) => {
-        param = merge(v.parameters, param)
-      })
-  }
-
+const resolveTestCaseParams = <T>(testCase: T, param: Record<string, unknown>): T => {
   const resolvedParams = replacePlaceholders(param, param)
-
-  return {
-    filePath: testCaseExecution.filePath,
-    testCase: {
-      ...replacePlaceholders(testCaseExecution.testCase, resolvedParams),
-      name,
-    },
-    layers: replacePlaceholders(loadedLayers, resolvedParams),
-  }
+  return replacePlaceholders(testCase, resolvedParams)
 }
 
 const resolveParameters =
-  (loader: Loader) =>
   async (testCaseExecution: TestCaseExecution): Promise<TestCaseExecution[]> => {
-    let loadedLayers: Layer[] = []
-
-    if (testCaseExecution.testCase.layers) {
-      const testCaseExecutionFilePath = dirname(testCaseExecution.filePath)
-      const layersPromises = testCaseExecution.testCase.layers.map((filePath) =>
-        loader<Layer>(testCaseExecutionFilePath + '/' + filePath),
-      )
-      loadedLayers = await Promise.all(layersPromises)
+    if (! testCaseExecution.testCase.parameters) {
+      return [testCaseExecution]
     }
 
-    if (testCaseExecution.testCase.parameters) {
-      let params = testCaseExecution.testCase.parameters
+    const params = testCaseExecution.testCase.parameters
 
-      if (Array.isArray(params)) { //Data Provider
-        return params.map((param, i) => {
-          return resolveTestCaseExecutionParams(testCaseExecution, param, loadedLayers, `${testCaseExecution.testCase.name} (provider ${i})`)
-        })
+    //Data Provider
+    if (Array.isArray(params)) {
+      return params.map((param, i) => {
+        return {
+          testCase: {
+            ...resolveTestCaseParams(testCaseExecution.testCase, param),
+            name: `${testCaseExecution.testCase.name ?? testCaseExecution.filePath} (provider ${i})`,
+          },
+          filePath: testCaseExecution.filePath,
+        }
+      })
+    }
+
+    return [{
+      testCase: resolveTestCaseParams(testCaseExecution.testCase, params),
+      filePath: testCaseExecution.filePath,
+    }]
+  }
+
+type Config = {
+  loader: Loader
+  testRegex: RegExp
+}
+
+const loadTestCase = (config: Config) => async (filePath: string): Promise<TestCaseExecution[]> => {
+  const testCaseExecution = await generateTestCaseExecution(filePath, config.loader)
+  const resolvedTestCaseExecutions = await resolveParameters(testCaseExecution)
+
+  const resolvedTestCaseExecutionsWithLayers = resolvedTestCaseExecutions
+    .map(async (v) => {
+      if (! v.testCase.layers?.length) {
+        return v
       }
 
-      return [resolveTestCaseExecutionParams(testCaseExecution, params, loadedLayers, testCaseExecution.testCase.name)]
+      const layersPromises = v.testCase.layers.map(async ({path, parameters}) => {
+        const layers = await loadTestCase(config)(dirname(v.filePath) + '/' + path)
+        const layer = layers[0].testCase
+        return {...layer, parameters: merge(layer.parameters, parameters)}
+      })
+
+      const layers = await Promise.all(layersPromises)
+
+      return {...v, layers} as TestCaseExecution
+    })
+
+  return Promise.all(resolvedTestCaseExecutionsWithLayers)
+}
+
+export const loadTestCases =
+  (projectPath: string) =>
+  (config: Config) =>
+  async (filePath?: string): Promise<TestCaseExecution[]> => {
+    if (filePath) {
+      return loadTestCase(config)(projectPath + '/' + filePath)
     }
 
-    return [testCaseExecution]
+    const files = await loadTestFiles(projectPath, config.testRegex)
+    const testCaseExecutions = await Promise.all(files.map(loadTestCase(config)))
+
+    return testCaseExecutions.flat()
   }
-
-export const loadTestCases = async (
-  projectPath: string,
-  loader: Loader,
-  testRegex: RegExp,
-  filePath?: string,
-): Promise<TestCaseExecution[]> => {
-  if (filePath) {
-    const testCaseExecutions = await generateTestCaseExecution(projectPath + '/' + filePath, loader)
-    return resolveParameters(loader)(testCaseExecutions)
-  }
-
-  const files = await loadTestFiles(projectPath, testRegex)
-  const testCaseExecutions = await Promise.all(files.map((file) => generateTestCaseExecution(file, loader)))
-
-  return (await Promise.all(testCaseExecutions.map(resolveParameters(loader)))).flat()
-}

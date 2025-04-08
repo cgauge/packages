@@ -3,7 +3,7 @@
 import {cli} from 'cleye'
 import {resolveConfig} from './config.js'
 import {loadTestCases} from './loader.js'
-import { error, warnExit } from './utils.js'
+import {error, warnExit} from './utils.js'
 
 const argv = cli({
   name: 'dtc',
@@ -17,28 +17,28 @@ const argv = cli({
   },
 })
 
-const config = argv.flags.config
+const configPath = argv.flags.config
 const filePath = argv._.filePath
 const projectPath = process.cwd()
 
-const {loader, plugins, runner, testRegex} = await resolveConfig(config)
+const config = await resolveConfig(configPath)
 
-const testCaseExecutions = await loadTestCases(projectPath, loader, testRegex, filePath)
-
-if (!runner) {
+if (!config.runner) {
   warnExit(`No test runner found`)
 }
 
-if (testCaseExecutions.length === 0) {
-  warnExit(`No test cases found for test regex: ${testRegex}`)
-}
-
-if (plugins.length === 0) {
+if (config.plugins.length === 0) {
   warnExit('No plugins defined')
 }
 
+const testCaseExecutions = await loadTestCases(projectPath)(config)(filePath)
+
+if (testCaseExecutions.length === 0) {
+  warnExit(`No test cases found for test regex: ${config.testRegex}`)
+}
+
 try {
-  await runner(testCaseExecutions, plugins, argv._.runnerArgs, config)
+  await config.runner(testCaseExecutions, config.plugins, argv._.runnerArgs, configPath)
 } catch (e: any) {
   error(e.message)
 }

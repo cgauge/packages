@@ -29,7 +29,7 @@ test('It calls a graphql endpoint with the token', async () => {
     }
   })
 
-  await assert({graphql: response})
+  await assert({graphql: response.data})
 })
 
 test('It call a sync function and throw exception if id does not exist in assert', async () => {

@@ -21,7 +21,9 @@ test('It does not assert if type does not match', () => {
   assert({})
 })
 
-test('It does not clean if type does not match', () => clean({}))
+test('It does not clean if type does not match', () => {
+  clean({})
+})
 
 test('It executes a statement in RDS during arrange', async () => {
   const statement = {
@@ -55,12 +57,11 @@ test('It executes a statement in RDS during assert', async () => {
     resourceArn: 'arn:resource',
     secretArn: 'arn:secret',
     database: 'database-name',
-    response: [{a: 1}],
   }
 
   network.rdsData(statement, {$metadata: {}, formattedRecords: '[{"a": 1}]'})
 
-  await assert({rds: [statement]})
+  await assert({rds: [{...statement, response: [{a: 1}]}]})
 })
 
 test('It executes a statement in RDS during clean', async () => {

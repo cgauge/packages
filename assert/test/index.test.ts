@@ -72,3 +72,19 @@ test('It fails when values is not an object', () => {
 
   nodeAssert.ok(asserted)
 })
+
+test('It fails if expected key is not present', () => {
+  const actual = {b: 2}
+  const expected = {a: 1}
+  let asserted = 0
+
+  try {
+    extraAssert.objectContains(actual, expected)
+  } catch (error) {
+    nodeAssert.equal(error.message, 'Invalid key [a]')
+    nodeAssert.equal(error.code, 'ERR_ASSERTION')
+    asserted = 1
+  }
+
+  nodeAssert.ok(asserted)
+})

@@ -37,12 +37,14 @@ const assertions: ExtraAssertions = {
     const expectedKeys = Object.keys(expected)
 
     for (const key of expectedKeys) {
-      if (key in actual) {
-        if (isObject(expected[key]) && isObject(actual[key])) {
-          assertions.objectContains(actual[key], expected[key], message)
-        } else if (actual[key] !== expected[key]) {
-          nodeAssert.deepEqual(actual, expected, `${message ?? ''}Invalid key [${key.toString()}]`)
-        }
+      if (!(key in actual)) {
+        nodeAssert.deepEqual(actual, expected, `${message ?? ''}Invalid key [${key.toString()}]`)
+      }
+
+      if (isObject(expected[key]) && isObject(actual[key])) {
+        assertions.objectContains(actual[key], expected[key], message)
+      } else if (actual[key] !== expected[key]) {
+        nodeAssert.deepEqual(actual, expected, `${message ?? ''}Invalid key [${key.toString()}]`)
       }
     }
   },

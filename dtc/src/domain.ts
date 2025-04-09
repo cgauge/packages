@@ -43,7 +43,6 @@ export const Layer = {
   delay: optional(Number),
   parameters: optional(record(String, unknown)),
   arrange: optional(UnionRecordRecordArray),
-  // assert: optional(union(String, intersection({exception: optional({name: String})}, UnionRecordRecordArray))),
   clean: optional(UnionRecordRecordArray),
 }
 export type Layer = TypeFromSchema<typeof Layer>

@@ -1,5 +1,6 @@
 {
   "parameters": {
     "f": "g"
-  }
+  },
+  "arrange": {"g": "h"}
 }

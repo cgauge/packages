@@ -56,8 +56,9 @@ test('It replaces parameters placeholders defined in the layers', async () => {
   nodeAssert.equal(`${__dirname}/fixtures/t4.dtc.ts`, testCaseExecutions[0].filePath)
   nodeAssert.equal('Test 4', testCaseExecutions[0].testCase.name)
 
-  nodeAssert.deepStrictEqual(testCaseExecutions[0].layers?.[0].parameters, {b: 'b', c: {d: 'e'}})
-  nodeAssert.deepStrictEqual(testCaseExecutions[0].layers?.[0].arrange, {a: 'b'})
+  nodeAssert.deepStrictEqual(testCaseExecutions[0].resolvedLayers?.[0].parameters, {b: 'b', c: {d: 'e'}})
+  nodeAssert.deepStrictEqual(testCaseExecutions[0].resolvedLayers?.[0].arrange, {a: 'b'})
+  nodeAssert.deepStrictEqual(testCaseExecutions[0].resolvedLayers?.[1].arrange, {g: 'h'})
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'content b'}])
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.assert, {a: 'content b'})
 })

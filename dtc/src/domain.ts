@@ -50,10 +50,10 @@ export type Layer = TypeFromSchema<typeof Layer>
 export const TestCaseExecution = {
   filePath: String,
   testCase: TestCase,
-  layers: optional([Layer])
+  resolvedLayers: optional([Layer])
 }
 export type TestCaseExecution = {
   filePath: string,
   testCase: TestCase,
-  layers?: Layer[]
+  resolvedLayers?: Layer[]
 }

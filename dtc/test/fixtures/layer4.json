@@ -1,8 +1,11 @@
 {
   "parameters": {
-    "b": "${a}",
+    "b": "__REPLACE__",
     "c": {
       "d": "e"
     }
-  }
+  },
+  "layers": [
+    {"path": "layer5.json"}
+  ]
 }

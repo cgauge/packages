@@ -17,23 +17,19 @@ type GenericAttributes = TypeFromSchema<typeof GenericAttributes>
 
 const UnionRecordRecordArray = union(record(String, unknown), [record(String, unknown)])
 
-export const Layer = {
-  retry: optional(Number),
-  delay: optional(Number),
+export const TestCaseLayer = {
+  path: String,
   parameters: optional(record(String, unknown)),
-  arrange: optional(UnionRecordRecordArray),
-  // assert: optional(union(String, intersection({exception: optional({name: String})}, UnionRecordRecordArray))),
-  clean: optional(UnionRecordRecordArray),
 }
-export type Layer = TypeFromSchema<typeof Layer>
+export type TestCaseLayer = TypeFromSchema<typeof TestCaseLayer>
 
 export const TestCase = intersection(GenericAttributes, {
-  name: String,
+  name: optional(String),
   debug: optional(Boolean),
   retry: optional(Number),
   delay: optional(Number),
   timeout: optional(Number),
-  layers: optional([String]),
+  layers: optional([TestCaseLayer]),
   parameters: optional(UnionRecordRecordArray),
   arrange: optional(UnionRecordRecordArray),
   act: optional(record(String, unknown)),
@@ -41,6 +37,15 @@ export const TestCase = intersection(GenericAttributes, {
   clean: optional(UnionRecordRecordArray),
 })
 export type TestCase = TypeFromSchema<typeof TestCase>
+
+export const Layer = {
+  retry: optional(Number),
+  delay: optional(Number),
+  parameters: optional(record(String, unknown)),
+  arrange: optional(UnionRecordRecordArray),
+  clean: optional(UnionRecordRecordArray),
+}
+export type Layer = TypeFromSchema<typeof Layer>
 
 export const TestCaseExecution = {
   filePath: String,

@@ -8,14 +8,14 @@ import {fileURLToPath} from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 test('It loads single file test cases', async () => {
-  const testCaseExecutions = await loadTestCases(__dirname, defaultLoader, /.*\.dtc\.[jt]s?$/, `./fixtures/t1.dtc.ts`)
+  const testCaseExecutions = await loadTestCases(__dirname)({loader: defaultLoader, testRegex: /.*\.dtc\.[jt]s?$/})(`./fixtures/t1.dtc.ts`)
 
-  nodeAssert.equal(`${__dirname}/./fixtures/t1.dtc.ts`, testCaseExecutions[0].filePath)
+  nodeAssert.equal(`${__dirname}/fixtures/t1.dtc.ts`, testCaseExecutions[0].filePath)
   nodeAssert.equal('Test 1', testCaseExecutions[0].testCase.name)
 })
 
 test('It loads files using regex', async () => {
-  const testCaseExecutions = await loadTestCases(__dirname, defaultLoader, /.*\.dtc\.[jt]s?$/)
+  const testCaseExecutions = await loadTestCases(__dirname)({loader: defaultLoader, testRegex: /.*\.dtc\.[jt]s?$/})()
 
   nodeAssert.ok(testCaseExecutions.length > 1)
   
@@ -27,9 +27,9 @@ test('It loads files using regex', async () => {
 })
 
 test('It replaces parameters placeholders', async () => {
-  const testCaseExecutions = await loadTestCases(__dirname, defaultLoader, /.*\.dtc\.[jt]s?$/, `./fixtures/t1.dtc.ts`)
+  const testCaseExecutions = await loadTestCases(__dirname)({loader: defaultLoader, testRegex: /.*\.dtc\.[jt]s?$/})(`./fixtures/t1.dtc.ts`)
 
-  nodeAssert.equal(`${__dirname}/./fixtures/t1.dtc.ts`, testCaseExecutions[0].filePath)
+  nodeAssert.equal(`${__dirname}/fixtures/t1.dtc.ts`, testCaseExecutions[0].filePath)
   nodeAssert.equal('Test 1', testCaseExecutions[0].testCase.name)
 
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'content b more b', b: 'b content', c: {d: 'e'}, d: 'e'}])
@@ -37,26 +37,26 @@ test('It replaces parameters placeholders', async () => {
 })
 
 test('It replaces multiple parameters placeholders', async () => {
-  const testCaseExecutions = await loadTestCases(__dirname, defaultLoader, /.*\.dtc\.[jt]s?$/, `./fixtures/t2.dtc.ts`)
+  const testCaseExecutions = await loadTestCases(__dirname)({loader: defaultLoader, testRegex: /.*\.dtc\.[jt]s?$/})(`./fixtures/t2.dtc.ts`)
 
-  nodeAssert.equal(`${__dirname}/./fixtures/t2.dtc.ts`, testCaseExecutions[0].filePath)
+  nodeAssert.equal(`${__dirname}/fixtures/t2.dtc.ts`, testCaseExecutions[0].filePath)
   nodeAssert.equal('Test 2 (provider 0)', testCaseExecutions[0].testCase.name)
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'b'}])
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.assert, {a: 'b'})
 
-  nodeAssert.equal(`${__dirname}/./fixtures/t2.dtc.ts`, testCaseExecutions[1].filePath)
+  nodeAssert.equal(`${__dirname}/fixtures/t2.dtc.ts`, testCaseExecutions[1].filePath)
   nodeAssert.equal('Test 2 (provider 1)', testCaseExecutions[1].testCase.name)
   nodeAssert.deepStrictEqual(testCaseExecutions[1].testCase.act?.arguments, [{a: 'c'}])
   nodeAssert.deepStrictEqual(testCaseExecutions[1].testCase.assert, {a: 'c'})
 })
 
 test('It replaces parameters placeholders defined in the layers', async () => {
-  const testCaseExecutions = await loadTestCases(__dirname, defaultLoader, /.*\.dtc\.[jt]s?$/, `./fixtures/t4.dtc.ts`)
+  const testCaseExecutions = await loadTestCases(__dirname)({loader: defaultLoader, testRegex: /.*\.dtc\.[jt]s?$/})(`./fixtures/t4.dtc.ts`)
 
-  nodeAssert.equal(`${__dirname}/./fixtures/t4.dtc.ts`, testCaseExecutions[0].filePath)
+  nodeAssert.equal(`${__dirname}/fixtures/t4.dtc.ts`, testCaseExecutions[0].filePath)
   nodeAssert.equal('Test 4', testCaseExecutions[0].testCase.name)
 
   nodeAssert.deepStrictEqual(testCaseExecutions[0].layers?.[0].parameters, {b: 'b', c: {d: 'e'}})
-  nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'content b more b', b: 'b content', c: {d: 'e'}, d: 'e'}])
-  nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.assert, {a: 'content b more b'})
+  nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'content b'}])
+  nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.assert, {a: 'content b'})
 })

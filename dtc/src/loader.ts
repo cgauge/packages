@@ -1,23 +1,18 @@
-import {TestCaseExecution, Loader, TestCase, Layer} from './domain.js'
 import {readdir, stat} from 'node:fs/promises'
-import {join, dirname} from 'path'
+import {join, dirname} from 'node:path'
 import {assert} from '@cgauge/type-guard'
+import {TestCaseExecution, Loader, TestCase} from './domain.js'
 import {merge} from './utils.js'
+import {resolveParameters} from './parameters.js'
 
-const generateTestCaseExecution = async (filePath: string, loader: Loader): Promise<TestCaseExecution> => {
-  const testCase = await loader(filePath)
-  assert(testCase, TestCase)
-  return {filePath, testCase: testCase}
-}
-
-const loadTestFiles = async (currentPath: string, testRegex: RegExp): Promise<string[]> => {
+const generateFileList = async (currentPath: string, testRegex: RegExp): Promise<string[]> => {
   const files = await readdir(currentPath)
 
   const recursiveLoad = files.map(async (file) => {
     const filePath = join(currentPath, file)
     const stats = await stat(filePath)
     if (stats.isDirectory()) {
-      return loadTestFiles(filePath, testRegex)
+      return generateFileList(filePath, testRegex)
     } else if (testRegex.test(filePath)) {
       return filePath
     }
@@ -27,121 +22,47 @@ const loadTestFiles = async (currentPath: string, testRegex: RegExp): Promise<st
 
   const result = await Promise.all(recursiveLoad)
 
-  return result.filter((item) => item !== null).flat()
+  return result.filter((v) => v !== null).flat()
 }
 
-const recursiveMap = (obj: any, callback: (v: any) => any): any => {
-  if (Array.isArray(obj)) {
-    return obj.map((element) => recursiveMap(element, callback))
-  }
-
-  if (typeof obj === 'object' && obj !== null) {
-    return Object.keys(obj).reduce((acc, key) => {
-      acc[key] = recursiveMap(obj[key], callback)
-      return acc
-    }, {} as Record<string, unknown>)
-  }
-
-  return callback(obj)
-}
-
-const getValueByPath = (path: string, params: Record<string, unknown>): unknown => {
-  const attributes = path.split('.')
-  let resolvedValue: unknown = params
-
-  for (const attribute of attributes) {
-    if (resolvedValue && typeof resolvedValue === 'object') {
-      resolvedValue = (resolvedValue as Record<string, unknown>)[attribute]
-    } else {
-      throw new Error(`Invalid parameter property: ${attribute} (${path}).`)
-    }
-  }
-
-  return resolvedValue
-}
-
-const replacePlaceholders = (template: unknown, params: Record<string, unknown>) =>
-  recursiveMap(template, (value: string | number | boolean) => {
-    if (typeof value !== 'string') {
-      return value
-    }
-
-    const regex = new RegExp(/\${(.*?)}/g)
-    const matches = regex.exec(value)
-
-    if (matches !== null) {
-      if (matches[0] !== matches.input) {
-        return value.replace(regex, (_, path) => getValueByPath(path, params) as string)
-      }
-
-      return getValueByPath(matches[1], params)
-    }
-
-    return value
-  })
-
-const resolveTestCaseExecutionParams = (testCaseExecution: TestCaseExecution, param: Record<string, unknown>, loadedLayers: Layer[], name: string) => {
-  if (loadedLayers) {
-    loadedLayers
-      .filter((v) => v.parameters)
-      .forEach((v) => {
-        param = merge(v.parameters, param)
-      })
-  }
-
-  const resolvedParams = replacePlaceholders(param, param)
-
-  return {
-    filePath: testCaseExecution.filePath,
-    testCase: {
-      ...replacePlaceholders(testCaseExecution.testCase, resolvedParams),
-      name,
-    },
-    layers: replacePlaceholders(loadedLayers, resolvedParams),
-  }
-}
-
-const resolveParameters =
+const loadTestCase =
   (loader: Loader) =>
-  async (testCaseExecution: TestCaseExecution): Promise<TestCaseExecution[]> => {
-    let loadedLayers: Layer[] = []
+  async (filePath: string): Promise<TestCaseExecution[]> => {
+    const testCase = await loader(filePath)
 
-    if (testCaseExecution.testCase.layers) {
-      const testCaseExecutionFilePath = dirname(testCaseExecution.filePath)
-      const layersPromises = testCaseExecution.testCase.layers.map((filePath) =>
-        loader<Layer>(testCaseExecutionFilePath + '/' + filePath),
-      )
-      loadedLayers = await Promise.all(layersPromises)
-    }
+    assert(testCase, TestCase)
 
-    if (testCaseExecution.testCase.parameters) {
-      let params = testCaseExecution.testCase.parameters
+    const resolvedTestCaseExecutions = await resolveParameters({filePath, testCase: testCase})
 
-      if (Array.isArray(params)) { //Data Provider
-        return params.map((param, i) => {
-          return resolveTestCaseExecutionParams(testCaseExecution, param, loadedLayers, `${testCaseExecution.testCase.name} (provider ${i})`)
-        })
+    const resolvedTestCaseExecutionsWithLayers = resolvedTestCaseExecutions.map(async (v) => {
+      if (!v.testCase.layers?.length) {
+        return v
       }
 
-      return [resolveTestCaseExecutionParams(testCaseExecution, params, loadedLayers, testCaseExecution.testCase.name)]
+      const layersPromises = v.testCase.layers.map(async ({path, parameters}) => {
+        const layers = await loadTestCase(loader)(join(dirname(v.filePath), path))
+        const layer = layers[0].testCase
+        return {...layer, parameters: merge(layer.parameters, parameters)}
+      })
+
+      const layers = await Promise.all(layersPromises)
+
+      return {...v, layers} as TestCaseExecution
+    })
+
+    return Promise.all(resolvedTestCaseExecutionsWithLayers)
+  }
+
+export const loadTestCases =
+  (projectPath: string) =>
+  (config: {loader: Loader; testRegex: RegExp}) =>
+  async (filePath?: string): Promise<TestCaseExecution[]> => {
+    if (filePath) {
+      return loadTestCase(config.loader)(join(projectPath, filePath))
     }
 
-    return [testCaseExecution]
+    const files = await generateFileList(projectPath, config.testRegex)
+    const testCaseExecutions = await Promise.all(files.map(loadTestCase(config.loader)))
+
+    return testCaseExecutions.flat()
   }
-
-export const loadTestCases = async (
-  projectPath: string,
-  loader: Loader,
-  testRegex: RegExp,
-  filePath?: string,
-): Promise<TestCaseExecution[]> => {
-  if (filePath) {
-    const testCaseExecutions = await generateTestCaseExecution(projectPath + '/' + filePath, loader)
-    return resolveParameters(loader)(testCaseExecutions)
-  }
-
-  const files = await loadTestFiles(projectPath, testRegex)
-  const testCaseExecutions = await Promise.all(files.map((file) => generateTestCaseExecution(file, loader)))
-
-  return (await Promise.all(testCaseExecutions.map(resolveParameters(loader)))).flat()
-}

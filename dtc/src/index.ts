@@ -10,7 +10,7 @@ export * from './loader.js'
 
 export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[], plugins: string[]) => {
   for (const testCaseExecution of testCaseExecutions) {
-    test(testCaseExecution.testCase.name, (args) => executeTestCase(testCaseExecution, plugins, args))
+    test(testCaseExecution.testCase.name ?? testCaseExecution.filePath, (args) => executeTestCase(testCaseExecution, plugins, args))
   }
 }
 

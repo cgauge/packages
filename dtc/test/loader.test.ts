@@ -57,6 +57,7 @@ test('It replaces parameters placeholders defined in the layers', async () => {
   nodeAssert.equal('Test 4', testCaseExecutions[0].testCase.name)
 
   nodeAssert.deepStrictEqual(testCaseExecutions[0].layers?.[0].parameters, {b: 'b', c: {d: 'e'}})
+  nodeAssert.deepStrictEqual(testCaseExecutions[0].layers?.[0].arrange, {a: 'b'})
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.act?.arguments, [{a: 'content b'}])
   nodeAssert.deepStrictEqual(testCaseExecutions[0].testCase.assert, {a: 'content b'})
 })

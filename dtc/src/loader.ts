@@ -1,7 +1,7 @@
 import {readdir, stat} from 'node:fs/promises'
 import {join, dirname} from 'node:path'
 import {assert} from '@cgauge/type-guard'
-import {TestCaseExecution, Loader, TestCase} from './domain.js'
+import {TestCaseExecution, Loader, TestCase, Layer} from './domain.js'
 import {merge} from './utils.js'
 import {resolveParameters} from './parameters.js'
 
@@ -27,12 +27,21 @@ const generateFileList = async (currentPath: string, testRegex: RegExp): Promise
 
 const loadTestCase =
   (loader: Loader) =>
-  async (filePath: string): Promise<TestCaseExecution[]> => {
+  async (filePath: string, parameters?: Layer['parameters']): Promise<TestCaseExecution[]> => {
     const testCase = await loader(filePath)
 
     assert(testCase, TestCase)
 
-    const resolvedTestCaseExecutions = await resolveParameters({filePath, testCase: testCase})
+    let resolvedTestCaseExecutions: TestCaseExecution[]
+
+    if (parameters) {
+      resolvedTestCaseExecutions = await resolveParameters({
+        filePath,
+        testCase: {...testCase, parameters: merge(testCase.parameters, parameters)},
+      })
+    } else {
+      resolvedTestCaseExecutions = await resolveParameters({filePath, testCase})
+    }
 
     const resolvedTestCaseExecutionsWithLayers = resolvedTestCaseExecutions.map(async (v) => {
       if (!v.testCase.layers?.length) {
@@ -40,9 +49,8 @@ const loadTestCase =
       }
 
       const layersPromises = v.testCase.layers.map(async ({path, parameters}) => {
-        const layers = await loadTestCase(loader)(join(dirname(v.filePath), path))
-        const layer = layers[0].testCase
-        return {...layer, parameters: merge(layer.parameters, parameters)}
+        const layers = await loadTestCase(loader)(join(dirname(v.filePath), path), parameters)
+        return layers[0].testCase
       })
 
       const layers = await Promise.all(layersPromises)
@@ -62,7 +70,7 @@ export const loadTestCases =
     }
 
     const files = await generateFileList(projectPath, config.testRegex)
-    const testCaseExecutions = await Promise.all(files.map(loadTestCase(config.loader)))
+    const testCaseExecutions = await Promise.all(files.map((v) => loadTestCase(config.loader)(v)))
 
     return testCaseExecutions.flat()
   }

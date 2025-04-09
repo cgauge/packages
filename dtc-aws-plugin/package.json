@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-aws-plugin",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "description": "AWS plugin for Declarative TestCases",
   "repository": {
     "type": "git",

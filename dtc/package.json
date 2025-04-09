@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "description": "Declarative TestCases",
   "repository": {
     "type": "git",

@@ -94,7 +94,7 @@ test('It executes layers', async () => {
         act: {},
       },
       filePath: './filePath.js',
-      layers: [
+      resolvedLayers: [
         {arrange: {}, clean: {}},
         {arrange: [{}, {}], clean: [{}, {}]},
       ],

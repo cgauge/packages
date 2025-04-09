@@ -50,12 +50,15 @@ const loadTestCase =
 
       const layersPromises = v.testCase.layers.map(async ({path, parameters}) => {
         const layers = await loadTestCase(loader)(join(dirname(v.filePath), path), parameters)
-        return layers[0].testCase
+        return layers[0]
       })
 
       const layers = await Promise.all(layersPromises)
 
-      return {...v, layers} as TestCaseExecution
+      const resolvedLayers = layers.map(v => v.resolvedLayers).filter((v) => !!v).flat()
+      const currentLayers = layers.map(v => v.testCase as Layer)
+
+      return { ...v, resolvedLayers: currentLayers.concat(resolvedLayers) };
     })
 
     return Promise.all(resolvedTestCaseExecutionsWithLayers)

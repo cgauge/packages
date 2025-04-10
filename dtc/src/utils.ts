@@ -41,6 +41,7 @@ export const merge = (to: any, from: any): any => {
       ? to.map((v, i) => merge(v, from[i] ?? v))
       : from.map((v: any, i: number) => merge(to[i], v))
   } else if (typeof to === 'object' && !Array.isArray(to) && typeof from === 'object' && !Array.isArray(from)) {
+    to = structuredClone(to)
     for (const key in from) {
       to[key] = merge(to[key], from[key])
     }

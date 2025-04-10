@@ -50,7 +50,7 @@ test('It retries when it fails', async () => {
   [1, 2, 2],
   ['a', 'b', 'b'],
 ]).forEach(([source, target, expected], index) => {
-  test.only(`It merge objects (${index})`, async () => {
+  test(`It merge objects (${index})`, async () => {
     const result = merge(source, target)
 
     assert.deepStrictEqual(result, expected)

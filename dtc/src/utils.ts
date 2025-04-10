@@ -35,14 +35,17 @@ export const retry = async <T>(fn: () => Promise<T>, times = 0, seconds = 1): Pr
   throw errors[0]
 }
 
-export const merge = (to: any, from: any) => {
-  to = {...to}
-  for (const n in from) {
-    if (typeof to[n] != 'object') {
-      to[n] = from[n]
-    } else if (typeof from[n] == 'object') {
-      to[n] = merge(to[n], from[n])
+export const merge = (to: any, from: any): any => {
+  if (Array.isArray(to) && Array.isArray(from)) {
+    return to.length > from.length
+      ? to.map((v, i) => merge(v, from[i] ?? v))
+      : from.map((v: any, i: number) => merge(to[i], v))
+  } else if (typeof to === 'object' && !Array.isArray(to) && typeof from === 'object' && !Array.isArray(from)) {
+    for (const key in from) {
+      to[key] = merge(to[key], from[key])
     }
+    return to
   }
-  return to
+
+  return from
 }

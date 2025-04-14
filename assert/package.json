@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/assert",
-  "version": "0.17.3",
+  "version": "0.18.0",
   "description": "Extra assert library",
   "type": "module",
   "repository": {

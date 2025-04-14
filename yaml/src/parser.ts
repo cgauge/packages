@@ -15,7 +15,21 @@ const includeType = (basePath: string) =>
   new Type('!include', {
     kind: 'scalar',
     resolve: (data) => typeof data === 'string',
-    construct: (data) => load(basePath + '/' + data, {schema: schema(basePath)}),
+    construct: (data: string) => {
+      const [filePath, key] = data.split(':')
+
+      const content = load(basePath + '/' + filePath, {schema: schema(basePath)})
+
+      if (key) {
+        if (typeof content === 'object' && content !== null && key in content) {
+          return content[key as keyof typeof content]
+        }
+
+        throw new Error(`Invalid key [${key}] on ${filePath}`)
+      }
+
+      return content
+    },
   })
 
 const contentType = (basePath: string) =>

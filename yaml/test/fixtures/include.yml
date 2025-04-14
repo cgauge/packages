@@ -1,3 +1,4 @@
 ---
 yml: !include env.yml 
-json: !include include.json 
+json: !include include.json
+key: !include include.json:key

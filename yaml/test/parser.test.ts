@@ -18,6 +18,7 @@ test(`it includes yml and json files`, () => {
   assert.deepEqual(load(filename), {
     yml: {envVar: 'test'},
     json: {key: 'value'},
+    key: 'value',
   })
 })
 

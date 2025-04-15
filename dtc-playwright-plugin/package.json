@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-playwright-plugin",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Playwright plugin for Declarative TestCases",
   "repository": {
     "type": "git",
@@ -15,9 +15,9 @@
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "@cgauge/assert": "^0.18.0",
-    "@cgauge/dtc": "^0.18.0",
-    "@cgauge/type-guard": "^0.18.0",
+    "@cgauge/assert": "^0.18.1",
+    "@cgauge/dtc": "^0.18.1",
+    "@cgauge/type-guard": "^0.18.1",
     "@playwright/test": "^1.47.0"
   },
   "scripts": {

@@ -23,9 +23,9 @@
     "@aws-sdk/lib-dynamodb": "^3.645.0",
     "@aws-sdk/util-dynamodb": "^3.645.0",
     "@cgauge/assert": "^0.19.0",
-    "@cgauge/dtc": "^v0.19.0",
-    "@cgauge/nock-aws": "^v0.19.0",
-    "@cgauge/type-guard": "^v0.19.0"
+    "@cgauge/dtc": "^0.19.0",
+    "@cgauge/nock-aws": "^0.19.0",
+    "@cgauge/type-guard": "^0.19.0"
   },
   "scripts": {
     "build": "tsc --build --verbose",

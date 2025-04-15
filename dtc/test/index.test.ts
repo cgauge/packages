@@ -23,6 +23,12 @@ import {
 import {
   act as actFalse,
 } from './fixtures/plugin-act-false.ts'
+import {
+  arrange as arrangeCleanup,
+  act as actCleanup,
+  assert as assertCleanup,
+  clean as cleanCleanup,
+} from './fixtures/plugin-cleanup.ts'
 
 test('It runs plugins methods', async () => {
   await executeTestCase(
@@ -117,4 +123,33 @@ test('It fails if no action is executed', async () => {
   ))
 
   nodeAssert.equal(actFalse.mock.callCount(), 1)
+})
+
+test.only('It runs cleanup even if arrange, act or assert fails', async () => { 
+  await nodeAssert.rejects(
+    async () => {
+      await executeTestCase({
+        resolvedLayers: [
+          {clean: {}},
+          {clean: [{}, {}]},
+        ],
+        testCase: {
+          name: 'Test with failing act',
+          arrange: [{}, {}],
+          act: {},
+          assert: [{}],
+          clean: [{}, {}],
+        },
+        filePath: './filePath.js',
+      }, ['../test/fixtures/plugin-cleanup.ts'])
+    },
+    {
+      message: 'TestCase: ./filePath.js \nErrors: ActError: Act failed',
+    }
+  )
+
+  nodeAssert.equal(arrangeCleanup.mock.callCount(), 2)
+  nodeAssert.equal(actCleanup.mock.callCount(), 1)
+  nodeAssert.equal(assertCleanup.mock.callCount(), 0)
+  nodeAssert.equal(cleanCleanup.mock.callCount(), 5)
 })

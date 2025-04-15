@@ -1,4 +1,4 @@
-import type {TestCaseExecution} from './domain'
+import type {TestCase, TestCaseExecution} from './domain'
 import {debug, retry} from './utils.js'
 import {dirname} from 'node:path'
 import test from 'node:test'
@@ -42,6 +42,38 @@ const preparePluginFunction =
     }
   }
 
+const useRunSafe = (
+  testCaseExecution: TestCaseExecution,
+  executePluginFunction: (functionName: string, data: unknown) => Promise<void>
+) => {
+  let errors: Error[] = []
+
+  const runSafe = async (step: string, testCase: TestCase) => {
+    try {
+      if (!testCase[step] || (errors.length > 0 && step !== 'clean')) {
+        return
+      }
+      await executePluginFunction(step, testCase[step])
+    } catch (err: any) {
+      err.name = `${step.charAt(0).toUpperCase() + step.slice(1)}Error`
+      errors.push(err)
+      debug(`${err.name}: ${err.message} \n${err.stack}`)
+    }
+  }
+
+  const throwIfError = () => {
+    if (errors.length > 0) {
+      const error = new Error(`TestCase: ${testCaseExecution.testCase.name ?? testCaseExecution.filePath} \nErrors: ${errors.map((e) => `${e.name}: ${e.message}`).join(', ')}`)
+      error.stack = errors.map((e) => e.stack).join('\n')
+      error.name = 'TestCaseError'
+      throw error
+    }
+  }
+
+  return { runSafe, throwIfError }
+}
+  
+
 export const executeTestCase = async (
   testCaseExecution: TestCaseExecution,
   plugins: string[],
@@ -56,24 +88,27 @@ export const executeTestCase = async (
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
   const executePluginFunction = preparePluginFunction(loadedPlugins, basePath, testRunnerArgs)
   const testCase = testCaseExecution.testCase
+  const { runSafe, throwIfError } = useRunSafe(testCaseExecution, executePluginFunction)
 
   if (testCaseExecution.resolvedLayers) {
     await Promise.all(
-      testCaseExecution.resolvedLayers.filter((v) => v.arrange).map((v) => executePluginFunction('arrange', v.arrange)),
+      testCaseExecution.resolvedLayers.filter((v) => v.arrange).map((v) => runSafe('arrange', v)),
     )
   }
 
-  await executePluginFunction('arrange', testCase.arrange)
+  await runSafe('arrange', testCase)
 
-  await executePluginFunction('act', testCase.act)
+  await runSafe('act', testCase)
 
-  await retry(() => executePluginFunction('assert', testCase.assert), testCase.retry, testCase.delay)
-
-  await executePluginFunction('clean', testCase.clean)
+  await retry(() => runSafe('assert', testCase), testCase.retry, testCase.delay)
+  
+  await runSafe('clean', testCase)
 
   if (testCaseExecution.resolvedLayers) {
     await Promise.all(
-      testCaseExecution.resolvedLayers.filter((v) => v.clean).map((v) => executePluginFunction('clean', v.clean)),
+      testCaseExecution.resolvedLayers.filter((v) => v.clean).map((v) => runSafe('clean', v)),
     )
   }
+
+  throwIfError()
 }

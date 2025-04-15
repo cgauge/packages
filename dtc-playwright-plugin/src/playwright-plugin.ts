@@ -13,12 +13,12 @@ const PlaywrightActionArgs = {
 }
 
 const PlaywrightAction = {
-  target: union(String, PlaywrightActionTarget),
+  target: optional(union(String, PlaywrightActionTarget)),
   action: optional(union(String, PlaywrightActionArgs)),
   fill: optional(String),
-  click: optional(Boolean),
-  keydown: optional(Boolean),
-  toBeVisible: optional(Boolean),
+  click: optional(union(Boolean, String)),
+  keydown: optional(union(Boolean, String)),
+  toBeVisible: optional(union(Boolean, String)),
   options: optional(record(String, unknown)),
 }
 type PlaywrightAction = TypeFromSchema<typeof PlaywrightAction>
@@ -35,17 +35,34 @@ const PlaywrightAssert = {
   options: optional(record(String, unknown)),
 }
 
+const getElement = (page: Page, selector: string): Locator => {
+  const selectorMatch = selector.match(/[:\[\]#\.]/)
+  return selectorMatch && selectorMatch.length > 0 ? page.locator(selector) : page.getByTestId(selector)
+}
+
 const executeActions = async (actions: PlaywrightAction[], page: Page) => {
   for (const act of actions) {
     let actionName: string, actionArgs: undefined | unknown[]
     let element: undefined | Locator
 
+    if (Object.keys(act).length === 0) {
+      throw new Error('(Playwright) No action defined')
+    }
+
     if (typeof act.target === 'string') {
-      const selectorMatch = act.target.match(/[:\[\]#\.]/)
-      if (selectorMatch && selectorMatch.length > 0) {
-        element = page.locator(act.target)
-      } else {
-        element = page.getByTestId(act.target)
+      element = getElement(page, act.target)
+    } else if (act.target === undefined) {
+      const suportedActions = ['click', 'toBeVisible']
+      const keys = Object.keys(act).filter((key) => suportedActions.includes(key))
+      if (keys.length > 1) {
+        throw new Error('(Playwright) Multiple actions defined')
+      }
+      const key = keys[0]
+      if (key === 'toBeVisible' && is(act.toBeVisible, String)) {
+        element = getElement(page, act.toBeVisible)
+      }
+      if (key === 'click' && is(act.click, String)) {
+        element = getElement(page, act.click)
       }
     } else {
       if (typeof (page as any)[act.target.name] === 'function') {
@@ -74,7 +91,10 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
           htmlElement.dispatchEvent(new KeyboardEvent('keydown', {bubbles: true, key: 'ArrowDown', ...options}))
         }, act.options)
       } else if (act.toBeVisible !== undefined) {
-        await expect(element.first()).toBeVisible({visible: act.toBeVisible, ...act.options})
+        await expect(element.first()).toBeVisible({
+          visible: act.toBeVisible as unknown as boolean,
+          ...act.options
+        })
       }
     }
   }

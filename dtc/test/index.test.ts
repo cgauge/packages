@@ -144,7 +144,7 @@ test.only('It runs cleanup even if arrange, act or assert fails', async () => {
       }, ['../test/fixtures/plugin-cleanup.ts'])
     },
     {
-      message: 'TestCase: ./filePath.js \nErrors: ActError: Act failed',
+      message: 'TestCase: Test with failing act \nActError: Act failed',
     }
   )
 

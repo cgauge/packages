@@ -63,7 +63,7 @@ const useRunSafe = (
 
   const throwIfError = () => {
     if (errors.length > 0) {
-      const error = new Error(`TestCase: ${testCaseExecution.testCase.name ?? testCaseExecution.filePath} \nErrors: ${errors.map((e) => `${e.name}: ${e.message}`).join(', ')}`)
+      const error = new Error(`TestCase: ${testCaseExecution.testCase.name ?? testCaseExecution.filePath} \n${errors.map((e) => `${e.name}: ${e.message}`).join(', ')}`)
       error.stack = errors.map((e) => e.stack).join('\n')
       error.name = 'TestCaseError'
       throw error

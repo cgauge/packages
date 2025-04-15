@@ -125,7 +125,7 @@ test('It fails if no action is executed', async () => {
   nodeAssert.equal(actFalse.mock.callCount(), 1)
 })
 
-test.only('It runs cleanup even if arrange, act or assert fails', async () => { 
+test('It runs cleanup even if arrange, act or assert fails', async () => { 
   await nodeAssert.rejects(
     async () => {
       await executeTestCase({

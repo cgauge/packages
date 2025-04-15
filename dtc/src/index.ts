@@ -42,13 +42,13 @@ const preparePluginFunction =
     }
   }
 
-const useRunSafe = (
+const runSafe = (
   testCaseExecution: TestCaseExecution,
   executePluginFunction: (functionName: string, data: unknown) => Promise<void>
 ) => {
   let errors: Error[] = []
 
-  const runSafe = async (step: string, testCase: TestCase) => {
+  const step = async (step: string, testCase: TestCase) => {
     try {
       if (!testCase[step] || (errors.length > 0 && step !== 'clean')) {
         return
@@ -70,7 +70,7 @@ const useRunSafe = (
     }
   }
 
-  return { runSafe, throwIfError }
+  return { step, throwIfError }
 }
   
 
@@ -88,25 +88,25 @@ export const executeTestCase = async (
   const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
   const executePluginFunction = preparePluginFunction(loadedPlugins, basePath, testRunnerArgs)
   const testCase = testCaseExecution.testCase
-  const { runSafe, throwIfError } = useRunSafe(testCaseExecution, executePluginFunction)
+  const { step, throwIfError } = runSafe(testCaseExecution, executePluginFunction)
 
   if (testCaseExecution.resolvedLayers) {
     await Promise.all(
-      testCaseExecution.resolvedLayers.filter((v) => v.arrange).map((v) => runSafe('arrange', v)),
+      testCaseExecution.resolvedLayers.filter((v) => v.arrange).map((v) => step('arrange', v)),
     )
   }
 
-  await runSafe('arrange', testCase)
+  await step('arrange', testCase)
 
-  await runSafe('act', testCase)
+  await step('act', testCase)
 
-  await retry(() => runSafe('assert', testCase), testCase.retry, testCase.delay)
+  await retry(() => step('assert', testCase), testCase.retry, testCase.delay)
   
-  await runSafe('clean', testCase)
+  await step('clean', testCase)
 
   if (testCaseExecution.resolvedLayers) {
     await Promise.all(
-      testCaseExecution.resolvedLayers.filter((v) => v.clean).map((v) => runSafe('clean', v)),
+      testCaseExecution.resolvedLayers.filter((v) => v.clean).map((v) => step('clean', v)),
     )
   }
 

@@ -40,8 +40,7 @@ export default {
           },
         },
         {
-          target: 'input#username[required]:invalid',
-          toBeVisible: true,
+          toBeVisible: 'input#username[required]:invalid',
         },
       ],
     },

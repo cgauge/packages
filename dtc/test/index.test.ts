@@ -29,6 +29,12 @@ import {
   assert as assertCleanup,
   clean as cleanCleanup,
 } from './fixtures/plugin-cleanup.ts'
+import {
+  arrange as arrangeRetry,
+  act as actRetry,
+  assert as assertRetry,
+  clean as cleanRetry,
+} from './fixtures/plugin-retry.ts'
 
 test('It runs plugins methods', async () => {
   await executeTestCase(
@@ -152,4 +158,23 @@ test('It runs cleanup even if arrange, act or assert fails', async () => {
   nodeAssert.equal(actCleanup.mock.callCount(), 1)
   nodeAssert.equal(assertCleanup.mock.callCount(), 0)
   nodeAssert.equal(cleanCleanup.mock.callCount(), 5)
+})
+
+test('It retries assertion when it fails', async () => {
+  await executeTestCase(
+    {
+      testCase: {
+        name: 'Test with retry',
+        act: {},
+        assert: {},
+        retry: 2,
+        delay: 0.1
+      },
+      filePath: './filePath.js',
+    },
+    ['../test/fixtures/plugin-retry.ts'],
+  )
+
+  nodeAssert.equal(actRetry.mock.callCount(), 1)
+  nodeAssert.equal(assertRetry.mock.callCount(), 3)
 })

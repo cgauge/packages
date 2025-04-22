@@ -9,6 +9,8 @@ export type Runner = (
   config?: string,
 ) => Promise<void>
 
+export type TestCasePhases = 'arrange' | 'act' | 'assert' | 'clean'
+
 const GenericAttributes = record(
   String,
   union(String, Number, Boolean, record(String, unknown), [record(String, unknown)]),

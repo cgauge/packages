@@ -9,7 +9,7 @@ export type Runner = (
   config?: string,
 ) => Promise<void>
 
-export type StepName = 'arrange' | 'act' | 'assert' | 'clean'
+export type TestCasePhases = 'arrange' | 'act' | 'assert' | 'clean'
 
 const GenericAttributes = record(
   String,

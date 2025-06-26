@@ -1,6 +1,7 @@
 import net, {Socket} from 'node:net'
 import {MockSocket} from './socket-mock'
 
+const REDIS_PORT = 6379
 const data: Record<string, string> = {}
 type MockRedis = {
   command: string
@@ -21,26 +22,24 @@ const write = (socket: net.Socket, chunk: Buffer | string) => {
   socket.push('+OK\r\n')
 }
 
-function isMockArgs(arg: unknown): arg is {redis: MockRedis[]} {
+function isRedisMockArgs(arg: unknown): arg is {redis: MockRedis[]} {
   return typeof arg === 'object' && arg !== null && 'redis' in arg
 }
 
 export const arrange = async (args: unknown): Promise<boolean> => {
-  if (!isMockArgs(args)) {
+  if (!isRedisMockArgs(args)) {
     return false
   }
 
-  const redisFixtures = args.redis
-  for (const redisFixture of redisFixtures) {
+  for (const redisFixture of args.redis) {
     if (redisFixture.command === 'set') {
       data[redisFixture.key] = redisFixture.value
-      console.log(data)
     }
   }
 
   const originalCreateConnection = net.createConnection.bind(net)
   net.createConnection = (connectionInfo: any, host?: any, callback?: any): Socket => {
-    if (connectionInfo.port === 6379) {
+    if (connectionInfo.port === REDIS_PORT) {
       return new MockSocket({write})
     }
 

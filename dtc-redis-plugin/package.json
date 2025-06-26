@@ -1,7 +1,7 @@
 {
   "name": "@cgauge/dtc-redis-plugin",
   "version": "0.20.0",
-  "description": "Redis plugin to mock redis",
+  "description": "Plugin to mock redis",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cgauge/packages.git"

@@ -1,3 +1,2 @@
-# DTC Playwright Plugin
+# DTC Redis Plugin
 
-Test Runner and Interaction

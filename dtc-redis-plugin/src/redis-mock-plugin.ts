@@ -9,6 +9,15 @@ type MockRedis = {
   value: string
 }
 
+const originalCreateConnection = net.createConnection.bind(net)
+net.createConnection = (connectionInfo: any, host?: any, callback?: any): Socket => {
+  if (connectionInfo.port === REDIS_PORT) {
+    return new MockSocket({write})
+  }
+
+  return originalCreateConnection(connectionInfo, host, callback)
+}
+
 const write = (socket: net.Socket, chunk: Buffer | string) => {
   const args = chunk.toString().split('\r\n')
   const command = args[2]?.toLowerCase()
@@ -35,15 +44,6 @@ export const arrange = async (args: unknown): Promise<boolean> => {
     if (redisFixture.command === 'set') {
       data[redisFixture.key] = redisFixture.value
     }
-  }
-
-  const originalCreateConnection = net.createConnection.bind(net)
-  net.createConnection = (connectionInfo: any, host?: any, callback?: any): Socket => {
-    if (connectionInfo.port === REDIS_PORT) {
-      return new MockSocket({write})
-    }
-
-    return originalCreateConnection(connectionInfo, host, callback)
   }
 
   return true

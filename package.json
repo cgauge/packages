@@ -11,6 +11,7 @@
     "dtc-mysql-plugin",
     "dtc-playwright-plugin",
     "dtc-graphql-plugin",
+    "dtc-redis-plugin",
     "nock-aws",
     "type-guard",
     "yaml"
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "ioredis": "^5.6.1",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   },

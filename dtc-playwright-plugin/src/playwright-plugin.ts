@@ -1,6 +1,6 @@
 import {Page, expect, Locator} from '@playwright/test'
 import {is, unknown, record, union, optional, TypeFromSchema, diff} from '@cgauge/type-guard'
-import {info} from '@cgauge/dtc'
+import {info, debug} from '@cgauge/dtc'
 
 const PlaywrightActionTarget = {
   name: String,
@@ -13,6 +13,7 @@ const PlaywrightActionArgs = {
 }
 
 const PlaywrightAction = {
+  javaScript: optional(String),
   target: optional(union(String, PlaywrightActionTarget)),
   action: optional(union(String, PlaywrightActionArgs)),
   fill: optional(String),
@@ -49,7 +50,13 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       throw new Error('(Playwright) No action defined')
     }
 
-    if (typeof act.target === 'string') {
+    if (act.javaScript) {
+      const module = await import(act.javaScript) 
+      const result = await module.default({page, expect, debug})
+      if (result) {
+        element = result
+      }
+    } else if (typeof act.target === 'string') {
       element = getElement(page, act.target)
     } else if (act.target === undefined) {
       const suportedActions = ['click', 'toBeVisible']

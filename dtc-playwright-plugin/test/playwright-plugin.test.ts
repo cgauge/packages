@@ -1,6 +1,10 @@
 import {test, mock} from 'node:test'
 import {arrange, act, assert} from '../src/playwright-plugin'
 import nodeAssert from 'node:assert'
+import {dirname} from 'node:path'
+import {fileURLToPath} from 'node:url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const page = {goto: mock.fn()}
 

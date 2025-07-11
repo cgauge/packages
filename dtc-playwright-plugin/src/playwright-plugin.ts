@@ -24,6 +24,13 @@ const PlaywrightAction = {
 type PlaywrightAction = TypeFromSchema<typeof PlaywrightAction>
 
 const Playwright = {
+  url: optional(String),
+  script: optional(String),
+  actions: optional([PlaywrightAction]),
+  options: optional(record(String, unknown)),
+}
+
+const PlaywrightArrange = {
   url: String,
   actions: optional([PlaywrightAction]),
   options: optional(record(String, unknown)),
@@ -109,8 +116,8 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
     return false
   }
 
-  if (!is(args, {playwright: Playwright})) {
-    const mismatch = diff(args, {playwright: Playwright})
+  if (!is(args, {playwright: PlaywrightArrange})) {
+    const mismatch = diff(args, {playwright: PlaywrightArrange})
     throw new Error(`(Playwright) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
@@ -136,7 +143,26 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
     return false
   }
 
-  await page.goto(args.url, args.options)
+  if (args.url && args.script) {
+    info('(Playwright) Cannot use both url and script in act')
+    return false
+  }
+
+  if (!args.url && !args.script) {
+    info('(Playwright) You should use url or script in act')
+    return false
+  }
+
+  if (args.script) {
+    const [path, functionName] = args.script.split(':')
+    const script = await import(path)
+    await script[functionName || 'default'](page)
+    return true
+  }
+
+  if (args.url) {
+    await page.goto(args.url, args.options)
+  }
 
   if (!args.actions) {
     return true

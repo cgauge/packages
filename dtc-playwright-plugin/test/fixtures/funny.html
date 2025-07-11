@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+</head>
+<body>
+  <h1>Funny Test</h1>
+  <button id="click-me">Click me</button>
+  
+  <input type="text" name="mytext"/>
+
+  <button id="submit">Submit</button>
+
+  <div id="result"></div>
+  <script>
+    document.getElementById('click-me').addEventListener('click', () => {
+      document.querySelector('h1').remove();
+    });
+
+    document.querySelector('#submit').addEventListener('click', (event) => {
+      const input = document.querySelector('input[name="mytext"]');
+      
+      const div = document.getElementById('result');
+
+      if (!input.value) {
+        div.textContent = '';
+      } else {
+        div.textContent = input.value;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -18,6 +18,16 @@ test('It does not act if type does not match', () => act(
   {page}
 ))
 
+test('It does not act if type does not match 2', () => act(
+  {
+    url: 'https://customergauge.com',
+    script: './script.js',
+  },
+  'basePath',
+  //@ts-ignore
+  {page}
+))
+
 test('It does not assert if type does not match', () => assert(
   {},
   'basePath',

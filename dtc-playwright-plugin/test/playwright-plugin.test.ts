@@ -1,10 +1,6 @@
 import {test, mock} from 'node:test'
 import {arrange, act, assert} from '../src/playwright-plugin'
 import nodeAssert from 'node:assert'
-import {dirname} from 'node:path'
-import {fileURLToPath} from 'node:url'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const page = {goto: mock.fn()}
 
@@ -17,6 +13,16 @@ test('It does not arrange if type does not match', () => arrange(
 
 test('It does not act if type does not match', () => act(
   {},
+  'basePath',
+  //@ts-ignore
+  {page}
+))
+
+test('It does not act if type does not match 2', () => act(
+  {
+    url: 'https://customergauge.com',
+    script: './script.js',
+  },
   'basePath',
   //@ts-ignore
   {page}

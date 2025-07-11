@@ -1,6 +1,6 @@
 import {Page, expect, Locator} from '@playwright/test'
 import {is, unknown, record, union, optional, TypeFromSchema, diff} from '@cgauge/type-guard'
-import {info, debug} from '@cgauge/dtc'
+import {info} from '@cgauge/dtc'
 
 const PlaywrightActionTarget = {
   name: String,
@@ -13,7 +13,6 @@ const PlaywrightActionArgs = {
 }
 
 const PlaywrightAction = {
-  javaScript: optional(String),
   target: optional(union(String, PlaywrightActionTarget)),
   action: optional(union(String, PlaywrightActionArgs)),
   fill: optional(String),
@@ -25,6 +24,13 @@ const PlaywrightAction = {
 type PlaywrightAction = TypeFromSchema<typeof PlaywrightAction>
 
 const Playwright = {
+  url: optional(String),
+  script: optional(String),
+  actions: optional([PlaywrightAction]),
+  options: optional(record(String, unknown)),
+}
+
+const PlaywrightArrange = {
   url: String,
   actions: optional([PlaywrightAction]),
   options: optional(record(String, unknown)),
@@ -50,13 +56,7 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
       throw new Error('(Playwright) No action defined')
     }
 
-    if (act.javaScript) {
-      const module = await import(act.javaScript) 
-      const result = await module.default({page, expect, debug})
-      if (result) {
-        element = result
-      }
-    } else if (typeof act.target === 'string') {
+    if (typeof act.target === 'string') {
       element = getElement(page, act.target)
     } else if (act.target === undefined) {
       const suportedActions = ['click', 'toBeVisible']
@@ -116,8 +116,8 @@ export const arrange = async (args: unknown, _basePath: string, {page}: {page: P
     return false
   }
 
-  if (!is(args, {playwright: Playwright})) {
-    const mismatch = diff(args, {playwright: Playwright})
+  if (!is(args, {playwright: PlaywrightArrange})) {
+    const mismatch = diff(args, {playwright: PlaywrightArrange})
     throw new Error(`(Playwright) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
@@ -143,7 +143,26 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
     return false
   }
 
-  await page.goto(args.url, args.options)
+  if (args.url && args.script) {
+    info('(Playwright) Cannot use both url and script in act')
+    return false
+  }
+
+  if (!args.url && !args.script) {
+    info('(Playwright) You should use url or script in act')
+    return false
+  }
+
+  if (args.script) {
+    const [path, functionName] = args.script.split(':')
+    const script = await import(path)
+    await script[functionName || 'default'](page)
+    return true
+  }
+
+  if (args.url) {
+    await page.goto(args.url, args.options)
+  }
 
   if (!args.actions) {
     return true

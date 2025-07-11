@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-mysql-plugin",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "MySQL plugin for Declarative TestCases",
   "repository": {
     "type": "git",
@@ -15,9 +15,9 @@
   "author": "Abdala Cerqueira",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "@cgauge/assert": "^0.21.0",
-    "@cgauge/dtc": "^0.21.0",
-    "@cgauge/type-guard": "^0.21.0",
+    "@cgauge/assert": "^0.22.0",
+    "@cgauge/dtc": "^0.22.0",
+    "@cgauge/type-guard": "^0.22.0",
     "mysql2": "^3.11.0",
     "node-sql-parser": "^5.1.0",
     "type-assurance": "^1.5.1"

@@ -12,13 +12,13 @@ export default async (page) => {
   await expect(page.locator('h1')).toHaveCount(0);
 }
 
-export const testCase4 = async (page) => {
+export const testCase4 = async (page, args) => {
   await page.goto(`file://${__dirname}/funny.html`);
 
-  await page.locator('input[name="mytext"]').fill('Hello World');
+  await page.locator('input[name="mytext"]').fill(args.text);
 
   await page.click('#submit');
 
-  expect(await page.locator('#result').textContent()).toBe('Hello World');
+  expect(await page.locator('#result').textContent()).toBe(args.text);
 }
 

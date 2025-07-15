@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/dtc-redis-plugin",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Plugin to mock redis",
   "repository": {
     "type": "git",
@@ -15,9 +15,9 @@
   "author": "Salam Suleymanov",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "@cgauge/assert": "^0.22.0",
-    "@cgauge/dtc": "^0.22.0",
-    "@cgauge/type-guard": "^0.22.0"
+    "@cgauge/assert": "^0.23.0",
+    "@cgauge/dtc": "^0.23.0",
+    "@cgauge/type-guard": "^0.23.0"
   },
   "scripts": {
     "build": "tsc --build --verbose",

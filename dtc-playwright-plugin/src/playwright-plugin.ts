@@ -12,6 +12,14 @@ const PlaywrightActionArgs = {
   args: optional([unknown]),
 }
 
+const PlaywrightScript = {
+  path: String,
+  functionName: optional(String),
+  args: optional(unknown),
+}
+
+type PlaywrightScript = TypeFromSchema<typeof PlaywrightScript>
+
 const PlaywrightAction = {
   target: optional(union(String, PlaywrightActionTarget)),
   action: optional(union(String, PlaywrightActionArgs)),
@@ -25,7 +33,7 @@ type PlaywrightAction = TypeFromSchema<typeof PlaywrightAction>
 
 const Playwright = {
   url: optional(String),
-  script: optional(String),
+  script: optional(PlaywrightScript),
   actions: optional([PlaywrightAction]),
   options: optional(record(String, unknown)),
 }
@@ -154,9 +162,8 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
   }
 
   if (args.script) {
-    const [path, functionName] = args.script.split(':')
-    const script = await import(path)
-    await script[functionName || 'default'](page)
+    const script = await import(args.script.path)
+    await script[args.script.functionName || 'default'](page, args.script.args)
     return true
   }
 

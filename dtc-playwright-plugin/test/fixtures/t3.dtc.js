@@ -6,6 +6,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 export default {
   name: 'Test if call a script works',
   act: {
-    script: `${__dirname}/tests.js`,
+    script: {
+      path: `${__dirname}/tests.js`
+    },
   }
 }

@@ -13,23 +13,12 @@ type RequireAtLeastOne<T> = {
   [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>>
 }[keyof T]
 
-type PluginArrange = {
+export type Plugin = RequireAtLeastOne<{
   arrange(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-}
-
-type PluginAct = {
   act(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-}
-
-type PluginAssert = {
   assert(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-}
-
-type PluginClean = {
   clean(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-}
-
-export type Plugin = RequireAtLeastOne<PluginArrange & PluginAct & PluginAssert & PluginClean>
+}>
 
 export type TestCasePhases = 'arrange' | 'act' | 'assert' | 'clean'
 

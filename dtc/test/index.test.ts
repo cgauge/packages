@@ -45,12 +45,6 @@ test('It passes parameters to plugins functions', async () => {
   nodeAssert.deepEqual(pluginArgs.clean.mock.calls[0].arguments, [testCase.clean, basePath, testArgs])
 })
 
-test('It ensures plugins methods are optional', async () => {
-  await executeTestCase({testCase: {name: 'Test'},filePath: ''}, [{}], {})
-
-  nodeAssert.ok(true)
-})
-
 test('It supports array on arrange, assert and clean', async () => {
   await executeTestCase(
     {

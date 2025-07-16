@@ -9,12 +9,27 @@ export type Runner = (
   config?: string,
 ) => Promise<void>
 
-export type Plugin = {
-  arrange?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-  act?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-  assert?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-  clean?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+type RequireAtLeastOne<T> = {
+  [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>>
+}[keyof T]
+
+type PluginArrange = {
+  arrange(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
 }
+
+type PluginAct = {
+  act(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+}
+
+type PluginAssert = {
+  assert(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+}
+
+type PluginClean = {
+  clean(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+}
+
+export type Plugin = RequireAtLeastOne<PluginArrange & PluginAct & PluginAssert & PluginClean>
 
 export type TestCasePhases = 'arrange' | 'act' | 'assert' | 'clean'
 

@@ -41,7 +41,7 @@ export const act = async (args: unknown, basePath: string): Promise<boolean> => 
   return true
 }
 
-export const assert = (args: unknown): boolean => {
+export const assert = async (args: unknown): Promise<boolean> => {
   if (!is(args, FunctionCallResponse)) {
     return false
   }

@@ -1,8 +1,8 @@
-import type {Runner, Loader} from './domain'
+import type {Runner, Loader, Plugin} from './domain'
 import {defaultLoader, defaultPlugins, defaultTestRunner} from './index.js'
 
 export type Config = {
-  plugins: string[]
+  plugins: Plugin[]
   loader: Loader
   runner: Runner
   testRegex: RegExp

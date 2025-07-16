@@ -4,10 +4,17 @@ export type Loader = <T = TestCase>(filePath: string) => Promise<T>
 
 export type Runner = (
   testCases: TestCaseExecution[],
-  plugins: string[],
+  plugins: Plugin[],
   args?: string[],
   config?: string,
 ) => Promise<void>
+
+export type Plugin = {
+  arrange?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+  act?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+  assert?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+  clean?(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+}
 
 export type TestCasePhases = 'arrange' | 'act' | 'assert' | 'clean'
 

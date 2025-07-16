@@ -6,9 +6,13 @@ import nodeAssert from 'node:assert'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-test('It does not act if type does not match', () => act({}, __dirname))
+test('It does not act if type does not match', async () => {
+  await act({}, __dirname)
+})
 
-test('It does not assert if type does not match', () => assert({}))
+test('It does not assert if type does not match', async () => {
+  await assert({})
+})
 
 test('It call a sync function with args', async () => {
   const args = {a: 'b'}
@@ -22,7 +26,7 @@ test('It call a sync function with args', async () => {
     __dirname,
   )
 
-  assert(args)
+  await assert(args)
 })
 
 test('It call a async function with args', async () => {
@@ -37,7 +41,7 @@ test('It call a async function with args', async () => {
     __dirname,
   )
 
-  assert(args)
+  await assert(args)
 })
 
 test('It call a sync function with exception', async () => {
@@ -52,7 +56,7 @@ test('It call a sync function with exception', async () => {
     __dirname,
   )
 
-  assert(args)
+  await assert(args)
 })
 
 test('It call a sync function and throw exception if id does not exist in assert', async () => {
@@ -68,8 +72,8 @@ test('It call a sync function and throw exception if id does not exist in assert
   )
 
   try {
-    assert(args)
+    await assert(args)
   } catch (e) {
     nodeAssert.ok(true)
-  } 
+  }
 })

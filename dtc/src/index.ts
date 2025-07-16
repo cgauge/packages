@@ -1,14 +1,17 @@
-import type {TestCase, TestCaseExecution, TestCasePhases} from './domain'
+import type {Plugin, TestCase, TestCaseExecution, TestCasePhases} from './domain'
 import {debug, retry} from './utils.js'
 import {dirname} from 'node:path'
 import test from 'node:test'
+import * as disableNetConnectPlugin from './plugins/disable-net-connect-plugin.js'
+import * as functionCallPlugin from  './plugins/function-call-plugin.js'
+import * as httpMockPlugin from './plugins/http-mock-plugin.js'
 
 export type * from './domain'
 export * from './utils.js'
 export * from './config.js'
 export * from './loader.js'
 
-export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[], plugins: string[]) => {
+export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[], plugins: Plugin[]) => {
   for (const testCaseExecution of testCaseExecutions) {
     test(testCaseExecution.testCase.name ?? testCaseExecution.filePath, (args) => executeTestCase(testCaseExecution, plugins, args))
   }
@@ -16,14 +19,10 @@ export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[],
 
 export const defaultLoader = async (filePath: string) => (await import(filePath)).default
 
-export const defaultPlugins = [
-  './plugins/disable-net-connect-plugin.js',
-  './plugins/function-call-plugin.js',
-  './plugins/http-mock-plugin.js',
-]
+export const defaultPlugins: Plugin[] = [disableNetConnectPlugin, functionCallPlugin, httpMockPlugin]
 
-const createPluginExecutor = (plugins: any[], basePath: string, testRunnerArgs?: unknown) => {
-  return async (functionName: string, data: unknown) => {
+const createPluginExecutor = (plugins: Plugin[], basePath: string, testRunnerArgs?: unknown) => {
+  return async (functionName: TestCasePhases, data: unknown) => {
     if (!data) {
       return
     }
@@ -44,7 +43,7 @@ const createPluginExecutor = (plugins: any[], basePath: string, testRunnerArgs?:
 }
 
 const createPhaseExecutor = (
-  executePluginFunction: (functionName: string, data: unknown) => Promise<void>,
+  executePluginFunction: (functionName: TestCasePhases, data: unknown) => Promise<void>,
   testCaseExecution: TestCaseExecution,
 ) => {
   const allowedLayerPhases = ['arrange', 'clean']
@@ -82,12 +81,11 @@ const createPhaseExecutor = (
 
 const createTestCaseExecutor = async (
   testCaseExecution: TestCaseExecution,
-  plugins: string[],
+  plugins: Plugin[],
   testRunnerArgs?: unknown,
 ) => {
   const basePath = dirname(testCaseExecution.filePath)
-  const loadedPlugins = await Promise.all(plugins.map((plugin) => import(plugin)))
-  const executePluginFunction = createPluginExecutor(loadedPlugins, basePath, testRunnerArgs)
+  const executePluginFunction = createPluginExecutor(plugins, basePath, testRunnerArgs)
   const phaseExecutor = createPhaseExecutor(executePluginFunction, testCaseExecution)
   let errors: Error[] = []
 
@@ -118,7 +116,7 @@ const createTestCaseExecutor = async (
   
 export const executeTestCase = async (
   testCaseExecution: TestCaseExecution,
-  plugins: string[],
+  plugins: Plugin[],
   testRunnerArgs?: unknown,
 ) => {
   debug(`TestCase: ${JSON.stringify(testCaseExecution, null, 2)}`)

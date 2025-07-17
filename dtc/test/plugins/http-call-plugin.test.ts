@@ -2,9 +2,9 @@ import {test} from 'node:test'
 import {act, assert} from '../../src/plugins/http-call-plugin'
 import nodeAssert from 'node:assert/strict'
 
-test('It does not act if type does not match', () => act({}))
+test('It does not act if type does not match', async () => { await act({}) })
 
-test('It does not assert if type does not match', () => assert({}))
+test('It does not assert if type does not match', async () => { await assert({}) })
 
 test('It calls an http endpoint', async () => {
   const content = {key: 'value'}

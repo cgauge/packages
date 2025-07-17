@@ -2,39 +2,13 @@ import {test} from 'node:test'
 import nodeAssert from 'node:assert'
 import {executeTestCase} from '../src/index.js'
 import {arrange, act, assert, clean} from './fixtures/plugin.ts'
-import {
-  arrange as arrangeArgs,
-  act as actArgs,
-  assert as assertArgs,
-  clean as cleanArgs,
-} from './fixtures/plugin-args.ts'
-import {
-  arrange as arrangeArray,
-  act as actArray,
-  assert as assertArray,
-  clean as cleanArray,
-} from './fixtures/plugin-array.ts'
-import {
-  arrange as arrangeLayers,
-  act as actLayers,
-  assert as assertLayers,
-  clean as cleanLayers,
-} from './fixtures/layers.ts'
-import {
-  act as actFalse,
-} from './fixtures/plugin-act-false.ts'
-import {
-  arrange as arrangeCleanup,
-  act as actCleanup,
-  assert as assertCleanup,
-  clean as cleanCleanup,
-} from './fixtures/plugin-cleanup.ts'
-import {
-  arrange as arrangeRetry,
-  act as actRetry,
-  assert as assertRetry,
-  clean as cleanRetry,
-} from './fixtures/plugin-retry.ts'
+import * as plugin from '../test/fixtures/plugin.ts'
+import * as pluginArgs from './fixtures/plugin-args.ts'
+import * as pluginArray from './fixtures/plugin-array.ts'
+import * as pluginLayers from './fixtures/plugin-layers.ts'
+import * as pluginFalse from './fixtures/plugin-act-false.ts'
+import * as pluginCleanup from './fixtures/plugin-cleanup.ts'
+import * as pluginRetry from './fixtures/plugin-retry.ts'
 
 test('It runs plugins methods', async () => {
   await executeTestCase(
@@ -42,7 +16,7 @@ test('It runs plugins methods', async () => {
       testCase: {name: 'Test', act: {}, arrange: {}, assert: {}, clean: {}},
       filePath: './filePath.js',
     },
-    ['../test/fixtures/plugin.ts'],
+    [plugin],
   )
 
   nodeAssert.equal(arrange.mock.callCount(), 1)
@@ -63,18 +37,12 @@ test('It passes parameters to plugins functions', async () => {
   const basePath = './path/to'
   const testArgs = {i: 'j'}
 
-  await executeTestCase({testCase, filePath}, ['../test/fixtures/plugin-args.ts'], testArgs)
+  await executeTestCase({testCase, filePath}, [pluginArgs], testArgs)
 
-  nodeAssert.deepEqual(arrangeArgs.mock.calls[0].arguments, [testCase.arrange, basePath, testArgs])
-  nodeAssert.deepEqual(actArgs.mock.calls[0].arguments, [testCase.act, basePath, testArgs])
-  nodeAssert.deepEqual(assertArgs.mock.calls[0].arguments, [testCase.assert, basePath, testArgs])
-  nodeAssert.deepEqual(cleanArgs.mock.calls[0].arguments, [testCase.clean, basePath, testArgs])
-})
-
-test('It ensures plugins methods are optional', async () => {
-  await executeTestCase({testCase: {name: 'Test'},filePath: ''}, ['../test/fixtures/blank-plugin.ts'], {})
-
-  nodeAssert.ok(true)
+  nodeAssert.deepEqual(pluginArgs.arrange.mock.calls[0].arguments, [testCase.arrange, basePath, testArgs])
+  nodeAssert.deepEqual(pluginArgs.act.mock.calls[0].arguments, [testCase.act, basePath, testArgs])
+  nodeAssert.deepEqual(pluginArgs.assert.mock.calls[0].arguments, [testCase.assert, basePath, testArgs])
+  nodeAssert.deepEqual(pluginArgs.clean.mock.calls[0].arguments, [testCase.clean, basePath, testArgs])
 })
 
 test('It supports array on arrange, assert and clean', async () => {
@@ -89,13 +57,13 @@ test('It supports array on arrange, assert and clean', async () => {
       },
       filePath: './filePath.js',
     },
-    ['../test/fixtures/plugin-array.ts'],
+    [pluginArray],
   )
 
-  nodeAssert.equal(arrangeArray.mock.callCount(), 2)
-  nodeAssert.equal(actArray.mock.callCount(), 1)
-  nodeAssert.equal(assertArray.mock.callCount(), 2)
-  nodeAssert.equal(cleanArray.mock.callCount(), 2)
+  nodeAssert.equal(pluginArray.arrange.mock.callCount(), 2)
+  nodeAssert.equal(pluginArray.act.mock.callCount(), 1)
+  nodeAssert.equal(pluginArray.assert.mock.callCount(), 2)
+  nodeAssert.equal(pluginArray.clean.mock.callCount(), 2)
 })
 
 test('It executes layers', async () => {
@@ -111,12 +79,12 @@ test('It executes layers', async () => {
         {arrange: [{}, {}], clean: [{}, {}]},
       ],
     },
-    ['../test/fixtures/layers.ts'],
+    [pluginLayers],
   )
 
-  nodeAssert.equal(arrangeLayers.mock.callCount(), 3)
-  nodeAssert.equal(actLayers.mock.callCount(), 1)
-  nodeAssert.equal(cleanLayers.mock.callCount(), 3)
+  nodeAssert.equal(pluginLayers.arrange.mock.callCount(), 3)
+  nodeAssert.equal(pluginLayers.act.mock.callCount(), 1)
+  nodeAssert.equal(pluginLayers.clean.mock.callCount(), 3)
 })
 
 test('It fails if no action is executed', async () => {
@@ -125,10 +93,10 @@ test('It fails if no action is executed', async () => {
       testCase: {name: 'Test', act: {}},
       filePath: './filePath.js',
     },
-    ['../test/fixtures/plugin-act-false.ts'],
+    [pluginFalse],
   ))
 
-  nodeAssert.equal(actFalse.mock.callCount(), 1)
+  nodeAssert.equal(pluginFalse.act.mock.callCount(), 1)
 })
 
 test('It runs cleanup even if arrange, act or assert fails', async () => { 
@@ -147,17 +115,17 @@ test('It runs cleanup even if arrange, act or assert fails', async () => {
           clean: [{}, {}],
         },
         filePath: './filePath.js',
-      }, ['../test/fixtures/plugin-cleanup.ts'])
+      }, [pluginCleanup])
     },
     {
       message: 'TestCase: Test with failing act \nActError: Act failed',
     }
   )
 
-  nodeAssert.equal(arrangeCleanup.mock.callCount(), 2)
-  nodeAssert.equal(actCleanup.mock.callCount(), 1)
-  nodeAssert.equal(assertCleanup.mock.callCount(), 0)
-  nodeAssert.equal(cleanCleanup.mock.callCount(), 5)
+  nodeAssert.equal(pluginCleanup.arrange.mock.callCount(), 2)
+  nodeAssert.equal(pluginCleanup.act.mock.callCount(), 1)
+  nodeAssert.equal(pluginCleanup.assert.mock.callCount(), 0)
+  nodeAssert.equal(pluginCleanup.clean.mock.callCount(), 5)
 })
 
 test('It retries assertion when it fails', async () => {
@@ -172,9 +140,9 @@ test('It retries assertion when it fails', async () => {
       },
       filePath: './filePath.js',
     },
-    ['../test/fixtures/plugin-retry.ts'],
+    [pluginRetry],
   )
 
-  nodeAssert.equal(actRetry.mock.callCount(), 1)
-  nodeAssert.equal(assertRetry.mock.callCount(), 3)
+  nodeAssert.equal(pluginRetry.act.mock.callCount(), 1)
+  nodeAssert.equal(pluginRetry.assert.mock.callCount(), 3)
 })

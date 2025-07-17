@@ -68,7 +68,7 @@ export const arrange = async (args: unknown): Promise<boolean> => {
   return true
 }
 
-export const assert = (): boolean => {
+export const assert = async (): Promise<boolean> => {
   if (!nock.isDone()) {
     const pendingUrls = nock.pendingMocks()
     nock.cleanAll()

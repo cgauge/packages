@@ -4,21 +4,21 @@ import nodeAssert from 'node:assert'
 
 const page = {goto: mock.fn()}
 
-test('It does not arrange if type does not match', () => arrange(
+test('It does not arrange if type does not match', async () => { await arrange(
   {},
   'basePath',
   //@ts-ignore
   {page}
-))
+)})
 
-test('It does not act if type does not match', () => act(
+test('It does not act if type does not match', async () => { await act(
   {},
   'basePath',
   //@ts-ignore
   {page}
-))
+)})
 
-test('It does not act if type does not match 2', () => act(
+test('It does not act if type does not match 2', async () => { await act(
   {
     url: 'https://customergauge.com',
     script: './script.js',
@@ -26,14 +26,14 @@ test('It does not act if type does not match 2', () => act(
   'basePath',
   //@ts-ignore
   {page}
-))
+)})
 
-test('It does not assert if type does not match', () => assert(
+test('It does not assert if type does not match', async () => { await assert(
   {},
   'basePath',
   //@ts-ignore
   {page}
-))
+)})
 
 test('It calls playwright triggers', async () => {
   const page = {goto: mock.fn()}

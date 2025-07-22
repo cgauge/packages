@@ -24,7 +24,7 @@ const main = async ({projectPath, configPath, filePath, runnerArgs}: CliArgs) =>
     warnExit(`No test cases found for test regex: ${config.testRegex}`)
   }
 
-  await config.runner(testCaseExecutions, config.plugins, runnerArgs, configPath)
+  await config.runner(testCaseExecutions, config.plugins, runnerArgs, configPath, filePath)
 }
 
 const argv = cli({

@@ -7,6 +7,7 @@ export type Runner = (
   plugins: Plugin[],
   args?: string[],
   config?: string,
+  filePath?: string,
 ) => Promise<void>
 
 type RequireAtLeastOne<T> = {

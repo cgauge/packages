@@ -1,0 +1,23 @@
+{
+  "name": "@cgauge/log",
+  "version": "0.23.0",
+  "description": "A logger with namespaces and level",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgauge/packages.git"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "Abdala Cerqueira",
+  "license": "LGPL-3.0-or-later",
+  "scripts": {
+    "build": "tsc --build --verbose",
+    "test": "tsx --test test/*.test.ts",
+    "test:only": "tsx --test --test-only test/*.test.ts",
+    "test:coverage": "tsx --experimental-test-coverage --test test/*.test.ts"
+  }
+}

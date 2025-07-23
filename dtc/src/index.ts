@@ -61,11 +61,10 @@ const createPhaseExecutor = (
   }
 
   const executeLayerPhase = async (phase: TestCasePhases, layers: TestCase[]) => {
-    await Promise.all(
-      layers
-        .filter((layer) => layer[phase])
-        .map((layer) => executePhase(phase, layer))
-    )
+    const filteredLayers =  layers.filter((layer) => layer[phase])
+      for (const layer of filteredLayers) {
+          await executePhase(phase, layer);
+      }
   }
 
   const execute = async (phase: TestCasePhases) => {

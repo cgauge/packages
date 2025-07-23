@@ -17,6 +17,7 @@
   "dependencies": {
     "@cgauge/assert": "^0.24.0",
     "@cgauge/dtc": "^0.24.0",
+    "@cgauge/log": "^0.24.0",
     "@cgauge/type-guard": "^0.24.0",
     "@playwright/test": "^1.47.0"
   },

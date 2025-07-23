@@ -8,10 +8,11 @@
     "assert",
     "dtc",
     "dtc-aws-plugin",
+    "dtc-graphql-plugin",
     "dtc-mysql-plugin",
     "dtc-playwright-plugin",
-    "dtc-graphql-plugin",
     "dtc-redis-plugin",
+    "log",
     "nock-aws",
     "type-guard",
     "yaml"

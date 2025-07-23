@@ -14,11 +14,20 @@ type DynamoArrange = TypeFromSchema<typeof DynamoArrange>
 const DynamoAct = DynamoArrange
 type DynamoAct = TypeFromSchema<typeof DynamoAct>
 
-const DynamoAssert = {
+const DynamoAssertKey = {
   table: String,
   key: record(String, unknown),
   item: record(String, unknown),
 }
+
+const DynamoAssertQuery = {
+  table: String,
+  index: optional(String),
+  query: record(String, {operator: String, value: unknown}),
+  item: record(String, unknown),
+}
+
+const DynamoAssert = union(DynamoAssertKey, DynamoAssertQuery)
 type DynamoAssert = TypeFromSchema<typeof DynamoAssert>
 
 const CleanDynamoDBDelete = {
@@ -47,19 +56,57 @@ const executeDynamoStatement = async (statement: DynamoArrange) => {
 
 export const assertExists = async (statement: DynamoAssert): Promise<void> => {
   debug(`(DynamoDB) Assert Table: ${statement.table}`)
-  debug(`(DynamoDB) Assert Item: ${JSON.stringify(statement.item)}`)
+  let result
 
-  const getItemResponse = await documentClient.get({
-    TableName: statement.table,
-    Key: statement.key,
-    ConsistentRead: true,
-  })
+  if ('key' in statement) {
+    debug(`(DynamoDB) Assert Key: ${JSON.stringify(statement.key)}`)
+    debug(`(DynamoDB) Assert Item: ${JSON.stringify(statement.item)}`)
+    result = await documentClient.get({
+      TableName: statement.table,
+      Key: statement.key,
+      ConsistentRead: true,
+    })
 
-  if (!getItemResponse.Item) {
-    nodeAssert.fail('(DynamoDB) Item not found')
+    if (!result.Item) {
+      nodeAssert.fail('(DynamoDB) Item not found')
+    }
+
+    extraAssert.objectContains(result.Item, statement.item)
   }
 
-  extraAssert.objectContains(getItemResponse.Item, statement.item)
+  if ('query' in statement) {
+    debug(`(DynamoDB) Assert Key: ${JSON.stringify(statement.query)}`)
+    debug(`(DynamoDB) Assert Item: ${JSON.stringify(statement.item)}`)
+
+    result = await documentClient.query({
+      TableName: statement.table,
+      IndexName: statement.index,
+      KeyConditionExpression: Object.entries(statement.query)
+        .map(([key, options]) => resolveExpression(key, options.operator))
+        .join(' AND '),
+      ExpressionAttributeNames: Object.fromEntries(Object.entries(statement.query).map(([key]) => [`#${key}`, key])),
+      ExpressionAttributeValues: Object.fromEntries(
+        Object.entries(statement.query).map(([key, options]) => [`:${key}`, options.value]),
+      ),
+    })
+
+    if (!result.Items) {
+      nodeAssert.fail('(DynamoDB) Items not found')
+    }
+
+    let matched = false
+
+    for (const item of result.Items) {
+      try {
+        extraAssert.objectContains(item, statement.item)
+        matched = true
+      } catch (error) {}
+    }
+
+    if (!matched) {
+      nodeAssert.fail('(DynamoDB) Items not found')
+    }
+  }
 }
 
 const cleanDynamoItems = async (clean: DynamoClean) => {
@@ -160,4 +207,13 @@ export const clean = async (args: unknown) => {
   await Promise.all(args.dynamodb.map(cleanDynamoItems))
 
   return true
+}
+
+const resolveExpression = (key: string, operator: string) => {
+  switch (operator) {
+    case 'begins_with':
+      return `begins_with(#${key}, :${key})`
+    default:
+      return `#${key} = :${key}`
+  }
 }

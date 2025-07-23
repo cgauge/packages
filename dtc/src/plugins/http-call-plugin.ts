@@ -1,7 +1,9 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import {is, union, optional, unknown, record, assert as typeAssert, diff} from '@cgauge/type-guard'
-import {debug, info} from '../utils'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:http-call');
 
 let response: Response | undefined
 let textResponse: string | undefined
@@ -25,7 +27,7 @@ export const act = async (args: unknown): Promise<boolean> => {
 
   if (!is(args, HttpCall)) {
     const mismatch = diff(args, HttpCall)
-    info(`(HTTP) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 
@@ -47,13 +49,13 @@ export const assert = async (args: unknown): Promise<boolean> => {
   if (is(args.http, String)) {
     textResponse = textResponse ?? (await response?.text())
 
-    debug(`(HTTP) Text response: ${textResponse}`);
+    logger.debug(`(HTTP) Text response: ${textResponse}`);
 
     nodeAssert.deepStrictEqual(textResponse, args.http)
   } else {
     jsonResponse = jsonResponse ?? (await response?.json())
 
-    debug(`(HTTP) JSON response: ${JSON.stringify(jsonResponse, null, 2)}`);
+    logger.debug(`(HTTP) JSON response: ${JSON.stringify(jsonResponse, null, 2)}`);
 
     typeAssert(jsonResponse, record(String, unknown))
 

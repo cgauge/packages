@@ -1,10 +1,13 @@
 import type {Plugin, TestCase, TestCaseExecution, TestCasePhases} from './domain'
-import {debug, retry} from './utils.js'
+import {retry} from './utils.js'
 import {dirname} from 'node:path'
 import test from 'node:test'
 import * as disableNetConnectPlugin from './plugins/disable-net-connect-plugin.js'
 import * as functionCallPlugin from  './plugins/function-call-plugin.js'
 import * as httpMockPlugin from './plugins/http-mock-plugin.js'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc');
 
 export type * from './domain'
 export * from './utils.js'
@@ -98,7 +101,7 @@ const createTestCaseExecutor = async (
     } catch (err: any) {
       err.name = `${phase.charAt(0).toUpperCase() + phase.slice(1)}Error`
       errors.push(err)
-      debug(`${err.name}: ${err.message} \n${err.stack}`)
+      logger.debug(`${err.name}: ${err.message} \n${err.stack}`)
     }
   }
 
@@ -119,9 +122,9 @@ export const executeTestCase = async (
   plugins: Plugin[],
   testRunnerArgs?: unknown,
 ) => {
-  debug(`TestCase: ${JSON.stringify(testCaseExecution, null, 2)}`)
-  debug(`TestRunnerArgs: ${JSON.stringify(testRunnerArgs, null, 2)}`)
-  debug(`Plugins: ${JSON.stringify(plugins, null, 2)}`)
+  logger.debug('TestCase:', testCaseExecution)
+  logger.debug('TestRunnerArgs:', testRunnerArgs)
+  logger.debug('Plugins:', plugins)
 
   const executor = await createTestCaseExecutor(testCaseExecution, plugins, testRunnerArgs)
   const phases: TestCasePhases[] = ['arrange', 'act', 'assert', 'clean']

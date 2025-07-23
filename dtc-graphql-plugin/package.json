@@ -17,6 +17,7 @@
   "dependencies": {
     "@cgauge/assert": "^0.23.0",
     "@cgauge/dtc": "^0.23.0",
+    "@cgauge/log": "^0.23.0",
     "@cgauge/type-guard": "^0.23.0",
     "graphql-request": "^7.1.2"
   },

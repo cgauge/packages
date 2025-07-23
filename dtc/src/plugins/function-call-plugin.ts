@@ -1,7 +1,9 @@
 import extraAssert from '@cgauge/assert'
-import {info} from '../utils.js'
 import nodeAssert from 'node:assert'
 import {is, optional, unknown, record, diff, intersection} from '@cgauge/type-guard'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:function-call');
 
 const FunctionCallAct = {
   import: String,
@@ -20,7 +22,7 @@ export const act = async (args: unknown, basePath: string): Promise<boolean> => 
 
   if (!is(args, FunctionCallAct)) {
     const mismatch = diff(args, FunctionCallAct)
-    info(`(Function Call) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

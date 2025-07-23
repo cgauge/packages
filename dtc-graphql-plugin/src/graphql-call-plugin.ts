@@ -1,8 +1,10 @@
 import extraAssert from '@cgauge/assert'
-import {info} from '@cgauge/dtc'
 import {GraphQLClient} from 'graphql-request'
 import nodeAssert from 'node:assert'
 import {is, record, diff, optional, unknown, intersection} from '@cgauge/type-guard'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:graphql-call');
 
 const GraphQlCall = {
   url: String,
@@ -22,7 +24,7 @@ export const act = async (args: unknown): Promise<boolean> => {
 
   if (!is(args, GraphQlCall)) {
     const mismatch = diff(args, GraphQlCall)
-    info(`(GraphQL) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

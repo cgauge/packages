@@ -1,7 +1,9 @@
 import {RDSData, SqlParameter} from '@aws-sdk/client-rds-data'
 import extraAssert from '@cgauge/assert'
-import {info} from '@cgauge/dtc'
 import {is, unknown, diff, optional, TypeFromSchema, record, intersection} from '@cgauge/type-guard'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:rds-data');
 
 const RDSDataCall = {
   sql: String,
@@ -24,6 +26,8 @@ export const executeStatement = async (params: RDSDataCallSql): Promise<any> => 
     ...params,
     formatRecordsAs: 'JSON',
   })
+
+  logger.debug(response)
 
   if (response.formattedRecords) {
     return JSON.parse(response.formattedRecords)
@@ -48,7 +52,7 @@ export const arrange = async (args: unknown) => {
 export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, RDSDataCall)) {
     const mismatch = diff(args, RDSDataCall)
-    info(`(RDS Data) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

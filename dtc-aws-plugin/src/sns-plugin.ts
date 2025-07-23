@@ -1,6 +1,8 @@
 import {SNS} from '@aws-sdk/client-sns'
-import {info} from '@cgauge/dtc'
 import {is, unknown, record, optional, union, diff} from '@cgauge/type-guard'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:sns');
 
 const SnsCall = {
   topic: String,
@@ -18,7 +20,7 @@ const sns = new SNS({})
 export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, SnsCall)) {
     const mismatch = diff(args, SnsCall)
-    info(`(SNS) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`(SNS) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

@@ -1,6 +1,8 @@
 import {Page, expect, Locator} from '@playwright/test'
 import {is, unknown, record, union, optional, TypeFromSchema, diff} from '@cgauge/type-guard'
-import {info} from '@cgauge/dtc'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:playwright');
 
 const PlaywrightActionTarget = {
   name: String,
@@ -67,8 +69,8 @@ const executeActions = async (actions: PlaywrightAction[], page: Page) => {
     if (typeof act.target === 'string') {
       element = getElement(page, act.target)
     } else if (act.target === undefined) {
-      const suportedActions = ['click', 'toBeVisible']
-      const keys = Object.keys(act).filter((key) => suportedActions.includes(key))
+      const supportedActions = ['click', 'toBeVisible']
+      const keys = Object.keys(act).filter((key) => supportedActions.includes(key))
       if (keys.length > 1) {
         throw new Error('(Playwright) Multiple actions defined')
       }
@@ -147,17 +149,17 @@ export const act = async (args: unknown, _basePath: string, {page}: {page: Page}
 
   if (!is(args, Playwright)) {
     const mismatch = diff(args, Playwright)
-    info(`(Playwright) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 
   if (args.url && args.script) {
-    info('(Playwright) Cannot use both url and script in act')
+    logger.info('Cannot use both url and script in act')
     return false
   }
 
   if (!args.url && !args.script) {
-    info('(Playwright) You should use url or script in act')
+    logger.info('You should use url or script in act')
     return false
   }
 

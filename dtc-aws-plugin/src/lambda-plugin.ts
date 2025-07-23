@@ -1,7 +1,9 @@
 import {Lambda} from '@aws-sdk/client-lambda'
 import extraAssert from '@cgauge/assert'
-import {info} from '@cgauge/dtc'
 import {is, unknown, record, diff} from '@cgauge/type-guard'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:lambda');
 
 const LambdaCall = {
   functionName: String,
@@ -43,7 +45,7 @@ export const act = async (args: unknown): Promise<boolean> => {
 
   if (!is(args, LambdaCall)) {
     const mismatch = diff(args, LambdaCall)
-    info(`(Lambda) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

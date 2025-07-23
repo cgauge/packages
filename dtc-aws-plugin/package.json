@@ -24,6 +24,7 @@
     "@aws-sdk/util-dynamodb": "^3.645.0",
     "@cgauge/assert": "^0.23.0",
     "@cgauge/dtc": "^0.23.0",
+    "@cgauge/log": "^0.23.0",
     "@cgauge/nock-aws": "^0.23.0",
     "@cgauge/type-guard": "^0.23.0"
   },

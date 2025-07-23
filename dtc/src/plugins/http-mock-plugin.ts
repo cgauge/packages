@@ -2,7 +2,9 @@ import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import nock from 'nock'
 import {diff, is, optional, record, union, unknown} from '@cgauge/type-guard'
-import {debug} from '../utils'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:http-mock');
 
 const MockHttp = {
   url: String,
@@ -16,7 +18,7 @@ const MockHttp = {
 }
 
 export const partialBodyCheck = (expected: string | Record<string, unknown>) => (body: Record<string, unknown>) => {
-  debug(`(HTTP Mock) Body check:\n ${JSON.stringify(body, null, 2)}\n ${JSON.stringify(expected, null, 2)}`)
+  logger.debug(`Body check:\n ${JSON.stringify(body, null, 2)}\n ${JSON.stringify(expected, null, 2)}`)
 
   if (typeof expected === 'string') {
     nodeAssert.equal(body, expected)

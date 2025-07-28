@@ -209,7 +209,7 @@ export const clean = async (args: unknown) => {
   return true
 }
 
-const resolveExpression = (key: string, operator: string) => {
+export const resolveExpression = (key: string, operator: string) => {
   switch (operator) {
     case 'begins_with':
       return `begins_with(#${key}, :${key})`

@@ -1,7 +1,7 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
 import {is, union, optional, unknown, record, assert as typeAssert, diff} from '@cgauge/type-guard'
-import {debug, info} from '../utils'
+import {debug, info} from '../utils.js'
 
 let response: Response | undefined
 let textResponse: string | undefined

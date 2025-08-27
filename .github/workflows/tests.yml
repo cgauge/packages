@@ -25,6 +25,6 @@ jobs:
       - run: |
           npx playwright install
           npx playwright install-deps chromium
-      - run: npm run build -w type-guard -w log
+      - run: npm run build -w log -w type-guard
       - run: npm run build
       - run: npm test

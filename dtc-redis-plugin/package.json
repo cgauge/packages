@@ -19,6 +19,9 @@
     "@cgauge/dtc": "^0.24.0",
     "@cgauge/type-guard": "^0.24.0"
   },
+  "devDependencies": {
+    "ioredis": "^5.6.1"
+  },
   "scripts": {
     "build": "tsc --build --verbose",
     "test": "tsx --test test/*.test.ts",

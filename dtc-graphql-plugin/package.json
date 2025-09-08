@@ -18,6 +18,7 @@
     "@cgauge/assert": "^0.24.0",
     "@cgauge/dtc": "^0.24.0",
     "@cgauge/type-guard": "^0.24.0",
+    "@cgauge/log": "^0.24.0",
     "graphql-request": "^7.1.2"
   },
   "scripts": {

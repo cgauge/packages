@@ -1,10 +1,12 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
-import {debug} from '@cgauge/dtc'
 import {Mock, mock} from 'node:test'
 import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
 import {is, unknown, record, optional, TypeFromSchema, diff} from '@cgauge/type-guard'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:mysql-mock');
 
 const MockMysql = {
   input: String,
@@ -58,7 +60,7 @@ export const assert = () => {
     const calls = executions[index].mock.calls
 
     if (calls.length !== arrange.length) {
-      debug(`(MySQL Mock) Arrangements: ${JSON.stringify(arrange)}`)
+      logger.debug(`Arrangements: ${JSON.stringify(arrange)}`)
 
       throw new Error(`(MySQL Mock) Number of MySQL calls is not equal the number of arrangements.
           MySQL Calls: ${calls.length}, Arrangements Calls: ${arrange.length}

@@ -1,9 +1,11 @@
-import {debug, info} from '@cgauge/dtc'
 import {DynamoDB, AttributeValue} from '@aws-sdk/client-dynamodb'
 import {DynamoDBDocument} from '@aws-sdk/lib-dynamodb'
 import extraAssert from '@cgauge/assert'
 import nodeAssert from 'node:assert'
 import {is, optional, unknown, record, diff, TypeFromSchema, union} from '@cgauge/type-guard'
+import createLogger from '@cgauge/log'
+
+const logger = createLogger('dtc:dynamodb');
 
 const DynamoArrange = {
   table: String,
@@ -48,19 +50,19 @@ type DynamoClean = TypeFromSchema<typeof DynamoClean>
 const documentClient = DynamoDBDocument.from(new DynamoDB({}))
 
 const executeDynamoStatement = async (statement: DynamoArrange) => {
-  debug(`(DynamoDB) Arrange Table: ${statement.table}`)
-  debug(`(DynamoDB) Arrange Item: ${JSON.stringify(statement.item)}`)
+  logger.debug(`Arrange Table: ${statement.table}`)
+  logger.debug(`Arrange Item: ${JSON.stringify(statement.item)}`)
 
   await documentClient.put({TableName: statement.table, Item: statement.item})
 }
 
 export const assertExists = async (statement: DynamoAssert): Promise<void> => {
-  debug(`(DynamoDB) Assert Table: ${statement.table}`)
+  logger.debug(`Assert Table: ${statement.table}`)
+  logger.debug(`Assert Item: ${JSON.stringify(statement.item)}`)
+  
   let result
 
   if ('key' in statement) {
-    debug(`(DynamoDB) Assert Key: ${JSON.stringify(statement.key)}`)
-    debug(`(DynamoDB) Assert Item: ${JSON.stringify(statement.item)}`)
     result = await documentClient.get({
       TableName: statement.table,
       Key: statement.key,
@@ -75,9 +77,6 @@ export const assertExists = async (statement: DynamoAssert): Promise<void> => {
   }
 
   if ('query' in statement) {
-    debug(`(DynamoDB) Assert Key: ${JSON.stringify(statement.query)}`)
-    debug(`(DynamoDB) Assert Item: ${JSON.stringify(statement.item)}`)
-
     result = await documentClient.query({
       TableName: statement.table,
       IndexName: statement.index,
@@ -110,10 +109,10 @@ export const assertExists = async (statement: DynamoAssert): Promise<void> => {
 }
 
 const cleanDynamoItems = async (clean: DynamoClean) => {
-  debug(`(DynamoDB) Clean Table: ${clean.table}`)
+  logger.debug(`Clean Table: ${clean.table}`)
 
   if ('key' in clean) {
-    debug(`(DynamoDB) Clean Key: ${JSON.stringify(clean.key)}`)
+    logger.debug(`Clean Key: ${JSON.stringify(clean.key)}`)
 
     await documentClient.delete({
       TableName: clean.table,
@@ -136,7 +135,7 @@ const cleanDynamoItems = async (clean: DynamoClean) => {
     })
 
     for (const item of result.Items || []) {
-      debug(`(DynamoDB) Clean Item: ${JSON.stringify(item)}`)
+      logger.debug(`Clean Item: ${JSON.stringify(item)}`)
 
       const key: Record<string, AttributeValue> = {}
 
@@ -170,7 +169,7 @@ export const arrange = async (args: unknown) => {
 export const act = async (args: unknown): Promise<boolean> => {
   if (!is(args, DynamoAct)) {
     const mismatch = diff(args, DynamoAct)
-    info(`(DynamoDB) Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
+    logger.info(`Plugin declared but test declaration didn't match the act. Invalid ${mismatch[0]}`)
     return false
   }
 

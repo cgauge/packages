@@ -1,8 +1,7 @@
 import nodeAssert from 'node:assert'
+import createLogger from '@cgauge/log'
 
-const debug = (...message: any) => {
-  process.env.ASSERT_DEBUG && console.log(...message)
-}
+const logger = createLogger('assert');
 
 interface ExtraAssertions {
   objectContains<T extends Record<string, any>>(
@@ -20,7 +19,7 @@ const assertions: ExtraAssertions = {
     expected: T,
     message?: string | Error,
   ): asserts actual is Partial<T> {
-    debug('[ASSERT] objectContains', actual, expected)
+    logger.debug('objectContains:', actual, expected)
 
     if (typeof actual !== 'object' || typeof expected !== 'object') {
       nodeAssert.deepEqual(actual, expected, `${message ?? ''}Both actual and expected values must be objects`)

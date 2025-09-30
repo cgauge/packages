@@ -1,6 +1,6 @@
 {
   "name": "@cgauge/log",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "description": "A logger with namespaces and level",
   "repository": {
     "type": "git",

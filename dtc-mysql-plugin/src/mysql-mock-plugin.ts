@@ -1,6 +1,6 @@
 import nodeAssert from 'node:assert/strict'
 import extraAssert from '@cgauge/assert'
-import {Mock, mock} from 'node:test'
+import {mock} from 'node:test'
 import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
 import {is, unknown, record, optional, TypeFromSchema, diff} from '@cgauge/type-guard'
@@ -15,49 +15,52 @@ const MockMysql = {
 }
 type MockMysql = TypeFromSchema<typeof MockMysql>
 
-let arrangeMysql: any
-let executions: Mock<any>[] = []
+const arrangeMysql: any = {}
+const executions: any = {}
 
-export const arrange = async (args: unknown): Promise<boolean> => {
+export const arrange = async (args: unknown, basePath: string): Promise<boolean> => {
   if (!('mysql' in (args as any))) {
     return false
   }
 
+  arrangeMysql[basePath] = []
+  executions[basePath] = []
+
   if (is(args, {mysql: [MockMysql]})) {
-    arrangeMysql = [args.mysql]
+    arrangeMysql[basePath] = [args.mysql]
   } else if (is(args, {mysql: record(String, [MockMysql])})) {
-    arrangeMysql = Object.values(args.mysql)
+    arrangeMysql[basePath] = Object.values(args.mysql)
   } else {
     const mismatch = diff(args, {mysql: [MockMysql]})
     throw new Error(`(Mysql Mock) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
-  for (const [index, arrange] of arrangeMysql.entries()) {
-    executions.push(mock.fn())
+  for (const [index, arrange] of arrangeMysql[basePath].entries()) {
+    executions[basePath].push(mock.fn())
 
     for (const i of arrange.keys()) {
       if (arrange[i].output) {
-        executions[index].mock.mockImplementationOnce(async () => mysql.result(arrange[i].output), i)
+        executions[basePath][index].mock.mockImplementationOnce(async () => mysql.result(arrange[i].output), i)
       } else {
-        executions[index].mock.mockImplementationOnce(async () => mysql.emptyResult, i)
+        executions[basePath][index].mock.mockImplementationOnce(async () => mysql.emptyResult, i)
       }
     }
 
-    mysql.createConnection({execute: executions[index]})
+    mysql.createConnection({execute: executions[basePath][index]})
   }
 
   return true
 }
 
-export const assert = () => {
-  if (!arrangeMysql) {
+export const assert = (_args?: unknown, basePath = '') => {
+  if (!arrangeMysql[basePath]) {
     return
   }
 
   const parser = new nodeSqlParser.Parser()
 
-  for (const [index, arrange] of arrangeMysql.entries()) {
-    const calls = executions[index].mock.calls
+  for (const [index, arrange] of arrangeMysql[basePath].entries()) {
+    const calls = executions[basePath][index].mock.calls
 
     if (calls.length !== arrange.length) {
       logger.debug(`Arrangements: ${JSON.stringify(arrange)}`)
@@ -81,9 +84,9 @@ export const assert = () => {
       }
     }
 
-    nodeAssert.equal(executions[index].mock.calls.length, arrange.length)
+    nodeAssert.equal(executions[basePath][index].mock.calls.length, arrange.length)
   }
 
-  arrangeMysql = []
-  executions = []
+  arrangeMysql[basePath] = []
+  executions[basePath] = []
 }

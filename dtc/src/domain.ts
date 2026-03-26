@@ -15,10 +15,10 @@ type RequireAtLeastOne<T> = {
 }[keyof T]
 
 export type Plugin = RequireAtLeastOne<{
-  arrange(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-  act(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-  assert(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
-  clean(args: unknown, basePath: string, testRunnerArgs?: unknown): Promise<boolean>
+  arrange(args: unknown, basePath: string, testRunnerArgs?: unknown, context?: unknown): Promise<unknown>
+  act(args: unknown, basePath: string, testRunnerArgs?: unknown, context?: unknown): Promise<unknown>
+  assert(args: unknown, basePath: string, testRunnerArgs?: unknown, context?: unknown): Promise<unknown>
+  clean(args: unknown, basePath: string, testRunnerArgs?: unknown, context?: unknown): Promise<unknown>
 }>
 
 export type TestCasePhases = 'arrange' | 'act' | 'assert' | 'clean'
@@ -70,4 +70,11 @@ export type TestCaseExecution = {
   filePath: string,
   testCase: TestCase,
   resolvedLayers?: Layer[]
+}
+
+export type Output = {
+  arrange: Record<string, unknown>
+  act: Record<string, unknown>
+  assert: Record<string, unknown>
+  clean: Record<string, unknown>
 }

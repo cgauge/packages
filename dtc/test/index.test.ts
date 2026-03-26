@@ -3,6 +3,8 @@ import nodeAssert from 'node:assert'
 import {executeTestCase} from '../src/index.js'
 import {arrange, act, assert, clean} from './fixtures/plugin.ts'
 import * as plugin from '../test/fixtures/plugin.ts'
+import * as pluginOutputs from '../test/fixtures/plugin-outputs.ts'
+import * as pluginOutputs2 from '../test/fixtures/plugin-outputs2.ts'
 import * as pluginArgs from './fixtures/plugin-args.ts'
 import * as pluginArray from './fixtures/plugin-array.ts'
 import * as pluginLayers from './fixtures/plugin-layers.ts'
@@ -25,6 +27,62 @@ test('It runs plugins methods', async () => {
   nodeAssert.equal(clean.mock.callCount(), 1)
 })
 
+test('It replace act variable from arrange', async () => {
+  const r = await executeTestCase(
+    {
+      testCase: {
+          name: 'Test', 
+          arrange: [
+            {id: 'rds_id_1', sql: 'SELECT 1'}, 
+            {id: 'rds_id_2', sql: 'SELECT 2'}
+          ],
+          act: {
+            id: 'act_id',
+            value1: '${{arrange.rds_id_1}}',
+            value2: '${{arrange.rds_id_2}}'
+          },
+          clean: {}
+        },
+      filePath: './filePath.js',
+    },
+    [pluginOutputs],
+  )
+
+  const lastActCall = pluginOutputs.act.mock.calls.at(-1)
+  const actPayload = lastActCall?.arguments.at(0)
+
+  nodeAssert.deepEqual(actPayload, {id: 'act_id', value1: 'arrange output 1', value2: 'arrange output 2' })
+})
+
+test('It replace assert variables from act and arrange', async () => {
+  const r = await executeTestCase(
+    {
+      testCase: {
+          name: 'Test', 
+          arrange: [
+            {id: 'rds_id_1', sql: 'SELECT 1'}, 
+            {id: 'rds_id_2', sql: 'SELECT 2'}
+          ],
+          act: {id: 'act_id',},
+          assert: {
+            value1: '${{arrange.rds_id_1}}',
+            value2: '${{arrange.rds_id_2}}',
+            value3: '${{act.act_id}}',
+          },
+          clean: {}
+        },
+      filePath: './filePath.js',
+    },
+    [pluginOutputs2],
+  )
+
+  const lastActCall = pluginOutputs2.assert.mock.calls.at(-1)
+  const assertPayload = lastActCall?.arguments.at(0)
+
+  nodeAssert.deepEqual(assertPayload, 
+    {value1: 'arrange output 1', value2: 'arrange output 2', value3: 'act output' })
+})
+
 test('It passes parameters to plugins functions', async () => {
   const testCase = {
     name: 'Test',
@@ -39,10 +97,18 @@ test('It passes parameters to plugins functions', async () => {
 
   await executeTestCase({testCase, filePath}, [pluginArgs], testArgs)
 
-  nodeAssert.deepEqual(pluginArgs.arrange.mock.calls[0].arguments, [testCase.arrange, basePath, testArgs])
-  nodeAssert.deepEqual(pluginArgs.act.mock.calls[0].arguments, [testCase.act, basePath, testArgs])
-  nodeAssert.deepEqual(pluginArgs.assert.mock.calls[0].arguments, [testCase.assert, basePath, testArgs])
-  nodeAssert.deepEqual(pluginArgs.clean.mock.calls[0].arguments, [testCase.clean, basePath, testArgs])
+  nodeAssert.deepEqual(pluginArgs.arrange.mock.calls[0].arguments.slice(0, 3), [
+    testCase.arrange,
+    basePath,
+    testArgs,
+  ])
+  nodeAssert.deepEqual(pluginArgs.act.mock.calls[0].arguments.slice(0, 3), [testCase.act, basePath, testArgs])
+  nodeAssert.deepEqual(pluginArgs.assert.mock.calls[0].arguments.slice(0, 3), [
+    testCase.assert,
+    basePath,
+    testArgs,
+  ])
+  nodeAssert.deepEqual(pluginArgs.clean.mock.calls[0].arguments.slice(0, 3), [testCase.clean, basePath, testArgs])
 })
 
 test('It supports array on arrange, assert and clean', async () => {

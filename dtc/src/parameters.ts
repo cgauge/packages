@@ -1,15 +1,20 @@
 import type {TestCaseExecution} from './domain.js'
 
+const regexpPattern: RegExp = /\${(?!\{)(.*?)}/g
+
 const recursiveMap = (obj: any, callback: (v: any) => any): any => {
   if (Array.isArray(obj)) {
     return obj.map((element) => recursiveMap(element, callback))
   }
 
   if (typeof obj === 'object' && obj !== null) {
-    return Object.keys(obj).reduce((acc, key) => {
-      acc[key] = recursiveMap(obj[key], callback)
-      return acc
-    }, {} as Record<string, unknown>)
+    return Object.keys(obj).reduce(
+      (acc, key) => {
+        acc[key] = recursiveMap(obj[key], callback)
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
   }
 
   return callback(obj)
@@ -30,13 +35,13 @@ const getValueByPath = (path: string, params: Record<string, unknown>): unknown 
   return resolvedValue
 }
 
-const replacePlaceholders = <T>(template: T, params: Record<string, unknown>): T =>
+export const replacePlaceholders = <T>(template: T, params: Record<string, unknown>, pattern: RegExp): T =>
   recursiveMap(template, (value: string | number | boolean) => {
     if (typeof value !== 'string') {
       return value
     }
 
-    const regex = new RegExp(/\${(.*?)}/g)
+    const regex = new RegExp(pattern)
     const matches = regex.exec(value)
 
     if (matches !== null) {
@@ -62,7 +67,7 @@ export const resolveParameters = async (testCaseExecution: TestCaseExecution): P
     return params.map((param, i) => {
       return {
         testCase: {
-          ...replacePlaceholders(testCaseExecution.testCase, replacePlaceholders(param, param)),
+          ...replacePlaceholders(testCaseExecution.testCase, replacePlaceholders(param, param, regexpPattern), regexpPattern),
           name: `${testCaseExecution.testCase.name ?? testCaseExecution.filePath} (provider ${i})`,
         },
         filePath: testCaseExecution.filePath,
@@ -72,7 +77,7 @@ export const resolveParameters = async (testCaseExecution: TestCaseExecution): P
 
   return [
     {
-      testCase: replacePlaceholders(testCaseExecution.testCase, replacePlaceholders(params, params)),
+      testCase: replacePlaceholders(testCaseExecution.testCase, replacePlaceholders(params, params, regexpPattern), regexpPattern),
       filePath: testCaseExecution.filePath,
     },
   ]

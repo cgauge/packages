@@ -13,7 +13,7 @@ const generateFileList = async (currentPath: string, testRegex: RegExp): Promise
     const stats = await stat(filePath)
     if (stats.isDirectory()) {
       return generateFileList(filePath, testRegex)
-    } else if (testRegex.test(filePath)) {
+    } else if (testRegex.test(filePath)) {  
       return filePath
     }
 

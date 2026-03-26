@@ -1,6 +1,7 @@
 import createLogger from '@cgauge/log'
+import {replacePlaceholders} from './parameters'
 
-const logger = createLogger('dtc');
+const logger = createLogger('dtc')
 
 export const warnExit = (message: string) => {
   logger.warn(message)
@@ -51,3 +52,6 @@ export const merge = (to: any, from: any): any => {
 
   return from
 }
+
+export const resolveOutputs = <T>(template: T, params?: Record<string, unknown>) =>
+  replacePlaceholders(template, params || {}, /\${{(.*?)}}/g)

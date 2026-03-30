@@ -20,7 +20,7 @@ const HttpCall = {
 
 const HttpCallResponse = {http: union(String, record(String, unknown))}
 
-export const act = async (args: unknown): Promise<boolean> => {
+export const act = async (args: unknown): Promise<unknown> => {
   response = undefined
   textResponse = undefined
   jsonResponse = undefined
@@ -32,8 +32,20 @@ export const act = async (args: unknown): Promise<boolean> => {
   }
 
   response = await fetch(args.url, args)
+  const contentType = response.headers.get('content-type')
+  let result: unknown
 
-  return true
+  if (contentType?.includes('application/json')) {
+    jsonResponse = await response.clone().json()
+    logger.debug(`(HTTP) JSON response: ${JSON.stringify(jsonResponse, null, 2)}`)
+    result = jsonResponse
+  } else {
+    textResponse = await response.clone().text()
+    logger.debug(`(HTTP) Text response: ${textResponse}`)
+    result = textResponse
+  }
+
+  return result
 }
 
 export const assert = async (args: unknown): Promise<boolean> => {
@@ -47,18 +59,9 @@ export const assert = async (args: unknown): Promise<boolean> => {
   }
 
   if (is(args.http, String)) {
-    textResponse = textResponse ?? (await response?.text())
-
-    logger.debug(`(HTTP) Text response: ${textResponse}`);
-
     nodeAssert.deepStrictEqual(textResponse, args.http)
   } else {
-    jsonResponse = jsonResponse ?? (await response?.json())
-
-    logger.debug(`(HTTP) JSON response: ${JSON.stringify(jsonResponse, null, 2)}`);
-
     typeAssert(jsonResponse, record(String, unknown))
-
     extraAssert.objectContains(jsonResponse, args.http)
   }
 

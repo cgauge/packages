@@ -1,6 +1,6 @@
 import {test} from 'node:test'
 import assert from 'node:assert'
-import {retry, merge} from '../src/utils'
+import {retry, merge, resolveOutputs} from '../src/utils'
 
 test('It execute at least one time', async () => {
   const response = await retry(() => Promise.resolve(true))
@@ -25,6 +25,15 @@ test('It retries when it fails', async () => {
   }, 1)
 
   assert.ok(response)
+});
+
+test('It resolves output placeholders', () => {
+  const template = {a: '${{output.value}}'}
+  const actContext = {output: {value: 'b'}}
+
+  const result = resolveOutputs(template, actContext)
+
+  assert.deepStrictEqual(result, {a: 'b'})
 });
 
 ([

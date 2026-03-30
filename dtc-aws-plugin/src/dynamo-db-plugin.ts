@@ -161,9 +161,9 @@ export const arrange = async (args: unknown) => {
     throw new Error(`(DynamoDB) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
-  await Promise.all(args.dynamodb.map(executeDynamoStatement))
+  const result = await Promise.all(args.dynamodb.map(executeDynamoStatement))
 
-  return true
+  return result
 }
 
 export const act = async (args: unknown): Promise<boolean> => {

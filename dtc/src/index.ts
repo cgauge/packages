@@ -1,13 +1,13 @@
-import type {Plugin, TestCase, TestCaseExecution, TestCasePhases} from './domain'
-import {retry} from './utils.js'
+import type {Output, Plugin, TestCase, TestCaseExecution, TestCasePhases} from './domain'
+import {resolveOutputs, retry} from './utils.js'
 import {dirname} from 'node:path'
 import test from 'node:test'
 import * as disableNetConnectPlugin from './plugins/disable-net-connect-plugin.js'
-import * as functionCallPlugin from  './plugins/function-call-plugin.js'
+import * as functionCallPlugin from './plugins/function-call-plugin.js'
 import * as httpMockPlugin from './plugins/http-mock-plugin.js'
 import createLogger from '@cgauge/log'
 
-const logger = createLogger('dtc');
+const logger = createLogger('dtc')
 
 export type * from './domain'
 export * from './utils.js'
@@ -16,7 +16,9 @@ export * from './loader.js'
 
 export const defaultTestRunner = async (testCaseExecutions: TestCaseExecution[], plugins: Plugin[]) => {
   for (const testCaseExecution of testCaseExecutions) {
-    test(testCaseExecution.testCase.name ?? testCaseExecution.filePath, (args) => executeTestCase(testCaseExecution, plugins, args))
+    test(testCaseExecution.testCase.name ?? testCaseExecution.filePath, (args) =>
+      executeTestCase(testCaseExecution, plugins, args),
+    )
   }
 }
 
@@ -24,7 +26,14 @@ export const defaultLoader = async (filePath: string) => (await import(filePath)
 
 export const defaultPlugins: Plugin[] = [disableNetConnectPlugin, functionCallPlugin, httpMockPlugin]
 
-const createPluginExecutor = (plugins: Plugin[], basePath: string, testRunnerArgs?: unknown) => {
+const createPluginExecutor = (plugins: Plugin[], basePath: string, testRunnerArgs: unknown | undefined) => {
+  const output: Output = {
+    arrange: {},
+    act: {},
+    assert: {},
+    clean: {},
+  }
+
   return async (functionName: TestCasePhases, data: unknown) => {
     if (!data) {
       return
@@ -34,7 +43,16 @@ const createPluginExecutor = (plugins: Plugin[], basePath: string, testRunnerArg
       plugins
         .map((module) => {
           const normalizedData: unknown[] = Array.isArray(data) ? data : [data]
-          return normalizedData.map((x) => module[functionName]?.(x, basePath, testRunnerArgs))
+          return normalizedData.map(async (args) => {
+            const resolvedArgs = resolveOutputs(args, output)
+            const result = await module[functionName]?.(resolvedArgs, basePath, testRunnerArgs, output)
+
+            if (typeof args === 'object' && args !== null && 'id' in args) {
+              output[functionName][args.id as string] = result
+            }
+
+            return result
+          })
         })
         .flat(),
     )
@@ -44,7 +62,6 @@ const createPluginExecutor = (plugins: Plugin[], basePath: string, testRunnerArg
     }
   }
 }
-
 const createPhaseExecutor = (
   executePluginFunction: (functionName: TestCasePhases, data: unknown) => Promise<void>,
   testCaseExecution: TestCaseExecution,
@@ -56,7 +73,7 @@ const createPhaseExecutor = (
       return
     }
 
-    if (phase === 'assert') {  
+    if (phase === 'assert') {
       await retry(() => executePluginFunction(phase, testCase[phase]), testCase.retry, testCase.delay)
     } else {
       await executePluginFunction(phase, testCase[phase])
@@ -64,10 +81,10 @@ const createPhaseExecutor = (
   }
 
   const executeLayerPhase = async (phase: TestCasePhases, layers: TestCase[]) => {
-    const filteredLayers =  layers.filter((layer) => layer[phase])
-      for (const layer of filteredLayers) {
-          await executePhase(phase, layer);
-      }
+    const filteredLayers = layers.filter((layer) => layer[phase])
+    for (const layer of filteredLayers) {
+      await executePhase(phase, layer)
+    }
   }
 
   const execute = async (phase: TestCasePhases) => {
@@ -78,7 +95,7 @@ const createPhaseExecutor = (
     await executePhase(phase, testCaseExecution.testCase)
   }
 
-  return { execute }
+  return {execute}
 }
 
 const createTestCaseExecutor = async (
@@ -88,6 +105,7 @@ const createTestCaseExecutor = async (
 ) => {
   const basePath = dirname(testCaseExecution.filePath)
   const executePluginFunction = createPluginExecutor(plugins, basePath, testRunnerArgs)
+
   const phaseExecutor = createPhaseExecutor(executePluginFunction, testCaseExecution)
   let errors: Error[] = []
 
@@ -106,16 +124,18 @@ const createTestCaseExecutor = async (
 
   const throwIfError = () => {
     if (errors.length > 0) {
-      const error = new Error(`TestCase: ${testCaseExecution.testCase.name ?? testCaseExecution.filePath} \n${errors.map((e) => `${e.name}: ${e.message}`).join(', ')}`)
+      const error = new Error(
+        `TestCase: ${testCaseExecution.testCase.name ?? testCaseExecution.filePath} \n${errors.map((e) => `${e.name}: ${e.message}`).join(', ')}`,
+      )
       error.stack = errors.map((e) => e.stack).join('\n')
       error.name = 'TestCaseError'
       throw error
     }
   }
 
-  return { execute, throwIfError }
+  return {execute, throwIfError}
 }
-  
+
 export const executeTestCase = async (
   testCaseExecution: TestCaseExecution,
   plugins: Plugin[],
@@ -127,7 +147,7 @@ export const executeTestCase = async (
 
   const executor = await createTestCaseExecutor(testCaseExecution, plugins, testRunnerArgs)
   const phases: TestCasePhases[] = ['arrange', 'act', 'assert', 'clean']
-  
+
   for (const phase of phases) {
     await executor.execute(phase)
   }

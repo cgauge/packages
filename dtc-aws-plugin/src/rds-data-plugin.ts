@@ -44,9 +44,9 @@ export const arrange = async (args: unknown) => {
     throw new Error(`(RDS Data) Invalid argument on arrange: ${mismatch[0]}`)
   }
 
-  await Promise.all(args.rds.map((v) => executeStatement(v as RDSDataCallSql)))
+  const result = await Promise.all(args.rds.map((v) => executeStatement(v as RDSDataCallSql)))
 
-  return true
+  return result
 }
 
 export const act = async (args: unknown): Promise<boolean> => {
@@ -92,7 +92,9 @@ export const clean = async (args: unknown) => {
     throw new Error(`(RDS Data) Invalid argument on clean: ${mismatch[0]}`)
   }
 
-  await Promise.all(args.rds.map((v) => executeStatement(v as RDSDataCallSql)))
+  for (const statement of args.rds) {
+    await executeStatement(statement as RDSDataCallSql)
+  }
 
   return true
 }

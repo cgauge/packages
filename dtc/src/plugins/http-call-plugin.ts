@@ -33,19 +33,16 @@ export const act = async (args: unknown): Promise<unknown> => {
 
   response = await fetch(args.url, args)
   const contentType = response.headers.get('content-type')
-  let result: unknown
 
   if (contentType?.includes('application/json')) {
-    jsonResponse = await response.clone().json()
+    jsonResponse = await response.json()
     logger.debug(`(HTTP) JSON response: ${JSON.stringify(jsonResponse, null, 2)}`)
-    result = jsonResponse
+    return jsonResponse
   } else {
-    textResponse = await response.clone().text()
+    textResponse = await response.text()
     logger.debug(`(HTTP) Text response: ${textResponse}`)
-    result = textResponse
+    return textResponse
   }
-
-  return result
 }
 
 export const assert = async (args: unknown): Promise<boolean> => {

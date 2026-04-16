@@ -47,7 +47,7 @@ export const TestCase = intersection(GenericAttributes, {
   parameters: optional(UnionRecordRecordArray),
   arrange: optional(UnionRecordRecordArray),
   act: optional(record(String, unknown)),
-  assert: optional(union(String, intersection({exception: optional({name: String})}, UnionRecordRecordArray))),
+  assert: optional(union(String, Boolean, intersection({exception: optional({name: String})}, UnionRecordRecordArray))),
   clean: optional(UnionRecordRecordArray),
 })
 export type TestCase = TypeFromSchema<typeof TestCase>
@@ -73,8 +73,8 @@ export type TestCaseExecution = {
 }
 
 export type Output = {
-  arrange: Record<string, unknown>
-  act: Record<string, unknown>
-  assert: Record<string, unknown>
-  clean: Record<string, unknown>
+  arrange: unknown[]
+  act: unknown[]
+  assert: unknown[]
+  clean: unknown[]
 }

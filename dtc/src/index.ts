@@ -28,10 +28,10 @@ export const defaultPlugins: Plugin[] = [disableNetConnectPlugin, functionCallPl
 
 const createPluginExecutor = (plugins: Plugin[], basePath: string, testRunnerArgs: unknown | undefined) => {
   const output: Output = {
-    arrange: {},
-    act: {},
-    assert: {},
-    clean: {},
+    arrange: [],
+    act: [],
+    assert: [],
+    clean: [],
   }
 
   return async (functionName: TestCasePhases, data: unknown) => {
@@ -41,18 +41,15 @@ const createPluginExecutor = (plugins: Plugin[], basePath: string, testRunnerArg
 
     const responses = await Promise.all(
       plugins
-        .map((module) => {
-          const normalizedData: unknown[] = Array.isArray(data) ? data : [data]
-          return normalizedData.map(async (args) => {
-            const resolvedArgs = resolveOutputs(args, output)
+        .map(async (module) => {
+            const resolvedArgs = resolveOutputs(data, output)
             const result = await module[functionName]?.(resolvedArgs, basePath, testRunnerArgs, output)
-
-            if (typeof args === 'object' && args !== null && 'id' in args) {
-              output[functionName][args.id as string] = result
+            
+            if (typeof data === 'object' && data !== null) {
+              output[functionName].push(result)
             }
 
             return result
-          })
         })
         .flat(),
     )

@@ -1,6 +1,6 @@
 import extraAssert from '@cgauge/assert'
 import nodeAssert from 'node:assert'
-import {is, optional, unknown, record, diff, intersection} from '@cgauge/type-guard'
+import {is, optional, unknown, record, diff, intersection, union} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
 
 const logger = createLogger('dtc:function-call');
@@ -11,7 +11,13 @@ const FunctionCallAct = {
   arguments: optional([unknown]),
 }
 
-const FunctionCallResponse = intersection({exception: optional({name: String})}, record(String, unknown))
+const FunctionCallResponse = {
+  function: union(
+    String,
+    Boolean,
+    intersection({exception: optional({name: String})}, record(String, unknown))
+  )
+}
 
 let response: any
 let exception: any
@@ -48,20 +54,20 @@ export const assert = async (args: unknown): Promise<boolean> => {
     return false
   }
 
-  if (args.exception) {
+  if (typeof args.function === 'object' && args.function !== null && args.function.exception) {
     if (!exception) {
-      throw Error(`(Function Call) Exception ${exception.name} was not thrown`)
+      throw Error(`(Function Call) Exception ${args.function.exception.name} was not thrown`)
     }
 
-    nodeAssert.equal(args.exception.name, exception.name)
+    nodeAssert.equal(args.function.exception.name, exception.name)
   } else {
     if (exception) {
-        throw exception
+      throw exception
     }
-}
+  }
 
-  if (response) {
-    extraAssert.objectContains(response, args)
+  if (response && typeof args.function === 'object' && args.function !== null) {
+    extraAssert.objectContains(response, args.function)
   }
 
   return true

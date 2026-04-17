@@ -8,6 +8,6 @@ export default {
     ]
   },
   assert: {
-    a: 'c'
+    function: {a: 'c'}
   }
 }

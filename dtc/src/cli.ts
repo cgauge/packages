@@ -21,7 +21,7 @@ const main = async ({projectPath, configPath, filePath, runnerArgs}: CliArgs) =>
   const testCaseExecutions = await loadTestCases(projectPath)(config)(filePath)
 
   if (testCaseExecutions.length === 0) {
-    warnExit(`No test cases found for test regex: ${config.testRegex}`)
+    warnExit(`No test cases found for test pattern: ${config.testPattern}`)
   }
 
   await config.runner(testCaseExecutions, config.plugins, runnerArgs, configPath, filePath)

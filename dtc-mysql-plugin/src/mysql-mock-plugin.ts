@@ -1,5 +1,4 @@
 import nodeAssert from 'node:assert/strict'
-import extraAssert from '@cgauge/assert'
 import {Mock, mock} from 'node:test'
 import * as mysql from './mock.js'
 import nodeSqlParser from 'node-sql-parser'
@@ -75,7 +74,7 @@ export const assert = () => {
 
       if (variables) {
         nodeAssert.deepEqual(calls[i].arguments[0], sql)
-        extraAssert.objectContains(calls[i].arguments[1], variables)
+        nodeAssert.partialDeepStrictEqual(calls[i].arguments[1], variables)
       } else {
         nodeAssert.deepEqual(calls[i].arguments, [sql])
       }

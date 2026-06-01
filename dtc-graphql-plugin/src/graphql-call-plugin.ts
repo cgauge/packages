@@ -1,6 +1,5 @@
-import extraAssert from '@cgauge/assert'
 import {GraphQLClient} from 'graphql-request'
-import nodeAssert from 'node:assert'
+import nodeAssert from 'node:assert/strict'
 import {is, record, diff, optional, unknown, intersection} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
 
@@ -61,7 +60,7 @@ export const assert = async (args: unknown): Promise<boolean> => {
     }
   }
 
-  extraAssert.objectContains(response, args.graphql)
+  nodeAssert.partialDeepStrictEqual(response, args.graphql)
 
   return true
 }

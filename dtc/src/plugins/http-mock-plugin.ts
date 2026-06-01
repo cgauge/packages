@@ -1,5 +1,4 @@
 import nodeAssert from 'node:assert/strict'
-import extraAssert from '@cgauge/assert'
 import nock from 'nock'
 import {diff, is, optional, record, union, unknown} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
@@ -25,7 +24,7 @@ export const partialBodyCheck = (expected: string | Record<string, unknown>) => 
     return true
   }
 
-  extraAssert.objectContains(body, expected)
+  nodeAssert.partialDeepStrictEqual(body, expected)
   return true
 }
 

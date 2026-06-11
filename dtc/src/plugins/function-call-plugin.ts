@@ -1,5 +1,4 @@
-import extraAssert from '@cgauge/assert'
-import nodeAssert from 'node:assert'
+import nodeAssert from 'node:assert/strict'
 import {is, optional, unknown, record, diff, intersection, union} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
 
@@ -67,7 +66,7 @@ export const assert = async (args: unknown): Promise<boolean> => {
   }
 
   if (response && typeof args.function === 'object' && args.function !== null) {
-    extraAssert.objectContains(response, args.function)
+    nodeAssert.partialDeepStrictEqual(response, args.function)
   }
 
   return true

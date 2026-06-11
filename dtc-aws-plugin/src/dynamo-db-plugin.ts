@@ -1,7 +1,6 @@
 import {DynamoDB, AttributeValue} from '@aws-sdk/client-dynamodb'
 import {DynamoDBDocument} from '@aws-sdk/lib-dynamodb'
-import extraAssert from '@cgauge/assert'
-import nodeAssert from 'node:assert'
+import nodeAssert from 'node:assert/strict'
 import {is, optional, unknown, record, diff, TypeFromSchema, union} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
 
@@ -73,7 +72,7 @@ export const assertExists = async (statement: DynamoAssert): Promise<void> => {
       nodeAssert.fail('(DynamoDB) Item not found')
     }
 
-    extraAssert.objectContains(result.Item, statement.item)
+    nodeAssert.partialDeepStrictEqual(result.Item, statement.item)
   }
 
   if ('query' in statement) {
@@ -97,7 +96,7 @@ export const assertExists = async (statement: DynamoAssert): Promise<void> => {
 
     for (const item of result.Items) {
       try {
-        extraAssert.objectContains(item, statement.item)
+        nodeAssert.partialDeepStrictEqual(item, statement.item)
         matched = true
       } catch (error) {}
     }

@@ -1,7 +1,6 @@
 import nock from 'nock'
 import {RequestDocument} from 'graphql-request'
 import nodeAssert from 'node:assert/strict'
-import extraAssert from '@cgauge/assert'
 
 nock.disableNetConnect()
 
@@ -16,7 +15,7 @@ export const partialBodyCheck = (expected: AppSyncRequest) => (body: Record<stri
     return true
   }
 
-  extraAssert.objectContains(body, expected)
+  nodeAssert.partialDeepStrictEqual(body, expected)
   return true
 }
 

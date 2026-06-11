@@ -1,5 +1,4 @@
 import nodeAssert from 'node:assert/strict'
-import extraAssert from '@cgauge/assert'
 import nock from 'nock'
 
 const debug = (...message: any) => { process.env.NOCK_AWS_DEBUG && console.log(...message) }
@@ -21,7 +20,7 @@ export const partialBodyCheck = (expected: string | Record<string, unknown>) => 
     return true
   }
 
-  extraAssert.objectContains(body, expected)
+  nodeAssert.partialDeepStrictEqual(body, expected)
   return true
 }
 

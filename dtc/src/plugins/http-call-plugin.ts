@@ -1,5 +1,4 @@
 import nodeAssert from 'node:assert/strict'
-import extraAssert from '@cgauge/assert'
 import {is, union, optional, unknown, record, assert as typeAssert, diff} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
 
@@ -59,7 +58,7 @@ export const assert = async (args: unknown): Promise<boolean> => {
     nodeAssert.deepStrictEqual(textResponse, args.http)
   } else {
     typeAssert(jsonResponse, record(String, unknown))
-    extraAssert.objectContains(jsonResponse, args.http)
+    nodeAssert.partialDeepStrictEqual(jsonResponse, args.http)
   }
 
   return true

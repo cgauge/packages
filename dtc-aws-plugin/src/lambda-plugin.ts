@@ -1,5 +1,5 @@
 import {Lambda} from '@aws-sdk/client-lambda'
-import extraAssert from '@cgauge/assert'
+import nodeAssert from 'node:assert/strict'
 import {is, unknown, record, diff} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
 
@@ -64,7 +64,7 @@ export const assert = async (args: unknown) => {
     throw new Error(`(Lambda) Invalid argument on assert: ${mismatch[0]}`)
   }
 
-  extraAssert.objectContains(args.lambda, response)
+  nodeAssert.partialDeepStrictEqual(response, args.lambda)
 
   return true
 }

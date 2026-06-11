@@ -1,5 +1,5 @@
 import {RDSData, SqlParameter} from '@aws-sdk/client-rds-data'
-import extraAssert from '@cgauge/assert'
+import nodeAssert from 'node:assert/strict'
 import {is, unknown, diff, optional, TypeFromSchema, record, intersection} from '@cgauge/type-guard'
 import createLogger from '@cgauge/log'
 
@@ -75,7 +75,7 @@ export const assert = async (args: unknown): Promise<boolean> => {
     args.rds.map(async (v) => {
       const response = await executeStatement(v as RDSDataCallSql)
 
-      extraAssert.objectContains(v.response, response)
+      nodeAssert.partialDeepStrictEqual(response, v.response)
     }),
   )
 

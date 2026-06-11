@@ -5,9 +5,9 @@ const projectPath = process.cwd()
 const path = process.env.DTC_PLAYWRIGHT_PATH?.replace(projectPath, '');
 const config = String(process.env.DTC_PLAYWRIGHT_CONFIG)
 
-const {loader, plugins, testRegex} = await resolveConfig(config)
+const {loader, plugins, testPattern} = await resolveConfig(config)
 
-const testCaseExecutions = await loadTestCases(projectPath)({loader, testRegex})(path)
+const testCaseExecutions = await loadTestCases(projectPath)({loader, testPattern})(path)
 
 for (const testCaseExecution of testCaseExecutions) {
     if (testCaseExecution.testCase.use) {

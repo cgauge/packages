@@ -17,7 +17,7 @@ export default {
   loader: async (filePath) => customLoader(filePath),
   runner: customTestRunner,
   plugins: ['../local/plugin.js', '@package/dtc-plugin'],
-  testRegex: /.*\.dtc\.[jt]s?$/
+  testPattern: '**/*.dtc.{ts,js}',
 }
 ```
 

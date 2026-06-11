@@ -1,3 +1,3 @@
-export default {  
-  testRegex: /.*\.invalid.file?$/,
+export default {
+  testPattern: '**/*.invalid.file',
 }

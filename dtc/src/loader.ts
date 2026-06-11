@@ -6,7 +6,7 @@ import {merge} from './utils.js'
 import {resolveParameters} from './parameters.js'
 
 export const isGlobPattern = (input: string): boolean => {
-  return /[*?]/.test(input)
+  return /[*?{}]/.test(input)
 }
 
 export const resolveGlob = async (pattern: string, cwd: string): Promise<string[]> => {

@@ -16,9 +16,15 @@ const createLogFunction = (namespace: string, options: InspectOptions) => (level
   })
 }
 
+const createLogErrorFunction = (namespace: string, options: InspectOptions) => (level: LOG_LEVEL) => (...messages: unknown[]) => {
+  messages.forEach((v) => {
+    console.error(`${namespace.toLocaleUpperCase()} ${styleText(['blue'], level.toUpperCase())} ${inspect(v, options)}`)
+  })
+}
+
 export default (namespace: string, options: InspectOptions = {depth: 20, colors: true}) => ({
   debug: createLogFunction(namespace, options)('debug'),
   info: createLogFunction(namespace, options)('info'),
   warn: createLogFunction(namespace, options)('warning'),
-  error: createLogFunction(namespace, options)('error'),
+  error: createLogErrorFunction(namespace, options)('error'),
 })

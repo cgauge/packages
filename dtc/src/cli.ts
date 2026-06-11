@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {cli} from 'cleye'
+import {parseCliArgs, printHelp} from './args.js'
 import {resolveConfig} from './config.js'
 import {loadTestCases} from './loader.js'
 import {error, warnExit} from './utils.js'
@@ -27,24 +27,19 @@ const main = async ({projectPath, configPath, filePath, runnerArgs}: CliArgs) =>
   await config.runner(testCaseExecutions, config.plugins, runnerArgs, configPath, filePath)
 }
 
-const argv = cli({
-  name: 'dtc',
-  parameters: ['[filePath]', '--', '[runnerArgs...]'],
-  flags: {
-    config: {
-      alias: 'c',
-      type: String,
-      description: 'Configuration file path',
-    },
-  },
-})
-
 try {
+  const parsed = parseCliArgs(process.argv.slice(2))
+
+  if (parsed.help) {
+    printHelp()
+    process.exit(0)
+  }
+
   await main({
     projectPath: process.cwd(),
-    configPath: argv.flags.config,
-    filePath: argv._.filePath,
-    runnerArgs: argv._.runnerArgs,
+    configPath: parsed.configPath,
+    filePath: parsed.filePath,
+    runnerArgs: parsed.runnerArgs,
   })
 } catch (e: any) {
   error(`${e.code}: ${e.message}`)

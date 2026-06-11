@@ -42,8 +42,8 @@ describe('glob pattern integration', () => {
       },
     )
 
-    // Config is resolved first — the glob pattern still works with the configured loader/plugins
-    nodeAssert.equal(result.status, 0, `Expected exit code 0, got ${result.status}. stderr: ${result.stderr}`)
+    // Config testPattern filters out all files since the glob results don't match '**/*.invalid.file'
+    nodeAssert.equal(result.status, 1, `Expected exit code 1, got ${result.status}. stderr: ${result.stderr}`)
   })
 
   it('loads multiple .dtc.ts fixture files via a glob pattern', () => {

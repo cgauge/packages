@@ -5,17 +5,10 @@ import {TestCaseExecution, Loader, TestCase, Layer} from './domain.js'
 import {merge} from './utils.js'
 import {resolveParameters} from './parameters.js'
 
-/**
- * Determines whether a string contains glob wildcard characters.
- */
 export const isGlobPattern = (input: string): boolean => {
   return /[*?]/.test(input)
 }
 
-/**
- * Expands a glob pattern relative to the given base directory.
- * Returns a sorted list of relative file paths (files only).
- */
 export const resolveGlob = async (pattern: string, cwd: string): Promise<string[]> => {
   const matches: string[] = []
   for await (const match of glob(pattern, {cwd})) {
@@ -73,19 +66,18 @@ export const loadTestCases =
   (projectPath: string) =>
   (config: {loader: Loader; testPattern: string}) =>
   async (filePath?: string): Promise<TestCaseExecution[]> => {
-    if (filePath && isGlobPattern(filePath)) {
-      const resolvedFiles = await resolveGlob(filePath, projectPath)
-      const testCaseExecutions = await Promise.all(resolvedFiles.map((v) => loadTestCase(config.loader)(join(projectPath, v))))
-
-      return testCaseExecutions.flat()
-    }
-
-    if (filePath) {
+    if (filePath && !isGlobPattern(filePath)) {
       return loadTestCase(config.loader)(join(projectPath, filePath))
     }
 
-    const files = await generateFileList(config.testPattern, projectPath)
-    const testCaseExecutions = await Promise.all(files.map((v) => loadTestCase(config.loader)(v)))
+    let testFiles = await generateFileList(config.testPattern, projectPath)
+
+    if (filePath) {
+      const requestedFiles = await generateFileList(filePath, projectPath)
+      testFiles = requestedFiles.filter((f) => testFiles.includes(f))
+    }
+
+    const testCaseExecutions = await Promise.all([...testFiles].map((v) => loadTestCase(config.loader)(v)))
 
     return testCaseExecutions.flat()
   }
